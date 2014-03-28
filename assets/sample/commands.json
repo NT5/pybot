@@ -1,0 +1,127 @@
+{
+	"control": {
+		"active": true,
+		"ignore": [],
+		"mod": true
+	},
+	"google": {
+		"active": true,
+		"ignore": [],
+		"mod": false
+	},
+	"adduser": {
+		"active": true,
+		"ignore": [],
+		"mod": true
+	},
+	"youtube": {
+		"active": true,
+		"ignore": [],
+		"mod": false
+	},
+	"osu": {
+		"active": true,
+		"ignore": [],
+		"mod": false
+	},
+	"back": {
+		"active": true,
+		"ignore": [],
+		"mod": false
+	},
+	"weather": {
+		"active": true,
+		"ignore": [],
+		"mod": false
+	},
+	"animeflv": {
+		"active": true,
+		"ignore": [],
+		"mod": false
+	},
+	"8ball": {
+		"active": true,
+		"ignore": [],
+		"mod": false
+	},
+	"uptime": {
+		"active": true,
+		"ignore": [],
+		"mod": false
+	},
+	"stats": {
+		"active": true,
+		"ignore": [],
+		"mod": false
+	},
+	"afk": {
+		"active": true,
+		"ignore": [],
+		"mod": false
+	},
+	"away": {
+		"active": true,
+		"ignore": [],
+		"mod": false
+	},
+	"danbooru": {
+		"active": true,
+		"ignore": [],
+		"mod": false
+	},
+	"konachan": {
+		"active": true,
+		"ignore": [],
+		"mod": false
+	},
+	"quote": {
+		"active": true,
+		"ignore": [],
+		"mod": false
+	},
+	"setlang": {
+		"active": true,
+		"ignore": [],
+		"mod": false
+	},
+	"facebook": {
+		"active": true,
+		"ignore": [],
+		"mod": false
+	},
+	"wdanbooru": {
+		"active": true,
+		"ignore": [],
+		"mod": false
+	},
+	"redtube": {
+		"active": true,
+		"ignore": [],
+		"mod": false
+	},
+	"commands": {
+		"active": true,
+		"ignore": [],
+		"mod": false
+	},
+	"exe": {
+		"active": true,
+		"ignore": [],
+		"mod": true
+	},
+	"bot": {
+		"active": true,
+		"ignore": [],
+		"mod": false
+	},
+	"deluser": {
+		"active": true,
+		"ignore": [],
+		"mod": true
+	},
+	"vcmp": {
+		"active": true,
+		"ignore": [],
+		"mod": false
+	}
+}

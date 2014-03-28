@@ -1,0 +1,38 @@
+{
+	"redtube": {
+		"url": "http://api.redtube.com/",
+		"request": "%s?data=redtube.Videos.searchVideos&output=json&thumbsize=medium&search=%s"
+	},
+	"konachan": {
+		"url": "http://konachan.com/",
+		"request": "%spost.json?tags=%s"
+	},
+	"youtube": {
+		"url": "https://www.googleapis.com/youtube/v3/",
+		"request": "%ssearch?part=snippet&maxResults=1&q=%s&fields=items(id%%2Csnippet)%%2CpageInfo&key=%s",
+		"key": "youtube_api_key"
+	},
+	"danbooru": {
+		"url": "http://danbooru.donmai.us/",
+		"request": ["%sposts.json?tags=%s",
+		"%swiki_pages.json?search[title]=%s"]
+	},
+	"osu": {
+		"url": "https://osu.ppy.sh/api/",
+		"request": "%sget_user?k=%s&m=0&u=%s",
+		"key": "osu_api_key"
+	},
+	"weather": {
+		"url": "http://api.openweathermap.org/",
+		"request": "%sdata/2.5/weather?q=%s"
+	},
+	"facebook": {
+		"url": "https://graph.facebook.com/",
+		"request": ["%s%s",
+		"http://www.facebook.com/profile.php?id="]
+	},
+	"animeflv": {
+		"url": "http://animeflv.net/",
+		"request": "%sanimes/?buscar=%s"
+	}
+}

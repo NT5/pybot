@@ -1,0 +1,48 @@
+#Debug Files
+_backup/
+*.debug/
+*.debug.json
+*.debug.py
+*.debug.pyc
+*.debug.bat
+*.debug.sh
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.pyc
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+env/
+bin/
+build/
+develop-eggs/
+dist/
+eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.cache
+nosetests.xml
+coverage.xml
+
+
+# Rope
+.ropeproject
+
+# Sphinx documentation
+docs/_build

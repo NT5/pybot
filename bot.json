@@ -1,0 +1,21 @@
+{
+	"BanchoNet": {
+		"nick": "osunickname",
+		"token": "irc_tokken",
+		"channels": ["#announce"],
+		"server": "cho.ppy.sh",
+		"port": 6667
+	},
+	"OsunpSever": {
+		"port": 8090
+	},
+	"Bots": [{
+		"nick": "SampleBot",
+		"password": "password",
+		"channels": ["#channel1","#channel2"],
+		"server": "irc.server.com",
+		"sv_pass": "serverpassword",
+		"port": 6667,
+		"path": "assets/sample"
+	}]
+}

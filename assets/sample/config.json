@@ -1,0 +1,34 @@
+{
+	"mods": ["NT5"],
+	"assets_update": 0,
+	"listen_events": ["JOIN",
+	"PART",
+	"QUIT",
+	"MODE",
+	"NICK",
+	"KICK",
+	"TOPIC",
+	"PRIVMSG",
+	"353"],
+	"use_langs": {
+		"es_ES": [],
+		"en_US": []
+	},
+	"prefix": "!",
+	"bancho_listen": {
+		"BanchoBot": ["#channel1","#channel2"],
+		"NT5_projectd": ["#channel1"]
+	},
+	"vcmp_servers": {
+		
+	},
+	"osu_np": {
+		"NT5_projectd": ["#channel1"]
+	},
+	"user_stats": {
+		"ignore": [],
+		"enable": true,
+		"emoticonos": ":d|d:|e\\.e|e_e|n\\.n|n_n|:\\)|:\\(|t\\.t|t_t|<_<|>_>|>_<|<\\.<|>\\.>|>\\.<|\u00ac\u00ac|=d|d=|:s|\\._\\.|\\.-\\.|:_:|\\*-\\*|-\\.-|-_-|:o|:c|c:|xd|q\\.q|q_q|o\\.o|o_o|:3|<3|x\\.x|x_x|\\^\\^|\\^\\.\\^|\\^_\\^|=\\)|=\\(",
+		"clean_range": 2592000
+	}
+}
