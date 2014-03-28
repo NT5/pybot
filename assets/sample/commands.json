@@ -24,6 +24,11 @@
 		"ignore": [],
 		"mod": false
 	},
+	"twitch": {
+		"active": true,
+		"ignore": [],
+		"mod": false
+	},
 	"back": {
 		"active": true,
 		"ignore": [],

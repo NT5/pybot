@@ -306,6 +306,24 @@ def onCommand(self, chan, user, cmd, text):
 				q = random.choice( self.assets['quotes'] )
 				self.message( _("> \"%s\" 3- 10by13:1 %s 3-10 Saved13:1 %s") % ( q['text'], q['author'], util.getDHMS( int( int( time.time() ) - q['date'] )) ), chan )
 	
+	elif cmd == 'twitch':
+		if len(text) > 0: user = text.split(' ')[0]
+		try:
+			headers = { 'Accept': 'application/vnd.twitchtv.v3+json', 'Accept-Charset': 'utf-8' }
+			q = dict(
+				channel = util.json_request( self.assets['api']['twitch']['request'][0] % (self.assets['api']['twitch']['url'], user), headers ),
+				follows = util.json_request( self.assets['api']['twitch']['request'][1] % (self.assets['api']['twitch']['url'], user), headers ),
+				stream = util.json_request( self.assets['api']['twitch']['request'][2] % (self.assets['api']['twitch']['url'], user), headers )
+			)
+			if q['stream']['stream'] != "None": if_stream = _("Online 3- 14Current Views13:1 %s") % util.group( int ( q['stream']['stream']['viewers'] ) )
+			else: if_stream = _("Offline")
+			if q['follows']['_total'] > 0: if_follows = _("3- 14Last Follows13:1 %s") % q['follows']['follows'][0]['user']['display_name'].decode("utf-8")
+			else: if_follows = ""
+			MSG = ("10> 14Name13:1 %s 3- 14Link13:12 %s 3- 14Channel Views13:1 %s 3- 14Follows13:1 %s 3- 14Game13:1 %s 3- 14Title13:1 %s 3- 14Status13:1 %s %s") % ( q['channel']['display_name'].decode("utf-8"), q['channel']['url'].decode("utf-8"), util.group( int( q['channel']['views'] ) ), util.group( int( q['follows']['_total'] ) ), q['channel']['game'].decode("utf-8"), q['channel']['status'].decode("utf-8"), if_stream, if_follows )			
+			self.message(MSG, chan)
+		except Exception, e:
+			self.message(_("4Unknown User"), chan)
+	
 	elif cmd == 'vcmp':
 		if len( text ) > 0:
 			if util.gettext( text, 0 ) == 'add' and user in self.assets['config']['mods']:		
