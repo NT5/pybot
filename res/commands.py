@@ -267,7 +267,7 @@ def onCommand(self, chan, user, cmd, text):
 				if c_channel == 0:
 					self.message( _(">14 Anybody from this channel have away status"), chan )
 			else:
-				self.message( _("> 14Anybody from this channel have away status"), chan )
+				self.message( _(">14 Anybody from this channel have away status"), chan )
 	
 	elif cmd == 'quote':
 		if len( text ) > 0:
@@ -384,7 +384,7 @@ def onCommand(self, chan, user, cmd, text):
 		if len( text ) > 0:
 			try:
 				q = util.json_request( self.assets['api']['weather']['request'] % ( self.assets['api']['weather']['url'], urllib2.quote( text.encode("utf-8") ) ), {} )
-				self.message( _("11>1 %s %s 3-5 %s 3- 14Coord13:1 %s, %s 3- 14Temp13:1 %s14°c 3- 14Humidity13:1 %s%% 3- 14Pressure13:1 %s14hPa 3- 14Wind13:1 %s14mps").decode("utf-8") % ( q['name'], q['sys']['country'], q['weather'][0]['description'], str(q['coord']['lat']), str(q['coord']['lon']), str( ( int( q['main']['temp'] ) - 273.15 ) * 1.0000 ), str(q['main']['humidity']), util.group( int( q['main']['pressure'] ) ), str(q['wind']['speed']) ), chan )
+				self.message( _(u"11>1 %s %s 3-5 %s 3- 14Coord13:1 %s, %s 3- 14Temp13:1 %s14c 3- 14Humidity13:1 %s%% 3- 14Pressure13:1 %s14hPa 3- 14Wind13:1 %s14mps") % ( q['name'], q['sys']['country'], q['weather'][0]['description'], str(q['coord']['lat']), str(q['coord']['lon']), str( ( int( q['main']['temp'] ) - 273.15 ) * 1.0000 ), str(q['main']['humidity']), util.group( int( q['main']['pressure'] ) ), str(q['wind']['speed']) ), chan )
 			except Exception, e:
 				self.message( _("4Search failed"), chan )
 		else:

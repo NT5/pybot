@@ -5,18 +5,19 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Commands\n"
+"Project-Id-Version: commands\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-27 14:37-0600\n"
-"PO-Revision-Date: 2014-03-27 15:10-0600\n"
-"Last-Translator: Hendel <EMAIL@ADDRESS>\n"
-"Language-Team: Spanish <hendelporras@hotmail.com>\n"
+"POT-Creation-Date: 2014-03-28 13:39-0600\n"
+"PO-Revision-Date: 2014-03-28 13:48-0600\n"
+"Last-Translator: Hendel <hendelporras@hotmail.com>\n"
+"Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "Language: es_ES\n"
 "X-Generator: Poedit 1.6.4\n"
+"X-Poedit-SourceCharset: UTF-8\n"
 
 #: res/commands.py:35
 #, python-format
@@ -107,7 +108,7 @@ msgstr "> \"%s\" 4esta ahora apagado para todos los canales"
 #: res/commands.py:120
 #, python-format
 msgid "> \"%s\" 4are now turn on for all channels"
-msgstr "> \"%s\" 4ahora funciona en todos los canales"
+msgstr "> \"%s\" 4esta ahora apagado para todos los canales"
 
 #: res/commands.py:122 res/commands.py:144 res/commands.py:160
 msgid ">4 This is not allowed."
@@ -239,7 +240,7 @@ msgstr ">10 %s 14regreso de6:1 %s. 14tiempo13:1 %s"
 
 #: res/commands.py:241
 msgid "None"
-msgstr "Nada"
+msgstr "Ninguna"
 
 #: res/commands.py:243
 #, python-format
@@ -260,13 +261,9 @@ msgstr ">10 %s 3- 14razon13:1 %s 3- 14Tiempo13:1 %s"
 msgid ">10 %s 14not have away status."
 msgstr ">10 %s 14no esta ausente"
 
-#: res/commands.py:268
+#: res/commands.py:268 res/commands.py:270
 msgid ">14 Anybody from this channel have away status"
 msgstr ">14 Nadie de este canal esta ausente"
-
-#: res/commands.py:270
-msgid "> 14Anybody from this channel have away status"
-msgstr "> 14Nadie de este canal esta ausente"
 
 #: res/commands.py:279
 #, python-format
@@ -365,11 +362,11 @@ msgstr "10> 10Servidor6:1 %s 10Modo de juego6:1 %s 10Jugadores6:1 [%i
 #: res/commands.py:387
 #, python-format
 msgid ""
-"11>1 %s %s 3-5 %s 3- 14Coord13:1 %s, %s 3- 14Temp13:1 %s14Â°c 3- "
+"11>1 %s %s 3-5 %s 3- 14Coord13:1 %s, %s 3- 14Temp13:1 %s14c 3- "
 "14Humidity13:1 %s%% 3- 14Pressure13:1 %s14hPa 3- 14Wind13:1 %s14mps"
 msgstr ""
-"11>1 %s %s 3-5 %s 3- 14Coordenadas13:1 %s, %s 3- 14Temperatura13:1 %s14Â°c 3-"
-" 14Humedad13:1 %s%% 3- 14Presion13:1 %s14hPa 3- 14Viento13:1 %s14mps"
+"11>1 %s %s 3-5 %s 3- 14Coordenadas13:1 %s, %s 3- 14Temperatura13:1 %s14c 3- "
+"14Humedad13:1 %s%% 3- 14Presion13:1 %s14hPa 3- 14Viento13:1 %s14mps"
 
 #: res/commands.py:389 res/commands.py:504
 msgid "4Search failed"
