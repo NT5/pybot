@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: commands\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-03-28 13:39-0600\n"
-"PO-Revision-Date: 2014-03-28 13:48-0600\n"
+"PO-Revision-Date: 2014-03-28 13:55-0600\n"
 "Last-Translator: Hendel <hendelporras@hotmail.com>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
@@ -108,7 +108,7 @@ msgstr "> \"%s\" 4esta ahora apagado para todos los canales"
 #: res/commands.py:120
 #, python-format
 msgid "> \"%s\" 4are now turn on for all channels"
-msgstr "> \"%s\" 4esta ahora apagado para todos los canales"
+msgstr "> \"%s\" 4ahora funciona en todos los canales"
 
 #: res/commands.py:122 res/commands.py:144 res/commands.py:160
 msgid ">4 This is not allowed."
