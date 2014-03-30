@@ -9,6 +9,11 @@
 		"ignore": [],
 		"mod": false
 	},
+	"translate": {
+		"active": true,
+		"ignore": [],
+		"mod": false
+	},
 	"adduser": {
 		"active": true,
 		"ignore": [],

@@ -408,6 +408,18 @@ def onCommand(self, chan, user, cmd, text):
 		else:
 			self.message(_("7Syntax:1 %s%s <search>") % (prx, cmd), chan)
 			
+	elif cmd == 'translate':
+		if len( text ) > 0:
+			result, code, string = util.get_google_translate( text, 'en' )
+			if code == 'en' or result == False:
+				result, code, string = util.get_google_translate( text, 'es' )
+			if result:
+				self.message( _("13> 14Translate from1 %s13:1 \"%s\".") % (code, string), chan )
+			else:
+				self.message( _("13> 4Can't translate text1 %s") % (string), chan )
+		else:
+			self.message(_("7Syntax:1 %s%s <string>") % (prx, cmd), chan)
+	
 	elif cmd == 'facebook':
 		if len( text ) > 0:
 			search = str( urllib2.quote( text.encode("utf-8") ) )

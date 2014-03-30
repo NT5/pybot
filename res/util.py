@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -⁻- coding: UTF-8 -*-
-import re, platform, urllib2, json, time
+import re, platform, urllib2, urllib, json, time
 from HTMLParser import HTMLParser
 
 def getinfo(): return platform.uname()
@@ -102,6 +102,21 @@ def web_request( url, headers = { 'User-Agent' : 'Mozilla/4.0 (compatible; MSIE 
 	req = urllib2.Request(url, None, headers)
 	response = urllib2.urlopen( req )
 	return response.read()
+	
+def get_google_translate(text, translate_lang, source_lang=None):
+	if source_lang == None: source_lang= 'auto' 
+	params = urllib.urlencode({'client':'t', 'tl':translate_lang, 'q':text.encode('utf-8'), 'sl':source_lang})
+	http_headers = {"User-Agent":"Mozilla/4.0 (compatible; MSIE 5.5;Windows NT)"} 
+	request_object = urllib2.Request('http://translate.google.com/translate_a/t?'+params, None, http_headers)
+	try: 
+		response = urllib2.urlopen(request_object)
+		string = re.sub(',,,|,,',',"0",', response.read()) 
+		n = json.loads(string) 
+		translate_text = n[0][0][0] 
+		res_source_lang = n[2] 
+		return True, res_source_lang, translate_text 
+	except Exception, e:
+		return False, '', e
 
 def parsemodes(string):
 	# +ao-vh Shana Shana Eiko Eiko
