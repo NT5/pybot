@@ -324,6 +324,63 @@ def onCommand(self, chan, user, cmd, text):
 		except Exception, e:
 			self.message(_("4Unknown User"), chan)
 	
+	elif cmd == 'ctwitch':
+		if chan in self.assets['config']['single_channel']:
+			if user in self.assets['config']['single_channel'][chan]['twitch_control']['users']:
+				if len( text ) > 0:
+					param = util.gettext(text, 0)
+					def _dotwitch(send, data):
+						opener = urllib2.build_opener(urllib2.HTTPHandler)
+						request = urllib2.Request('%skraken/channels/%s' % (self.assets['api']['twitch']['url'], self.assets['config']['single_channel'][chan]['twitch_control']['api']['user']), data='channel[%s]=%s' % (data, send.replace(' ', '+')))
+						request.add_header('Accept', 'application/vnd.twitchtv.v3+json')
+						request.add_header('Authorization', 'OAuth %s' % self.assets['config']['single_channel'][chan]['twitch_control']['api']['key'])
+						request.get_method = lambda: 'PUT'
+						url = opener.open(request)
+					if param == 'game': 
+						if util.gettext(text, 1):
+							game = text[len(param)+1:]
+							try:
+								_dotwitch(urllib2.quote(game.encode('utf-8')), 'game')
+								self.message(_("10> 14Game was change to13:1 %s") % game, chan)
+							except Exception, e: self.message(_("4Error occurred :("), chan)
+						else:
+							self.message(_("7Syntax:1 %s%s <game/title> <parameter>") % (prx, cmd), chan)
+					elif param == 'title':
+						if util.gettext(text, 1):
+							title = text[len(param)+1:]
+							try:
+								_dotwitch(urllib2.quote(title.encode('utf-8')), 'status')
+								self.message(_("10> 14Title set to13:1 %s") % title, chan)
+							except Exception, e: self.message(_("4Error occurred :("), chan)
+						else:
+							self.message(_("7Syntax:1 %s%s <game/title> <parameter>") % (prx, cmd), chan)
+					else:
+						self.message(_("7Syntax:1 %s%s <game/title> <parameter>") % (prx, cmd), chan)
+				else:
+					self.message(_("7Syntax:1 %s%s <game/title> <parameter>") % (prx, cmd), chan)
+			else:
+				self.message(_("10> 4You do not have permission to use this command."), chan)
+		else:
+			self.message(_("10> 4This channel is not configured to use this command!"), chan)
+	
+	elif cmd == 'osurequest':
+		if chan in self.assets['config']['single_channel']:
+			if self.assets['config']['single_channel'][chan].get('osu_req') and self._banchonet:
+				if len( text ) > 0:
+					if self.assets['config']['single_channel'][chan]['osu_req']['active']:
+						if util.isOsuLink( text ):
+							for _user in self.assets['config']['single_channel'][chan]['osu_req']['users']:
+								self._banchonet.send("PRIVMSG %s :[REQUEST] [%s]: %s" % (_user, user, text))
+							self.message(_("10> 14Your request was sent13:1 \"%s\" 14to13:1 %s") % (text, ", ".join(self.assets['config']['single_channel'][chan]['osu_req']['users'])), chan)
+						else:
+							self.message(_("10> 4Invalid link!"), chan)
+					else:
+						self.message(_("10> 4The requests are turned off."), chan)
+				else:
+					self.message(_("7Syntax:1 %s%s <osu link>") % (prx, cmd), chan)
+		else:
+			self.message(_("10> 4This channel is not configured to use this command!"), chan)
+	
 	elif cmd == 'vcmp':
 		if len( text ) > 0:
 			if util.gettext( text, 0 ) == 'add' and user in self.assets['config']['mods']:		

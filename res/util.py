@@ -32,6 +32,10 @@ def GetMessageAction( text ):
 	except:
 		return None
 
+def isOsuLink( text ):
+	regex = re.compile("http://osu.ppy.sh/(?:b|s|p)", re.UNICODE)
+	return regex.search(text)
+
 def GetLevel( data ):
 	level = data[:1]
 	if level == "~" or level == "q": return 5

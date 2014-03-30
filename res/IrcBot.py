@@ -234,7 +234,7 @@ class IrcBot:
 				with open( Assets[ x ]['file'], "r+") as jsonFile:
 					data = json.load( jsonFile )
 					jsonFile.seek( 0 )
-					jsonFile.write( json.dumps( Assets[ x ]['var'] ) )
+					jsonFile.write( json.dumps( Assets[ x ]['var'], sort_keys=True, indent=4 ) )
 					jsonFile.truncate()
 			except:
 				pass

@@ -25,6 +25,21 @@
 	"osu_np": {
 		"NT5_projectd": ["#channel1"]
 	},
+	"single_channel": {
+        "#channel1": {
+            "osu_req": {
+                "active": true, 
+                "users": ["NT5_projectd"]
+            }, 
+            "twitch_control": {
+                "api": {
+                    "key": "twitch_api_key", 
+                    "user": "twitch_user_name"
+                }, 
+                "users": ["NT5"]
+            }
+        }
+    }, 
 	"user_stats": {
 		"ignore": [],
 		"enable": true,

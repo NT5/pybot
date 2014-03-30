@@ -29,11 +29,21 @@
 		"ignore": [],
 		"mod": false
 	},
-	"twitch": {
+	"osurequest": {
 		"active": true,
 		"ignore": [],
 		"mod": false
 	},
+	"twitch": {
+		"active": true,
+		"ignore": [],
+		"mod": false
+	}, 
+	"ctwitch": {
+		"active": true, 
+		"ignore": [], 
+		"mod": false
+    },
 	"back": {
 		"active": true,
 		"ignore": [],
