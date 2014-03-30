@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-28 13:39-0600\n"
+"POT-Creation-Date: 2014-03-30 08:53-0600\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -163,8 +163,8 @@ msgstr ""
 msgid "10>1 %s 14change your own language to1 %s"
 msgstr ""
 
-#: res/commands.py:210 res/commands.py:212 res/commands.py:379
-#: res/commands.py:381
+#: res/commands.py:210 res/commands.py:212 res/commands.py:397
+#: res/commands.py:399
 #, python-format
 msgid "7Syntax:1 %s%s %s"
 msgstr ""
@@ -296,132 +296,172 @@ msgstr ""
 msgid "7Syntax:1 %s%s <add/del/last/quoute id>"
 msgstr ""
 
+#: res/commands.py:318
+#, python-format
+msgid "Online 3- 14Current Views13:1 %s"
+msgstr ""
+
+#: res/commands.py:319
+msgid "Offline"
+msgstr ""
+
+#: res/commands.py:320
+#, python-format
+msgid "3- 14Last Follows13:1 %s"
+msgstr ""
+
 #: res/commands.py:322
+#, python-format
+msgid ""
+"10> 14Name13:1 %s 3- 14Link13:12 %s 3- 14Channel Views13:1 %s 3-"
+" 14Follows13:1 %s 3- 14Game13:1 %s 3- 14Title13:1 %s 3- 14Status13:1 %s %s"
+msgstr ""
+
+#: res/commands.py:325 res/commands.py:452
+msgid "4Unknown User"
+msgstr ""
+
+#: res/commands.py:340
 #, python-format
 msgid "10> 3Server1 \"%s\" 3has been saved,1 %s%s %s"
 msgstr ""
 
-#: res/commands.py:324
+#: res/commands.py:342
 #, python-format
 msgid "7Syntax:1 %s%s add <ServerName> <IP:PORT>"
 msgstr ""
 
-#: res/commands.py:329
+#: res/commands.py:347
 #, python-format
 msgid "10>1 \"%s\" 4is now removed from server list"
 msgstr ""
 
-#: res/commands.py:331
+#: res/commands.py:349
 #, python-format
 msgid "10>1 \"%s\" 4is unknown server to me"
 msgstr ""
 
-#: res/commands.py:333
+#: res/commands.py:351
 #, python-format
 msgid "7Syntax:1 %s%s del <ServerName>"
 msgstr ""
 
-#: res/commands.py:338
+#: res/commands.py:356
 msgid "10>4 No have any server saved."
 msgstr ""
 
-#: res/commands.py:352
+#: res/commands.py:370
 #, python-format
 msgid ""
 "10>1 %s 3- 10Server6:1 %s 10IP6:1 %s:%s 10Gamemode6:1 %s 10Players6:1 [%i/%"
 "i] %s"
 msgstr ""
 
-#: res/commands.py:352 res/commands.py:372
+#: res/commands.py:370 res/commands.py:390
 msgid "4Close"
 msgstr ""
 
-#: res/commands.py:352 res/commands.py:372
+#: res/commands.py:370 res/commands.py:390
 msgid "3Open"
 msgstr ""
 
-#: res/commands.py:356 res/commands.py:376
+#: res/commands.py:374 res/commands.py:394
 msgid "10>4 Unknown server"
 msgstr ""
 
-#: res/commands.py:372
+#: res/commands.py:390
 #, python-format
 msgid "10> 10Server6:1 %s 10Gamemode6:1 %s 10Players6:1 [%i/%i] %s"
 msgstr ""
 
-#: res/commands.py:387
+#: res/commands.py:405
 #, python-format
 msgid ""
 "11>1 %s %s 3-5 %s 3- 14Coord13:1 %s, %s 3- 14Temp13:1 %s14c 3-"
 " 14Humidity13:1 %s%% 3- 14Pressure13:1 %s14hPa 3- 14Wind13:1 %s14mps"
 msgstr ""
 
-#: res/commands.py:389 res/commands.py:504
+#: res/commands.py:407 res/commands.py:534
 msgid "4Search failed"
 msgstr ""
 
-#: res/commands.py:391 res/commands.py:436 res/commands.py:448
-#: res/commands.py:460 res/commands.py:474 res/commands.py:506
+#: res/commands.py:409 res/commands.py:466 res/commands.py:478
+#: res/commands.py:490 res/commands.py:504 res/commands.py:536
 #, python-format
 msgid "7Syntax:1 %s%s <search>"
 msgstr ""
 
-#: res/commands.py:399
+#: res/commands.py:417
+#, python-format
+msgid "13> 14Translate from1 %s13:1 \"%s\"."
+msgstr ""
+
+#: res/commands.py:419
+#, python-format
+msgid "13> 4Can't translate text1 %s"
+msgstr ""
+
+#: res/commands.py:421
+#, python-format
+msgid "7Syntax:1 %s%s <string>"
+msgstr ""
+
+#: res/commands.py:429
 #, python-format
 msgid "10Username6:1 %s"
 msgstr ""
 
-#: res/commands.py:400
+#: res/commands.py:430
 #, python-format
 msgid "10Name6:1 %s"
 msgstr ""
 
-#: res/commands.py:401
+#: res/commands.py:431
 #, python-format
 msgid "10Link6:1 http://www.facebook.com/profile.php?id=%s"
 msgstr ""
 
-#: res/commands.py:402
+#: res/commands.py:432
 #, python-format
 msgid "10Gender6:1 %s"
 msgstr ""
 
-#: res/commands.py:403
+#: res/commands.py:433
 #, python-format
 msgid "10Locale6:1 %s"
 msgstr ""
 
-#: res/commands.py:404
+#: res/commands.py:434
 #, python-format
 msgid "10About6:1 %s"
 msgstr ""
 
-#: res/commands.py:405
+#: res/commands.py:435
 #, python-format
 msgid "10Category6:1 %s"
 msgstr ""
 
-#: res/commands.py:406
+#: res/commands.py:436
 #, python-format
 msgid "10Likes6:1 %s"
 msgstr ""
 
-#: res/commands.py:407
+#: res/commands.py:437
 #, python-format
 msgid "10Talking About6:1 %s"
 msgstr ""
 
-#: res/commands.py:411
+#: res/commands.py:441
 #, python-format
 msgid "4Some of the aliases you requested do not exist:1 %s"
 msgstr ""
 
-#: res/commands.py:413
+#: res/commands.py:443
 #, python-format
 msgid "7Syntax:1 %s%s <user name/id>"
 msgstr ""
 
-#: res/commands.py:420
+#: res/commands.py:450
 #, python-format
 msgid ""
 "> 6%s 3- 14Country6: 1%s 3- 14Play Count6:1 %s 3- 14Ranked Score6:1 %s 3-"
@@ -429,45 +469,41 @@ msgid ""
 "f 3- 14Rank6:1 #%s"
 msgstr ""
 
-#: res/commands.py:422
-msgid "4Unknown User"
-msgstr ""
-
-#: res/commands.py:432
+#: res/commands.py:462
 #, python-format
 msgid "> 10Title6:1 %s 3- 10Link6: 12%s%s 3- 10Sinopsis6:1 %s"
 msgstr ""
 
-#: res/commands.py:434 res/commands.py:446 res/commands.py:458
-#: res/commands.py:472 res/commands.py:484 res/commands.py:494
+#: res/commands.py:464 res/commands.py:476 res/commands.py:488
+#: res/commands.py:502 res/commands.py:514 res/commands.py:524
 msgid "4Search Failed"
 msgstr ""
 
-#: res/commands.py:444 res/commands.py:456
+#: res/commands.py:474 res/commands.py:486
 #, python-format
 msgid "[%i/%i] 10Author13:1 %s 3- 10Link13:12 %s"
 msgstr ""
 
-#: res/commands.py:470
+#: res/commands.py:500
 #, python-format
 msgid ">14 %s... 3-12 %swiki_pages/%s10 by13:1 %s"
 msgstr ""
 
-#: res/commands.py:482
+#: res/commands.py:512
 #, python-format
 msgid ""
 "<4Red0,1Tube> 10Search13:1 %s 3- 10Title13:1 %s 3- 10Duration13:1 %s 3-"
 " 10Rating13:1 %s 3- 10Views13:1 %s 3- 10Link13:1 12%s 3- 10Image13:12 %s"
 msgstr ""
 
-#: res/commands.py:492
+#: res/commands.py:522
 #, python-format
 msgid ""
 ">1,0You0,4Tube< Title:4 %s - 10Description:4 %s - 10Link:2  http://www."
 "youtube.com/watch?v=%s - 10By:4 %s"
 msgstr ""
 
-#: res/commands.py:502
+#: res/commands.py:532
 #, python-format
 msgid "2G4o7o2g3l4e 10Search: 14%s 3- 14%s 3- 12%s"
 msgstr ""

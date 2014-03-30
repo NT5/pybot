@@ -319,7 +319,7 @@ def onCommand(self, chan, user, cmd, text):
 			else: if_stream = _("Offline")
 			if q['follows']['_total'] > 0: if_follows = _("3- 14Last Follows13:1 %s") % q['follows']['follows'][0]['user']['display_name'].decode("utf-8")
 			else: if_follows = ""
-			MSG = ("10> 14Name13:1 %s 3- 14Link13:12 %s 3- 14Channel Views13:1 %s 3- 14Follows13:1 %s 3- 14Game13:1 %s 3- 14Title13:1 %s 3- 14Status13:1 %s %s") % ( q['channel']['display_name'].decode("utf-8"), q['channel']['url'].decode("utf-8"), util.group( int( q['channel']['views'] ) ), util.group( int( q['follows']['_total'] ) ), q['channel']['game'].decode("utf-8"), q['channel']['status'].decode("utf-8"), if_stream, if_follows )			
+			MSG = (_("10> 14Name13:1 %s 3- 14Link13:12 %s 3- 14Channel Views13:1 %s 3- 14Follows13:1 %s 3- 14Game13:1 %s 3- 14Title13:1 %s 3- 14Status13:1 %s %s")) % ( q['channel']['display_name'].decode("utf-8"), q['channel']['url'].decode("utf-8"), util.group( int( q['channel']['views'] ) ), util.group( int( q['follows']['_total'] ) ), q['channel']['game'].decode("utf-8"), q['channel']['status'].replace('\n','').decode("utf-8"), if_stream, if_follows )			
 			self.message(MSG, chan)
 		except Exception, e:
 			self.message(_("4Unknown User"), chan)
