@@ -6,6 +6,9 @@ import util as util, sys, time, random, urllib2, re
 from google.search import GoogleSearch, SearchError
 from vcmpQuery import vcmpQuery
 
+from encryp import Encryp
+cryp = Encryp()
+
 #Translation directory and file
 DIR = "locale"
 APP = "commands"
@@ -107,6 +110,75 @@ def onModCommand(self, chan, user, cmd, text):
 						self.message(_('7Syntax:1 %s%s %s %s <user>') % ( prx, cmd, place, param ), chan )
 				else:
 					self.message(_('7Syntax:1 %s%s %s <del/clean/ignore>') % ( prx, cmd, place ), chan )
+			elif place == 'osu':
+				val_param = util.gettext( text, 3 )
+				par_value = util.gettext( text, 4 )
+				if (param == 'bancho') | (param == 'np'):
+					if param == 'bancho': _sec = 'bancho_listen'
+					else: _sec = 'osu_np'
+					if value:
+						if value == 'set':
+							if val_param:
+								if par_value and str(par_value)[0] == "#":
+									if self.assets['config'][_sec].get(val_param):
+										if par_value in self.assets['config'][_sec][val_param]:
+											self.message(_("10>1 \"%s\" 4is already on the list of this user") % par_value, chan)
+										else:
+											self.assets['config'][_sec][val_param].append(par_value)
+									else:
+										self.assets['config'][_sec].setdefault(val_param, [par_value])
+										if param == 'np':
+											self.notice("> %s Post KEY: %s" % (val_param, cryp.encode(val_param)), user)
+									self.message( _("10> 14Messages of1 %s 14are now send to13:1 %s") % ( val_param, ", ".join(self.assets['config'][_sec][val_param]) ), chan )
+								else:
+									self.message(_('7Syntax:1 %s%s %s %s %s %s <#channel>') % ( prx, cmd, place, param, value, val_param ), chan )
+							else:
+								self.message(_('7Syntax:1 %s%s %s %s %s <user>') % ( prx, cmd, place, param, value ), chan )
+						elif value == 'del':
+							if val_param:
+								if par_value and str(par_value)[0] == "#":
+									if self.assets['config'][_sec].get(val_param):
+										if par_value in self.assets['config'][_sec][val_param]:
+											if len(self.assets['config'][_sec][val_param]) > 1:
+												id = self.assets['config'][_sec][val_param].index(par_value)
+												self.assets['config'][_sec][val_param].pop(id)
+												self.message(_("10>1 \"%s\" 4deleting channel from1 %s") % (par_value, val_param), chan)
+											else:
+												self.assets['config'][_sec].pop( val_param )
+												self.message(_("10>1 \"%s\" 4delete from1 \"%s\"") % (val_param, _sec), chan)
+										else:
+											self.message( _("10>1 %s 4is unknown channel to me") % par_value, chan )
+									else:
+										self.message( _("> %s 4is unknown name to me") % val_param, chan )
+								else:
+									self.message(_('7Syntax:1 %s%s %s %s %s %s <#channel>') % ( prx, cmd, place, param, value, val_param ), chan )
+							else:
+								self.message(_('7Syntax:1 %s%s %s %s %s <user>') % ( prx, cmd, place, param, value ), chan )
+						elif value == 'remove':
+							if val_param:
+								if self.assets['config'][_sec].get(val_param) != None:
+									self.assets['config'][_sec].pop( val_param )
+									self.message(_("10>1 \"%s\" 4delete from1 \"%s\"") % (val_param, _sec), chan)
+								else:
+									self.message( _("> %s 4is unknown name to me") % val_param, chan )
+							else:
+								self.message(_('7Syntax:1 %s%s %s %s %s <user>') % ( prx, cmd, place, param, value ), chan )
+						elif value == 'get':
+							if val_param:
+								if self.assets['config'][_sec].get(val_param) != None:
+									self.message( _("10> 14Messages of1 %s 14are send to13:1 %s") % ( val_param, ", ".join(self.assets['config'][_sec][val_param]) ), chan )
+									if param == 'np':
+										self.notice("> %s Post KEY: %s" % (val_param, cryp.encode(val_param)), user)
+								else:
+									self.message( _("> %s 4is unknown name to me") % val_param, chan )
+							else:
+								self.message(_('10> 14All users of1 \"%s\"13:1 %s') % ( _sec, ", ".join(self.assets['config'][_sec]) ), chan )
+						else:
+							self.message(_('7Syntax:1 %s%s %s %s <set/del/remove/get>') % ( prx, cmd, place, param ), chan )
+					else:
+						self.message(_('7Syntax:1 %s%s %s %s <set/del/remove/get>') % ( prx, cmd, place, param ), chan )
+				else:
+					self.message(_('7Syntax:1 %s%s %s <bancho/np>') % ( prx, cmd, place ), chan )
 			elif place == 'commands':
 				if param == 'turn':
 					if value:
@@ -163,9 +235,9 @@ def onModCommand(self, chan, user, cmd, text):
 				else:
 					self.message(_('7Syntax:1 %s%s %s <turn/ignore/formod>') % ( prx, cmd, place ), chan )
 			else:
-				self.message(_('7Syntax:1 %s%s <stats/commands>') % (prx, cmd), chan )
+				self.message(_('7Syntax:1 %s%s <osu/stats/commands>') % (prx, cmd), chan )
 		else:
-			self.message(_('7Syntax:1 %s%s <stats/commands>') % (prx, cmd), chan )
+			self.message(_('7Syntax:1 %s%s <osu/stats/commands>') % (prx, cmd), chan )
 	
 	else:
 		onCommand(self, chan, user, cmd, text)
