@@ -113,7 +113,74 @@ def onModCommand(self, chan, user, cmd, text):
 			elif place == 'osu':
 				val_param = util.gettext( text, 3 )
 				par_value = util.gettext( text, 4 )
-				if (param == 'bancho') | (param == 'np'):
+				if param == 'request':
+					if value == 'set':
+						if val_param:
+							if self.assets['config']['single_channel'].get(chan):
+								if self.assets['config']['single_channel'][chan].get("osu_req"):
+									if val_param in self.assets['config']['single_channel'][chan]["osu_req"]['users']:
+										self.message(_("10>1 \"%s\" 4is already on the list of this channel") % val_param, chan)
+									else:
+										self.assets['config']['single_channel'][chan]["osu_req"]['users'].append(val_param)
+								else:
+									self.assets['config']['single_channel'][chan].setdefault( "osu_req", { "active": True, "users": [val_param] } )
+							else:
+								self.assets['config']['single_channel'].setdefault( chan, { "osu_req": { "active": True, "users": [val_param] } } )
+							self.message( _("10> 14Osu request set to1 %s 14and send to13:1 %s on BanchoNet") % ( chan, ", ".join(self.assets['config']['single_channel'][chan]['osu_req']['users']) ), chan )
+						else:
+							self.message(_('7Syntax:1 %s%s %s %s <user>') % ( prx, cmd, place, param ), chan )
+					elif value == 'del':
+						if val_param:
+							if self.assets['config']['single_channel'].get(chan):
+								if self.assets['config']['single_channel'][chan].get("osu_req"):
+									if val_param in self.assets['config']['single_channel'][chan]['osu_req']['users']:
+										if len(self.assets['config']['single_channel'][chan]['osu_req']['users']) > 1:
+											id = self.assets['config']['single_channel'][chan]['osu_req']['users'].index(val_param)
+											self.assets['config']['single_channel'][chan]['osu_req']['users'].pop(id)
+											self.message(_("10>1 \"%s\" 4deleting channel from1 %s") % (val_param, chan), chan)
+										else:
+											self.assets['config']['single_channel'][chan].pop('osu_req')
+											self.message(_("10>1 \"%s\" 4delete from1 \"%s\"") % (val_param, chan), chan)
+									else:
+										self.message( _("> %s 4is unknown name to me") % val_param, chan )
+								else:
+									self.message( _("10>1 %s 4is unknown channel to me") % chan, chan )
+							else:
+								self.message( _("10>1 %s 4is unknown channel to me") % chan, chan )
+						else:
+							self.message(_('7Syntax:1 %s%s %s %s <user>') % ( prx, cmd, place, param ), chan )
+					elif value == 'remove':
+						if self.assets['config']['single_channel'].get(chan):
+							if self.assets['config']['single_channel'][chan].get("osu_req"):
+								_users = self.assets['config']['single_channel'][chan]['osu_req']['users']
+								self.assets['config']['single_channel'][chan].pop('osu_req')
+								self.message(_("10>1 \"%s\" 4delete from1 \"%s\"") % (", ".join(_users), chan), chan)
+							else:
+								self.message( _("10>1 %s 4is unknown channel to me") % chan, chan )
+						else:
+							self.message( _("10>1 %s 4is unknown channel to me") % chan, chan )
+					elif value == 'turn':
+						if self.assets['config']['single_channel'].get(chan):
+							if self.assets['config']['single_channel'][chan].get("osu_req"):
+								_Ac = self.assets['config']['single_channel'][chan]['osu_req']['active']
+								if _Ac == True: self.assets['config']['single_channel'][chan]['osu_req']['active'] = False
+								else: self.assets['config']['single_channel'][chan]['osu_req']['active'] = True
+								self.message(_("10>14 Osu!request are now turned %s, in1 %s") % ( _("off") if _Ac == True else _("on"), chan ), chan)
+							else:
+								self.message( _("10>1 %s 4is unknown channel to me") % chan, chan )
+						else:
+							self.message( _("10>1 %s 4is unknown channel to me") % chan, chan )
+					elif value == 'get':
+						if self.assets['config']['single_channel'].get(chan):
+							if self.assets['config']['single_channel'][chan].get("osu_req"):
+								self.message(_("10> 13Osu!request14 on1 %s 14are send to1 %s") % ( chan, ", ".join(self.assets['config']['single_channel'][chan]['osu_req']['users'])), chan)
+							else:
+								self.message( _("10>1 %s 4is unknown channel to me") % chan, chan )
+						else:
+							self.message( _("10>1 %s 4is unknown channel to me") % chan, chan )
+					else:
+						self.message(_('7Syntax:1 %s%s %s <set/del/remove/turn/get>') % ( prx, cmd, place ), chan )
+				elif (param == 'bancho') | (param == 'np'):
 					if param == 'bancho': _sec = 'bancho_listen'
 					else: _sec = 'osu_np'
 					if value:
@@ -178,7 +245,7 @@ def onModCommand(self, chan, user, cmd, text):
 					else:
 						self.message(_('7Syntax:1 %s%s %s %s <set/del/remove/get>') % ( prx, cmd, place, param ), chan )
 				else:
-					self.message(_('7Syntax:1 %s%s %s <bancho/np>') % ( prx, cmd, place ), chan )
+					self.message(_('7Syntax:1 %s%s %s <bancho/np/request>') % ( prx, cmd, place ), chan )
 			elif place == 'commands':
 				if param == 'turn':
 					if value:
@@ -398,40 +465,43 @@ def onCommand(self, chan, user, cmd, text):
 	
 	elif cmd == 'ctwitch':
 		if chan in self.assets['config']['single_channel']:
-			if user in self.assets['config']['single_channel'][chan]['twitch_control']['users']:
-				if len( text ) > 0:
-					param = util.gettext(text, 0)
-					def _dotwitch(send, data):
-						opener = urllib2.build_opener(urllib2.HTTPHandler)
-						request = urllib2.Request('%skraken/channels/%s' % (self.assets['api']['twitch']['url'], self.assets['config']['single_channel'][chan]['twitch_control']['api']['user']), data='channel[%s]=%s' % (data, send.replace(' ', '+')))
-						request.add_header('Accept', 'application/vnd.twitchtv.v3+json')
-						request.add_header('Authorization', 'OAuth %s' % self.assets['config']['single_channel'][chan]['twitch_control']['api']['key'])
-						request.get_method = lambda: 'PUT'
-						url = opener.open(request)
-					if param == 'game': 
-						if util.gettext(text, 1):
-							game = text[len(param)+1:]
-							try:
-								_dotwitch(urllib2.quote(game.encode('utf-8')), 'game')
-								self.message(_("10> 14Game was change to13:1 %s") % game, chan)
-							except Exception, e: self.message(_("4Error occurred :("), chan)
-						else:
-							self.message(_("7Syntax:1 %s%s <game/title> <parameter>") % (prx, cmd), chan)
-					elif param == 'title':
-						if util.gettext(text, 1):
-							title = text[len(param)+1:]
-							try:
-								_dotwitch(urllib2.quote(title.encode('utf-8')), 'status')
-								self.message(_("10> 14Title set to13:1 %s") % title, chan)
-							except Exception, e: self.message(_("4Error occurred :("), chan)
+			if self.assets['config']['single_channel'].get('twitch_control'):
+				if user in self.assets['config']['single_channel'][chan]['twitch_control']['users']:
+					if len( text ) > 0:
+						param = util.gettext(text, 0)
+						def _dotwitch(send, data):
+							opener = urllib2.build_opener(urllib2.HTTPHandler)
+							request = urllib2.Request('%skraken/channels/%s' % (self.assets['api']['twitch']['url'], self.assets['config']['single_channel'][chan]['twitch_control']['api']['user']), data='channel[%s]=%s' % (data, send.replace(' ', '+')))
+							request.add_header('Accept', 'application/vnd.twitchtv.v3+json')
+							request.add_header('Authorization', 'OAuth %s' % self.assets['config']['single_channel'][chan]['twitch_control']['api']['key'])
+							request.get_method = lambda: 'PUT'
+							url = opener.open(request)
+						if param == 'game': 
+							if util.gettext(text, 1):
+								game = text[len(param)+1:]
+								try:
+									_dotwitch(urllib2.quote(game.encode('utf-8')), 'game')
+									self.message(_("10> 14Game was change to13:1 %s") % game, chan)
+								except Exception, e: self.message(_("4Error occurred :("), chan)
+							else:
+								self.message(_("7Syntax:1 %s%s <game/title> <parameter>") % (prx, cmd), chan)
+						elif param == 'title':
+							if util.gettext(text, 1):
+								title = text[len(param)+1:]
+								try:
+									_dotwitch(urllib2.quote(title.encode('utf-8')), 'status')
+									self.message(_("10> 14Title set to13:1 %s") % title, chan)
+								except Exception, e: self.message(_("4Error occurred :("), chan)
+							else:
+								self.message(_("7Syntax:1 %s%s <game/title> <parameter>") % (prx, cmd), chan)
 						else:
 							self.message(_("7Syntax:1 %s%s <game/title> <parameter>") % (prx, cmd), chan)
 					else:
 						self.message(_("7Syntax:1 %s%s <game/title> <parameter>") % (prx, cmd), chan)
 				else:
-					self.message(_("7Syntax:1 %s%s <game/title> <parameter>") % (prx, cmd), chan)
+					self.message(_("10> 4You do not have permission to use this command."), chan)
 			else:
-				self.message(_("10> 4You do not have permission to use this command."), chan)
+				self.message(_("10> 4This channel is not configured to use this command!"), chan)
 		else:
 			self.message(_("10> 4This channel is not configured to use this command!"), chan)
 	
@@ -450,6 +520,8 @@ def onCommand(self, chan, user, cmd, text):
 						self.message(_("10> 4The requests are turned off."), chan)
 				else:
 					self.message(_("7Syntax:1 %s%s <osu link>") % (prx, cmd), chan)
+			else:
+				self.message(_("10> 4This channel is not configured to use this command!"), chan)
 		else:
 			self.message(_("10> 4This channel is not configured to use this command!"), chan)
 	

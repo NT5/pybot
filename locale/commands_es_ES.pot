@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-03-31 13:38-0600\n"
+"POT-Creation-Date: 2014-03-31 17:46-0600\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -56,13 +56,14 @@ msgstr ""
 msgid "> %s 4is now delete from user stats."
 msgstr ""
 
-#: res/commands.py:79 res/commands.py:152 res/commands.py:163
-#: res/commands.py:173 res/commands.py:307
+#: res/commands.py:79 res/commands.py:145 res/commands.py:219
+#: res/commands.py:230 res/commands.py:240 res/commands.py:374
 #, python-format
 msgid "> %s 4is unknown name to me"
 msgstr ""
 
-#: res/commands.py:81 res/commands.py:110
+#: res/commands.py:81 res/commands.py:110 res/commands.py:131
+#: res/commands.py:151
 #, python-format
 msgid "7Syntax:1 %s%s %s %s <user>"
 msgstr ""
@@ -97,473 +98,510 @@ msgstr ""
 msgid "7Syntax:1 %s%s %s <del/clean/ignore>"
 msgstr ""
 
-#: res/commands.py:125
+#: res/commands.py:122
 #, python-format
-msgid "10>1 \"%s\" 4is already on the list of this user"
+msgid "10>1 \"%s\" 4is already on the list of this channel"
 msgstr ""
 
-#: res/commands.py:132
+#: res/commands.py:129
 #, python-format
-msgid "10> 14Messages of1 %s 14are now send to13:1 %s"
+msgid "10> 14Osu request set to1 %s 14and send to13:1 %s on BanchoNet"
 msgstr ""
 
-#: res/commands.py:134 res/commands.py:154
-#, python-format
-msgid "7Syntax:1 %s%s %s %s %s %s <#channel>"
-msgstr ""
-
-#: res/commands.py:136 res/commands.py:156 res/commands.py:165
-#, python-format
-msgid "7Syntax:1 %s%s %s %s %s <user>"
-msgstr ""
-
-#: res/commands.py:145
+#: res/commands.py:140 res/commands.py:212
 #, python-format
 msgid "10>1 \"%s\" 4deleting channel from1 %s"
 msgstr ""
 
-#: res/commands.py:148 res/commands.py:161
+#: res/commands.py:143 res/commands.py:157 res/commands.py:215
+#: res/commands.py:228
 #, python-format
 msgid "10>1 \"%s\" 4delete from1 \"%s\""
 msgstr ""
 
-#: res/commands.py:150
+#: res/commands.py:147 res/commands.py:149 res/commands.py:159
+#: res/commands.py:161 res/commands.py:170 res/commands.py:172
+#: res/commands.py:178 res/commands.py:180 res/commands.py:217
 #, python-format
 msgid "10>1 %s 4is unknown channel to me"
 msgstr ""
 
-#: res/commands.py:169
+#: res/commands.py:168
 #, python-format
-msgid "10> 14Messages of1 %s 14are send to13:1 %s"
+msgid "10>14 Osu!request are now turned %s, in1 %s"
 msgstr ""
 
-#: res/commands.py:175
-#, python-format
-msgid "10> 14All users of1 \"%s\"13:1 %s"
+#: res/commands.py:168
+msgid "off"
 msgstr ""
 
-#: res/commands.py:177 res/commands.py:179
-#, python-format
-msgid "7Syntax:1 %s%s %s %s <set/del/remove/get>"
+#: res/commands.py:168
+msgid "on"
 msgstr ""
 
-#: res/commands.py:181
+#: res/commands.py:176
 #, python-format
-msgid "7Syntax:1 %s%s %s <bancho/np>"
+msgid "10> 13Osu!request14 on1 %s 14are send to1 %s"
 msgstr ""
 
-#: res/commands.py:189
+#: res/commands.py:182
 #, python-format
-msgid "> \"%s\" 4are now turn off for all channels"
+msgid "7Syntax:1 %s%s %s <set/del/remove/turn/get>"
 msgstr ""
 
 #: res/commands.py:192
 #, python-format
-msgid "> \"%s\" 4are now turn on for all channels"
+msgid "10>1 \"%s\" 4is already on the list of this user"
 msgstr ""
 
-#: res/commands.py:194 res/commands.py:216 res/commands.py:232
-msgid ">4 This is not allowed."
-msgstr ""
-
-#: res/commands.py:196 res/commands.py:214 res/commands.py:230
+#: res/commands.py:199
 #, python-format
-msgid "> %s 4is unknow command to me"
+msgid "10> 14Messages of1 %s 14are now send to13:1 %s"
 msgstr ""
 
-#: res/commands.py:198 res/commands.py:218
+#: res/commands.py:201 res/commands.py:221
 #, python-format
-msgid "7Syntax:1 %s%s %s %s <command>"
+msgid "7Syntax:1 %s%s %s %s %s %s <#channel>"
 msgstr ""
 
-#: res/commands.py:205
+#: res/commands.py:203 res/commands.py:223 res/commands.py:232
 #, python-format
-msgid "> \"%s\" 4are now ignore on1 %s"
-msgstr ""
-
-#: res/commands.py:212
-#, python-format
-msgid "> \"%s\" 4are now listened on1 %s"
-msgstr ""
-
-#: res/commands.py:225
-#, python-format
-msgid ">4 Now1 \"%s\" 4is for all users"
-msgstr ""
-
-#: res/commands.py:228
-#, python-format
-msgid ">4 Now1 \"%s\" 4is only for bot users"
+msgid "7Syntax:1 %s%s %s %s %s <user>"
 msgstr ""
 
 #: res/commands.py:236
 #, python-format
+msgid "10> 14Messages of1 %s 14are send to13:1 %s"
+msgstr ""
+
+#: res/commands.py:242
+#, python-format
+msgid "10> 14All users of1 \"%s\"13:1 %s"
+msgstr ""
+
+#: res/commands.py:244 res/commands.py:246
+#, python-format
+msgid "7Syntax:1 %s%s %s %s <set/del/remove/get>"
+msgstr ""
+
+#: res/commands.py:248
+#, python-format
+msgid "7Syntax:1 %s%s %s <bancho/np/request>"
+msgstr ""
+
+#: res/commands.py:256
+#, python-format
+msgid "> \"%s\" 4are now turn off for all channels"
+msgstr ""
+
+#: res/commands.py:259
+#, python-format
+msgid "> \"%s\" 4are now turn on for all channels"
+msgstr ""
+
+#: res/commands.py:261 res/commands.py:283 res/commands.py:299
+msgid ">4 This is not allowed."
+msgstr ""
+
+#: res/commands.py:263 res/commands.py:281 res/commands.py:297
+#, python-format
+msgid "> %s 4is unknow command to me"
+msgstr ""
+
+#: res/commands.py:265 res/commands.py:285
+#, python-format
+msgid "7Syntax:1 %s%s %s %s <command>"
+msgstr ""
+
+#: res/commands.py:272
+#, python-format
+msgid "> \"%s\" 4are now ignore on1 %s"
+msgstr ""
+
+#: res/commands.py:279
+#, python-format
+msgid "> \"%s\" 4are now listened on1 %s"
+msgstr ""
+
+#: res/commands.py:292
+#, python-format
+msgid ">4 Now1 \"%s\" 4is for all users"
+msgstr ""
+
+#: res/commands.py:295
+#, python-format
+msgid ">4 Now1 \"%s\" 4is only for bot users"
+msgstr ""
+
+#: res/commands.py:303
+#, python-format
 msgid "7Syntax:1 %s%s %s <turn/ignore/formod>"
 msgstr ""
 
-#: res/commands.py:238 res/commands.py:240
+#: res/commands.py:305 res/commands.py:307
 #, python-format
 msgid "7Syntax:1 %s%s <osu/stats/commands>"
 msgstr ""
 
-#: res/commands.py:262
+#: res/commands.py:329
 msgid ">> No Commands Found."
 msgstr ""
 
-#: res/commands.py:268
+#: res/commands.py:335
 msgid "10>4 You already using this language"
 msgstr ""
 
-#: res/commands.py:280
+#: res/commands.py:347
 #, python-format
 msgid "10>1 %s 14change your own language to1 %s"
 msgstr ""
 
-#: res/commands.py:282 res/commands.py:284 res/commands.py:526
-#: res/commands.py:528
+#: res/commands.py:349 res/commands.py:351 res/commands.py:598
+#: res/commands.py:600
 #, python-format
 msgid "7Syntax:1 %s%s %s"
 msgstr ""
 
-#: res/commands.py:288
+#: res/commands.py:355
 #, python-format
 msgid ""
 "11>1 %s v%s by NT5 3-1 Python %s 3-1 System6:1 %s %s %s 3-1 Uptime6:1 %s 3-1 "
 "Channels6:1 %i"
 msgstr ""
 
-#: res/commands.py:291
+#: res/commands.py:358
 #, python-format
 msgid "11>1 %s Uptime: %s"
 msgstr ""
 
-#: res/commands.py:295
+#: res/commands.py:362
 msgid "The answer lies in your heart"
 msgstr ""
 
-#: res/commands.py:295
+#: res/commands.py:362
 msgid "I do not know"
 msgstr ""
 
-#: res/commands.py:295
+#: res/commands.py:362
 msgid "Almost certainly"
 msgstr ""
 
-#: res/commands.py:295
+#: res/commands.py:362
 msgid "No"
 msgstr ""
 
-#: res/commands.py:295
+#: res/commands.py:362
 msgid "Instead, ask why you need to ask"
 msgstr ""
 
-#: res/commands.py:295
+#: res/commands.py:362
 msgid "Go away. I do not wish to answer at this time"
 msgstr ""
 
-#: res/commands.py:295
+#: res/commands.py:362
 msgid "Time will only tell"
 msgstr ""
 
-#: res/commands.py:298
+#: res/commands.py:365
 #, python-format
 msgid "7Syntax:1 %s%s <question>"
 msgstr ""
 
-#: res/commands.py:305
+#: res/commands.py:372
 #, python-format
 msgid ""
 "> %s 10Stats ago13:1 %s 3-10 Letters13:1 %s 10Words13:1 %s 10Lines13:1 %"
 "s 10Smiles13:1 %s 3-1 \"%s...\""
 msgstr ""
 
-#: res/commands.py:305
+#: res/commands.py:372
 msgid "now"
 msgstr ""
 
-#: res/commands.py:311 res/commands.py:319
+#: res/commands.py:378 res/commands.py:386
 #, python-format
 msgid ">10 %s 14is back from6:1 %s. 14Time13:1 %s"
 msgstr ""
 
-#: res/commands.py:313
+#: res/commands.py:380
 msgid "None"
 msgstr ""
 
-#: res/commands.py:315
+#: res/commands.py:382
 #, python-format
 msgid ">10 %s 14is now away, reason13:1 %s"
 msgstr ""
 
-#: res/commands.py:322
+#: res/commands.py:389
 msgid "> 4Error 3- 14You not have away status."
 msgstr ""
 
-#: res/commands.py:329 res/commands.py:338
+#: res/commands.py:396 res/commands.py:405
 #, python-format
 msgid ">10 %s 3- 14reason13:1 %s 3- 14Time13:1 %s"
 msgstr ""
 
-#: res/commands.py:331
+#: res/commands.py:398
 #, python-format
 msgid ">10 %s 14not have away status."
 msgstr ""
 
-#: res/commands.py:340 res/commands.py:342
+#: res/commands.py:407 res/commands.py:409
 msgid ">14 Anybody from this channel have away status"
 msgstr ""
 
-#: res/commands.py:351
+#: res/commands.py:418
 #, python-format
 msgid "> 10Quote [%i/%i]1 \"%s\" 3- 10by13:1 %s 3- 10Saved13:1 %s"
 msgstr ""
 
-#: res/commands.py:353 res/commands.py:371
+#: res/commands.py:420 res/commands.py:438
 #, python-format
 msgid ">4 %i is unknown quote to me."
 msgstr ""
 
-#: res/commands.py:357 res/commands.py:379
+#: res/commands.py:424 res/commands.py:446
 #, python-format
 msgid "> \"%s\" 3- 10by13:1 %s 3-10 Saved13:1 %s"
 msgstr ""
 
-#: res/commands.py:359
+#: res/commands.py:426
 msgid ">4 No quotes found."
 msgstr ""
 
-#: res/commands.py:363
+#: res/commands.py:430
 #, python-format
 msgid ">10 Quote [%i/%i] 3-1 \"%s\" 3-10 by13:1 %s"
 msgstr ""
 
-#: res/commands.py:365
+#: res/commands.py:432
 #, python-format
 msgid "> 4Can't save quote. reason: %s "
 msgstr ""
 
-#: res/commands.py:368
+#: res/commands.py:435
 #, python-format
 msgid "> 10Quote1 \"%s\" 10id13:1 %i 10is now delete from bot."
 msgstr ""
 
-#: res/commands.py:373 res/commands.py:376
+#: res/commands.py:440 res/commands.py:443
 #, python-format
 msgid "7Syntax:1 %s%s <add/del/last/quoute id>"
 msgstr ""
 
-#: res/commands.py:390
+#: res/commands.py:457
 #, python-format
 msgid "Online 3- 14Current Views13:1 %s"
 msgstr ""
 
-#: res/commands.py:391
+#: res/commands.py:458
 msgid "Offline"
 msgstr ""
 
-#: res/commands.py:392
+#: res/commands.py:459
 #, python-format
 msgid "3- 14Last Follows13:1 %s"
 msgstr ""
 
-#: res/commands.py:394
+#: res/commands.py:461
 #, python-format
 msgid ""
 "10> 14Name13:1 %s 3- 14Link13:12 %s 3- 14Channel Views13:1 %s 3-"
 " 14Follows13:1 %s 3- 14Game13:1 %s 3- 14Title13:1 %s 3- 14Status13:1 %s %s"
 msgstr ""
 
-#: res/commands.py:397 res/commands.py:581
+#: res/commands.py:464 res/commands.py:653
 msgid "4Unknown User"
 msgstr ""
 
-#: res/commands.py:416
+#: res/commands.py:484
 #, python-format
 msgid "10> 14Game was change to13:1 %s"
 msgstr ""
 
-#: res/commands.py:417 res/commands.py:426
+#: res/commands.py:485 res/commands.py:494
 msgid "4Error occurred :("
 msgstr ""
 
-#: res/commands.py:419 res/commands.py:428 res/commands.py:430
-#: res/commands.py:432
+#: res/commands.py:487 res/commands.py:496 res/commands.py:498
+#: res/commands.py:500
 #, python-format
 msgid "7Syntax:1 %s%s <game/title> <parameter>"
 msgstr ""
 
-#: res/commands.py:425
+#: res/commands.py:493
 #, python-format
 msgid "10> 14Title set to13:1 %s"
 msgstr ""
 
-#: res/commands.py:434
+#: res/commands.py:502
 msgid "10> 4You do not have permission to use this command."
 msgstr ""
 
-#: res/commands.py:436 res/commands.py:454
+#: res/commands.py:504 res/commands.py:506 res/commands.py:524
+#: res/commands.py:526
 msgid "10> 4This channel is not configured to use this command!"
 msgstr ""
 
-#: res/commands.py:446
+#: res/commands.py:516
 #, python-format
 msgid "10> 14Your request was sent13:1 \"%s\" 14to13:1 %s"
 msgstr ""
 
-#: res/commands.py:448
+#: res/commands.py:518
 msgid "10> 4Invalid link!"
 msgstr ""
 
-#: res/commands.py:450
+#: res/commands.py:520
 msgid "10> 4The requests are turned off."
 msgstr ""
 
-#: res/commands.py:452
+#: res/commands.py:522
 #, python-format
 msgid "7Syntax:1 %s%s <osu link>"
 msgstr ""
 
-#: res/commands.py:469
+#: res/commands.py:541
 #, python-format
 msgid "10> 3Server1 \"%s\" 3has been saved,1 %s%s %s"
 msgstr ""
 
-#: res/commands.py:471
+#: res/commands.py:543
 #, python-format
 msgid "7Syntax:1 %s%s add <ServerName> <IP:PORT>"
 msgstr ""
 
-#: res/commands.py:476
+#: res/commands.py:548
 #, python-format
 msgid "10>1 \"%s\" 4is now removed from server list"
 msgstr ""
 
-#: res/commands.py:478
+#: res/commands.py:550
 #, python-format
 msgid "10>1 \"%s\" 4is unknown server to me"
 msgstr ""
 
-#: res/commands.py:480
+#: res/commands.py:552
 #, python-format
 msgid "7Syntax:1 %s%s del <ServerName>"
 msgstr ""
 
-#: res/commands.py:485
+#: res/commands.py:557
 msgid "10>4 No have any server saved."
 msgstr ""
 
-#: res/commands.py:499
+#: res/commands.py:571
 #, python-format
 msgid ""
 "10>1 %s 3- 10Server6:1 %s 10IP6:1 %s:%s 10Gamemode6:1 %s 10Players6:1 [%i/%"
 "i] %s"
 msgstr ""
 
-#: res/commands.py:499 res/commands.py:519
+#: res/commands.py:571 res/commands.py:591
 msgid "4Close"
 msgstr ""
 
-#: res/commands.py:499 res/commands.py:519
+#: res/commands.py:571 res/commands.py:591
 msgid "3Open"
 msgstr ""
 
-#: res/commands.py:503 res/commands.py:523
+#: res/commands.py:575 res/commands.py:595
 msgid "10>4 Unknown server"
 msgstr ""
 
-#: res/commands.py:519
+#: res/commands.py:591
 #, python-format
 msgid "10> 10Server6:1 %s 10Gamemode6:1 %s 10Players6:1 [%i/%i] %s"
 msgstr ""
 
-#: res/commands.py:534
+#: res/commands.py:606
 #, python-format
 msgid ""
 "11>1 %s %s 3-5 %s 3- 14Coord13:1 %s, %s 3- 14Temp13:1 %s14c 3-"
 " 14Humidity13:1 %s%% 3- 14Pressure13:1 %s14hPa 3- 14Wind13:1 %s14mps"
 msgstr ""
 
-#: res/commands.py:536 res/commands.py:663
+#: res/commands.py:608 res/commands.py:735
 msgid "4Search failed"
 msgstr ""
 
-#: res/commands.py:538 res/commands.py:595 res/commands.py:607
-#: res/commands.py:619 res/commands.py:633 res/commands.py:665
+#: res/commands.py:610 res/commands.py:667 res/commands.py:679
+#: res/commands.py:691 res/commands.py:705 res/commands.py:737
 #, python-format
 msgid "7Syntax:1 %s%s <search>"
 msgstr ""
 
-#: res/commands.py:546
+#: res/commands.py:618
 #, python-format
 msgid "13> 14Translate from1 %s13:1 \"%s\"."
 msgstr ""
 
-#: res/commands.py:548
+#: res/commands.py:620
 #, python-format
 msgid "13> 4Can't translate text1 %s"
 msgstr ""
 
-#: res/commands.py:550
+#: res/commands.py:622
 #, python-format
 msgid "7Syntax:1 %s%s <string>"
 msgstr ""
 
-#: res/commands.py:558
+#: res/commands.py:630
 #, python-format
 msgid "10Username6:1 %s"
 msgstr ""
 
-#: res/commands.py:559
+#: res/commands.py:631
 #, python-format
 msgid "10Name6:1 %s"
 msgstr ""
 
-#: res/commands.py:560
+#: res/commands.py:632
 #, python-format
 msgid "10Link6:1 http://www.facebook.com/profile.php?id=%s"
 msgstr ""
 
-#: res/commands.py:561
+#: res/commands.py:633
 #, python-format
 msgid "10Gender6:1 %s"
 msgstr ""
 
-#: res/commands.py:562
+#: res/commands.py:634
 #, python-format
 msgid "10Locale6:1 %s"
 msgstr ""
 
-#: res/commands.py:563
+#: res/commands.py:635
 #, python-format
 msgid "10About6:1 %s"
 msgstr ""
 
-#: res/commands.py:564
+#: res/commands.py:636
 #, python-format
 msgid "10Category6:1 %s"
 msgstr ""
 
-#: res/commands.py:565
+#: res/commands.py:637
 #, python-format
 msgid "10Likes6:1 %s"
 msgstr ""
 
-#: res/commands.py:566
+#: res/commands.py:638
 #, python-format
 msgid "10Talking About6:1 %s"
 msgstr ""
 
-#: res/commands.py:570
+#: res/commands.py:642
 #, python-format
 msgid "4Some of the aliases you requested do not exist:1 %s"
 msgstr ""
 
-#: res/commands.py:572
+#: res/commands.py:644
 #, python-format
 msgid "7Syntax:1 %s%s <user name/id>"
 msgstr ""
 
-#: res/commands.py:579
+#: res/commands.py:651
 #, python-format
 msgid ""
 "> 6%s 3- 14Country6: 1%s 3- 14Play Count6:1 %s 3- 14Ranked Score6:1 %s 3-"
@@ -571,41 +609,41 @@ msgid ""
 "f 3- 14Rank6:1 #%s"
 msgstr ""
 
-#: res/commands.py:591
+#: res/commands.py:663
 #, python-format
 msgid "> 10Title6:1 %s 3- 10Link6: 12%s%s 3- 10Sinopsis6:1 %s"
 msgstr ""
 
-#: res/commands.py:593 res/commands.py:605 res/commands.py:617
-#: res/commands.py:631 res/commands.py:643 res/commands.py:653
+#: res/commands.py:665 res/commands.py:677 res/commands.py:689
+#: res/commands.py:703 res/commands.py:715 res/commands.py:725
 msgid "4Search Failed"
 msgstr ""
 
-#: res/commands.py:603 res/commands.py:615
+#: res/commands.py:675 res/commands.py:687
 #, python-format
 msgid "[%i/%i] 10Author13:1 %s 3- 10Link13:12 %s"
 msgstr ""
 
-#: res/commands.py:629
+#: res/commands.py:701
 #, python-format
 msgid ">14 %s... 3-12 %swiki_pages/%s10 by13:1 %s"
 msgstr ""
 
-#: res/commands.py:641
+#: res/commands.py:713
 #, python-format
 msgid ""
 "<4Red0,1Tube> 10Search13:1 %s 3- 10Title13:1 %s 3- 10Duration13:1 %s 3-"
 " 10Rating13:1 %s 3- 10Views13:1 %s 3- 10Link13:1 12%s 3- 10Image13:12 %s"
 msgstr ""
 
-#: res/commands.py:651
+#: res/commands.py:723
 #, python-format
 msgid ""
 ">1,0You0,4Tube< Title:4 %s - 10Description:4 %s - 10Link:2  http://www."
 "youtube.com/watch?v=%s - 10By:4 %s"
 msgstr ""
 
-#: res/commands.py:661
+#: res/commands.py:733
 #, python-format
 msgid "2G4o7o2g3l4e 10Search: 14%s 3- 14%s 3- 12%s"
 msgstr ""
