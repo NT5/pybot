@@ -465,7 +465,7 @@ def onCommand(self, chan, user, cmd, text):
 	
 	elif cmd == 'ctwitch':
 		if chan in self.assets['config']['single_channel']:
-			if self.assets['config']['single_channel'].get('twitch_control'):
+			if self.assets['config']['single_channel'][chan].get('twitch_control'):
 				if user in self.assets['config']['single_channel'][chan]['twitch_control']['users']:
 					if len( text ) > 0:
 						param = util.gettext(text, 0)
