@@ -25,6 +25,7 @@ class IrcBot:
 		self.assets = {}
 		self.names = {}
 		self.idle = { "chan": { } }
+		self.automsg = {}
 		self.uptime = int( time.time() )
 		self.LoadAssets()
 		self._banchonet = None
@@ -63,8 +64,8 @@ class IrcBot:
 		except: event = None
 		if data.split(' ')[0] == 'PING':
 			self.send('PONG %s' % self.server)
+			#Maintenance 1h 30m
 			if ( int( time.time() ) - self.assets['config']['assets_update'] ) >= 5400:
-				#Maintenance 1h 3m
 				self.UpdateAssets()
 				gc.collect()
 		if event == '001':
@@ -73,6 +74,7 @@ class IrcBot:
 			self.c_print("%s[+] Channel Join Complete" % COLOR['yellow'])
 			self.send('PRIVMSG NickServ IDENTIFY %s' % self.password )
 			self.send('MODE %s +B' % self.nick)
+			util.AutoMessages(self, False)
 		if event in self.assets['config']['listen_events']:
 			user = util.GetNick( data )
 			chan = util.GetChannel( data )
@@ -82,6 +84,7 @@ class IrcBot:
 					self.c_print( "%s%-s has joined %s" % ( COLOR['green'], user, chan ) )
 					if self.names.get(chan): self.names[chan].setdefault(user, { "level": 0 })
 					if self.idle['chan'].get(chan): self.idle['chan'][chan] = int( time.time() )
+					self._doJoin(chan, user)
 				else:
 					self.idle['chan'].setdefault(chan, int( time.time() ))
 					self.names.setdefault( chan, [] )
@@ -94,13 +97,15 @@ class IrcBot:
 				else:
 					if self.names.get(chan): self.names[chan].pop(user)
 					if self.idle['chan'].get(chan): self.idle['chan'][chan] = int( time.time() )
+					self._doPart(chan, user)
 			if event == 'NICK':
 				newnick = data.split(" ")[2]
 				self.c_print("%s%-s is now known as %s" % ( COLOR['green'], user, newnick ) )
+				self._doNick(user, newnick)
 				if user == self.nick: self.nick = newnick
-				if self.idle['chan'].get(chan): self.idle['chan'][chan] = int(time.time())
 				tmp_ = self.names
 				for chan in list(tmp_):
+					if self.idle['chan'].get(chan): self.idle['chan'][chan] = int(time.time())
 					for name in list(tmp_[chan]):
 						if name == user:
 							lvl = self.names[chan][user]['level']
@@ -110,6 +115,7 @@ class IrcBot:
 				chan = data.split(" ")[2]
 				kicked = data.split(" ")[3]
 				self.c_print("%s[%s] %s was kicked by %s" % ( COLOR['green'], chan, kicked, user ) )
+				self._doKick(chan, kicked)
 				if kicked == self.nick: self.Join( chan )
 				if self.idle['chan'].get(chan): self.idle['chan'][chan] = int(time.time())
 				self.names[chan].pop(user)
@@ -121,10 +127,11 @@ class IrcBot:
 				if self.idle['chan'].get(chan): self.idle['chan'][chan] = int(time.time())
 				self.send("NAMES :%s" % chan)
 			if event == 'QUIT':
-				if self.idle['chan'].get(chan): self.idle['chan'][chan] = int(time.time())
+				self._doQuit(user)
 				self.c_print( "%s%-s (Quit)" % ( COLOR['blue'], user ) )
 				tmp_ = self.names
 				for chan in list(tmp_):
+					if self.idle['chan'].get(chan): self.idle['chan'][chan] = int(time.time())
 					for name in list(tmp_[chan]):
 						if name == user:
 							self.names[chan].pop(user)
@@ -190,6 +197,21 @@ class IrcBot:
 		try: sys.stdout.write( msg )
 		except: sys.stdout.write( msg.encode("UTF-8") )
 		sys.stdout.write( Style.RESET_ALL )
+	
+	#Editable
+	def _doJoin(self, chan, user):
+		if self.assets['config']['single_channel'].get(chan):
+			if self.assets['config']['single_channel'][chan].get("welcome_msg"):
+				try: self.message(self.assets['config']['single_channel'][chan]['welcome_msg'].format(user = user, chan = chan), chan)
+				except: self.message(self.assets['config']['single_channel'][chan]['welcome_msg'], chan)
+	def _doPart(self, chan, user):
+		return
+	def _doQuit(self, user, reason = ""):
+		return
+	def _doKick(self, chan, user, reason = ""):
+		return
+	def _doNick(self, user, newuser):
+		return
 	
 	def Join(self, chan):
 		self.send("JOIN %s" % chan)

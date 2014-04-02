@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -⁻- coding: UTF-8 -*-
-import re, platform, urllib2, urllib, json, time
+import re, platform, urllib2, urllib, json, time, random, threading
 from HTMLParser import HTMLParser
 
 def getinfo(): return platform.uname()
@@ -16,6 +16,19 @@ def WordStats( user, text, emoticons = ""):
 	words = ( len( text.split( " " ) ) + user['words'] )
 	lines = ( user['lines'] + 1 )
 	return { "letters": letters, "words": words, "lines": lines, "smiles": smiles, "seen": int( time.time() ), "quote": text[:50] }
+	
+	
+def AutoMessages(self, show = True):
+	_count = 0
+	for chan in self.assets['config']['single_channel']:
+		if self.assets['config']['single_channel'][chan].get('auto_msgs'):
+			if self.assets['config']['single_channel'][chan]['auto_msgs']['active']:
+				_count = _count + 1
+				if show and int( int( time.time() ) - self.idle['chan'][chan] ) <= 1800:
+					self.message("10>14 %s" % random.choice(self.assets['config']['single_channel'][chan]['auto_msgs']['messages']), chan)
+	timer = threading.Timer(1500, AutoMessages, [self])
+	if _count >= 1: timer.start()
+	else: timer.cancel()
 
 def NoHTML( text ):
 	parser = HTMLParser()

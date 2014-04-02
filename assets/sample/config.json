@@ -37,6 +37,13 @@
                     "user": "twitch_user_name"
                 }, 
                 "users": ["NT5"]
+            },
+			"welcome_msg": "Hello! {user} welcome to {chan}!",
+			"auto_msgs": {
+                "active": true, 
+                "messages": [
+                    "Hello this a test auto-message!"
+                ]
             }
         }
     }, 

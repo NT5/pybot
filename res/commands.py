@@ -140,6 +140,8 @@ def onModCommand(self, chan, user, cmd, text):
 											self.message(_("10>1 \"%s\" 4deleting channel from1 %s") % (val_param, chan), chan)
 										else:
 											self.assets['config']['single_channel'][chan].pop('osu_req')
+											if len(self.assets['config']['single_channel'][chan]) == 0:
+												self.assets['config']['single_channel'].pop(chan)
 											self.message(_("10>1 \"%s\" 4delete from1 \"%s\"") % (val_param, chan), chan)
 									else:
 										self.message( _("> %s 4is unknown name to me") % val_param, chan )
@@ -154,6 +156,8 @@ def onModCommand(self, chan, user, cmd, text):
 							if self.assets['config']['single_channel'][chan].get("osu_req"):
 								_users = self.assets['config']['single_channel'][chan]['osu_req']['users']
 								self.assets['config']['single_channel'][chan].pop('osu_req')
+								if len(self.assets['config']['single_channel'][chan]) == 0:
+									self.assets['config']['single_channel'].pop(chan)
 								self.message(_("10>1 \"%s\" 4delete from1 \"%s\"") % (", ".join(_users), chan), chan)
 							else:
 								self.message( _("10>1 %s 4is unknown channel to me") % chan, chan )
@@ -212,6 +216,8 @@ def onModCommand(self, chan, user, cmd, text):
 												self.message(_("10>1 \"%s\" 4deleting channel from1 %s") % (par_value, val_param), chan)
 											else:
 												self.assets['config'][_sec].pop( val_param )
+												if len(self.assets['config']['single_channel'][chan]) == 0:
+													self.assets['config']['single_channel'].pop(chan)
 												self.message(_("10>1 \"%s\" 4delete from1 \"%s\"") % (val_param, _sec), chan)
 										else:
 											self.message( _("10>1 %s 4is unknown channel to me") % par_value, chan )
@@ -225,6 +231,8 @@ def onModCommand(self, chan, user, cmd, text):
 							if val_param:
 								if self.assets['config'][_sec].get(val_param) != None:
 									self.assets['config'][_sec].pop( val_param )
+									if len(self.assets['config']['single_channel'][chan]) == 0:
+										self.assets['config']['single_channel'].pop(chan)
 									self.message(_("10>1 \"%s\" 4delete from1 \"%s\"") % (val_param, _sec), chan)
 								else:
 									self.message( _("> %s 4is unknown name to me") % val_param, chan )
@@ -246,6 +254,132 @@ def onModCommand(self, chan, user, cmd, text):
 						self.message(_('7Syntax:1 %s%s %s %s <set/del/remove/get>') % ( prx, cmd, place, param ), chan )
 				else:
 					self.message(_('7Syntax:1 %s%s %s <bancho/np/request>') % ( prx, cmd, place ), chan )
+			elif place == 'channel':
+				if param == 'welcome':
+					if value:
+						if value == 'set':
+							_message = " ".join(text.split(' ')[3:])
+							if len(_message) > 0:
+								try: _message = _message.decode("unicode-escape")
+								except: pass
+								if self.assets['config']['single_channel'].get(chan):
+									if self.assets['config']['single_channel'][chan].get("welcome_msg"):
+										self.assets['config']['single_channel'][chan]["welcome_msg"] = _message
+									else:
+										self.assets['config']['single_channel'][chan].setdefault("welcome_msg", _message)
+								else:
+									self.assets['config']['single_channel'].setdefault(chan, { "welcome_msg": _message })
+								self.message(_("10>14 Welcome message of1 %s 14set at13:1 \"%s\"") % (chan, _message), chan)
+							else:
+								self.message(_('7Syntax:1 %s%s %s %s %s <message>') % ( prx, cmd, place, param, value ), chan )
+						elif value == 'remove':
+							if self.assets['config']['single_channel'].get(chan):
+								if self.assets['config']['single_channel'][chan].get("welcome_msg"):
+									_message = self.assets['config']['single_channel'][chan]["welcome_msg"]
+									self.assets['config']['single_channel'][chan].pop('welcome_msg')
+									if len(self.assets['config']['single_channel'][chan]) == 0:
+										self.assets['config']['single_channel'].pop(chan)
+									self.message(_("10>1 \"%s\" 4remove from welcome message of1 %s") % (_message, chan), chan)
+								else:
+									self.message(_("10> 4This channel is not configured to use this command!"), chan)
+							else:
+								self.message(_("10> 4This channel is not configured to use this command!"), chan)
+						else:
+							self.message(_('7Syntax:1 %s%s %s %s <set/remove>') % ( prx, cmd, place, param ), chan )
+					else:
+						self.message(_('7Syntax:1 %s%s %s %s <set/remove>') % ( prx, cmd, place, param ), chan )
+				elif param == 'automessages':
+					if value == 'set':
+						_message = " ".join(text.split(' ')[3:])
+						if len(_message) > 0:
+							if self.assets['config']['single_channel'].get(chan):
+								if self.assets['config']['single_channel'][chan].get('auto_msgs'):
+									if _message in self.assets['config']['single_channel'][chan]['auto_msgs']['messages']:
+										self.message(_("10>1 \"%s\" 4is already on the list of auto messages!") % _message, chan)
+									else:
+										self.assets['config']['single_channel'][chan]['auto_msgs']['messages'].append(_message)
+								else:
+									self.assets['config']['single_channel'][chan].setdefault( "auto_msgs", { "active": True, "messages": [_message] } )
+									util.AutoMessages(self, False)
+							else:
+								self.assets['config']['single_channel'].setdefault(chan, { "auto_msgs": { "active": True, "messages": [_message] } })
+								util.AutoMessages(self, False)
+							buffer = ""
+							i = 0
+							for msg in self.assets['config']['single_channel'][chan]['auto_msgs']['messages']:
+								buffer += "[%i] %s..., " % ( i, msg[:15] )
+								i += 1
+							self.message(_("10> 14Auto messages with13:1 %s 14and on a loop of 25min.") % (buffer[:len(buffer)-2]), chan)
+						else:
+							self.message(_('7Syntax:1 %s%s %s %s %s <message>') % ( prx, cmd, place, param, value ), chan )
+					elif value == 'del':
+						id = util.gettext( text, 3 )
+						if id:
+							if util.isInt(id):
+								if self.assets['config']['single_channel'].get(chan):
+									if self.assets['config']['single_channel'][chan].get('auto_msgs'):
+										try:
+											_tmp = self.assets['config']['single_channel'][chan]['auto_msgs']['messages'][ int(id) ]
+											if len(self.assets['config']['single_channel'][chan]['auto_msgs']['messages']) > 1:
+												self.assets['config']['single_channel'][chan]['auto_msgs']['messages'].pop( int(id) )
+											else:
+												self.assets['config']['single_channel'][chan].pop('auto_msgs')
+												util.AutoMessages(self, False)
+												if len(self.assets['config']['single_channel'][chan]) == 0:
+													self.assets['config']['single_channel'].pop(chan)
+											self.message(_("10>1 \"%s\" 4deleted from the list of auto messages") % _tmp, chan)
+										except Exception, e:
+											print str(e)
+											self.message(_("> %s is unknown message ID") % id, chan)
+									else:
+										self.message(_("10> 4This channel is not configured to use this command!"), chan)
+								else:
+									self.message(_("10> 4This channel is not configured to use this command!"), chan)
+							else:
+								self.message(_("> %s is unknown message ID") % id, chan)
+						else:
+							self.message(_('7Syntax:1 %s%s %s %s %s <id>') % ( prx, cmd, place, param, value ), chan )
+					elif value == 'remove':
+						if self.assets['config']['single_channel'].get(chan):
+							if self.assets['config']['single_channel'][chan].get('auto_msgs'):
+								self.assets['config']['single_channel'][chan].pop('auto_msgs')
+								if len(self.assets['config']['single_channel'][chan]) == 0:
+									self.assets['config']['single_channel'].pop(chan)
+								self.message(_("10>1 \"%s\" 4deleted from the list of auto messages") % chan, chan)
+							else:
+								self.message(_("10> 4This channel is not configured to use this command!"), chan)
+						else:
+							self.message(_("10> 4This channel is not configured to use this command!"), chan)
+					elif value == 'turn':
+						if self.assets['config']['single_channel'].get(chan):
+							if self.assets['config']['single_channel'][chan].get('auto_msgs'):
+								if self.assets['config']['single_channel'][chan]['auto_msgs']['active']:
+									self.assets['config']['single_channel'][chan]['auto_msgs']['active'] = False
+								else:
+									self.assets['config']['single_channel'][chan]['auto_msgs']['active'] = True
+								
+								self.message(_("10>14 Auto-messages are now turned %s, in1 %s") % ( _("on") if self.assets['config']['single_channel'][chan]['auto_msgs']['active'] == True else _("off"), chan ), chan)
+							else:
+								self.message(_("10> 4This channel is not configured to use this command!"), chan)
+						else:
+							self.message(_("10> 4This channel is not configured to use this command!"), chan)
+					elif value == 'list':
+						if self.assets['config']['single_channel'].get(chan):
+							if self.assets['config']['single_channel'][chan].get('auto_msgs'):
+								buffer = ""
+								i = 0
+								for msg in self.assets['config']['single_channel'][chan]['auto_msgs']['messages']:
+									buffer += "[%i] %s..., " % ( i, msg[:15] )
+									i += 1
+								self.message(_("10> 14Auto messages with13:1 %s 14and on a loop of 25min.") % (buffer[:len(buffer)-2]), chan)
+							else:
+								self.message(_("10> 4This channel is not configured to use this command!"), chan)
+						else:
+							self.message(_("10> 4This channel is not configured to use this command!"), chan)
+					else:
+						self.message(_('7Syntax:1 %s%s %s %s <set/del/remove/turn/list>') % ( prx, cmd, place, param ), chan )
+				else:
+					self.message(_('7Syntax:1 %s%s %s <welcome/automessages>') % ( prx, cmd, place ), chan )
 			elif place == 'commands':
 				if param == 'turn':
 					if value:
@@ -302,9 +436,9 @@ def onModCommand(self, chan, user, cmd, text):
 				else:
 					self.message(_('7Syntax:1 %s%s %s <turn/ignore/formod>') % ( prx, cmd, place ), chan )
 			else:
-				self.message(_('7Syntax:1 %s%s <osu/stats/commands>') % (prx, cmd), chan )
+				self.message(_('7Syntax:1 %s%s <osu/stats/commands/channel>') % (prx, cmd), chan )
 		else:
-			self.message(_('7Syntax:1 %s%s <osu/stats/commands>') % (prx, cmd), chan )
+			self.message(_('7Syntax:1 %s%s <osu/stats/commands/channel>') % (prx, cmd), chan )
 	
 	else:
 		onCommand(self, chan, user, cmd, text)
@@ -724,7 +858,7 @@ def onCommand(self, chan, user, cmd, text):
 		except Exception, e:
 			self.message( _("4Search Failed"), chan )
 	
-	if cmd == 'google':
+	elif cmd == 'google':
 		if len(text) > 0:
 			try:
 				gs = GoogleSearch( text.encode("utf-8") )
