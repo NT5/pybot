@@ -11,6 +11,7 @@ class BanchoNet:
 		self.server = server
 		self.port = port
 		self.sender = sender
+		self.last_ping = int( time.time() )
 		if start == True: self.start()
 	
 	def start(self):
@@ -24,8 +25,13 @@ class BanchoNet:
 			
 			while True:
 				data = self.irc.recv(1204).decode("UTF-8")
-				if len( data ) == 0:
+				if (len( data ) == 0) | (int( time.time() ) - self.last_ping > 1200):
 					print "[-] BanchoNet Reconnecting...."
+					time.sleep(25)
+					try:
+						self.irc.shutdown()
+						self.irc.close()
+					except: pass
 					self.start()
 					break
 				else:
@@ -52,7 +58,8 @@ class BanchoNet:
 			event = None
 			
 		if data.split(' ')[0] == 'PING':
-			self.send('PONG %s' % self.server)
+			self.send('PONG %s :TIMEOUTCHECK' % self.server)
+			self.last_ping = int( time.time() )
 
 		if event == '001':
 			for chan in self.channels:

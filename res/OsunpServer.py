@@ -44,7 +44,7 @@ class osunp_handler_class(BaseHTTPRequestHandler):
 				user = cryp.decode(vars['key'])
 				messages = []
 				if vars["mapName"] != "NoMap": messages.append("%s" % urllib2.unquote(vars['mapName']).replace('+', ' '))
-				if vars["mapSetID"] != "-1": messages.append("Map: https://osu.ppy.sh/s/%s" % vars['mapSetID'])
+				if vars["mapSetID"] != "-1": messages.append("Map: http://osu.ppy.sh/s/%s" % vars['mapSetID'])
 				if len(messages) > 0:
 					#Send messages to bots
 					for loc in SenderIns.senders:

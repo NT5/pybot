@@ -17,7 +17,6 @@ def WordStats( user, text, emoticons = ""):
 	lines = ( user['lines'] + 1 )
 	return { "letters": letters, "words": words, "lines": lines, "smiles": smiles, "seen": int( time.time() ), "quote": text[:50] }
 	
-	
 def AutoMessages(self, show = True):
 	_count = 0
 	for chan in self.assets['config']['single_channel']:
@@ -45,8 +44,13 @@ def GetMessageAction( text ):
 	except:
 		return None
 
+def getNetName( text ):
+	regex = re.compile("(?:Welcome|Bienvenido) (?:to the|to|a) ([-.!@$#%^&*()<>|_+=\;:,?[{\]}\w]*)", re.UNICODE)
+	try: return regex.findall(text)[0]
+	except: return None
+
 def isOsuLink( text ):
-	regex = re.compile("http://osu.ppy.sh/(?:b|s|p)", re.UNICODE)
+	regex = re.compile("(?:http|https)://osu.ppy.sh/(?:b|s|p)/(.+)?", re.UNICODE)
 	return regex.search(text)
 
 def GetLevel( data ):

@@ -12,7 +12,7 @@ ColoramaInit()
 COLOR = { 'black': Fore.BLACK, 'red': Fore.RED, 'green': Fore.GREEN, 'yellow': Fore.YELLOW, 'blue': Fore.BLUE, 'magenta': Fore.MAGENTA, 'cyan': Fore.CYAN, 'white': Fore.WHITE }
 
 class IrcBot:
-	version = '0.3.0'
+	version = '0.3.1'
 	
 	def __init__(self, nick, password, channels, server, sv_pass, port, path):
 		self.nick = nick
@@ -24,8 +24,8 @@ class IrcBot:
 		self.path = path
 		self.assets = {}
 		self.names = {}
-		self.idle = { "chan": { } }
-		self.automsg = {}
+		self.netname = "unknown"
+		self.idle = { "bot_ping": int( time.time() ), "chan": { } }
 		self.uptime = int( time.time() )
 		self.LoadAssets()
 		self._banchonet = None
@@ -41,11 +41,17 @@ class IrcBot:
 			self.irc.send('NICK %s\r\n' % self.nick)
 			self.c_print("%s[+] Bot started" % ( COLOR['blue'] ))
 			while True:
-				data = self.irc.recv(1204).decode("UTF-8")
-				if len( data ) == 0:
+				try: data = self.irc.recv(1204).decode("UTF-8")
+				except: data = self.irc.recv(1204)
+				if (len( data ) == 0) | (int( time.time() ) - self.idle['bot_ping'] > 1200):
 					self.UpdateAssets()
 					self.c_print("%s%-s" % ( COLOR['red'], "Server Closed the connection." ) )
 					self.c_print("%s%-s" % ( COLOR['blue'], "[+] Reconnecting...." ))
+					time.sleep(25)
+					try:
+						self.irc.shutdown()
+						self.irc.close()
+					except: pass
 					self.start()
 					break
 				else:
@@ -63,18 +69,24 @@ class IrcBot:
 		try: event = data.split(' ')[1]
 		except: event = None
 		if data.split(' ')[0] == 'PING':
-			self.send('PONG %s' % self.server)
+			self.send('PONG %s :TIMEOUTCHECK' % self.server)
+			self.idle['bot_ping'] = int( time.time() )
 			#Maintenance 1h 30m
 			if ( int( time.time() ) - self.assets['config']['assets_update'] ) >= 5400:
 				self.UpdateAssets()
 				gc.collect()
 		if event == '001':
+			self.netname = util.getNetName(data)
 			for chan in self.channels:
 				self.Join( chan )
 			self.c_print("%s[+] Channel Join Complete" % COLOR['yellow'])
 			self.send('PRIVMSG NickServ IDENTIFY %s' % self.password )
 			self.send('MODE %s +B' % self.nick)
 			util.AutoMessages(self, False)
+		if event == '433':
+			newnick = ("%s_") % self.nick
+			self.send('NICK %s' % newnick)
+			self.nick = newnick
 		if event in self.assets['config']['listen_events']:
 			user = util.GetNick( data )
 			chan = util.GetChannel( data )
@@ -105,9 +117,9 @@ class IrcBot:
 				if user == self.nick: self.nick = newnick
 				tmp_ = self.names
 				for chan in list(tmp_):
-					if self.idle['chan'].get(chan): self.idle['chan'][chan] = int(time.time())
 					for name in list(tmp_[chan]):
 						if name == user:
+							if self.idle['chan'].get(chan): self.idle['chan'][chan] = int(time.time())
 							lvl = self.names[chan][user]['level']
 							self.names[chan].pop(user)
 							self.names[chan].setdefault(newnick, { "level": lvl })
@@ -131,9 +143,9 @@ class IrcBot:
 				self.c_print( "%s%-s (Quit)" % ( COLOR['blue'], user ) )
 				tmp_ = self.names
 				for chan in list(tmp_):
-					if self.idle['chan'].get(chan): self.idle['chan'][chan] = int(time.time())
 					for name in list(tmp_[chan]):
 						if name == user:
+							if self.idle['chan'].get(chan): self.idle['chan'][chan] = int(time.time())
 							self.names[chan].pop(user)
 			if event == 'TOPIC':
 				topic = data.split(":")[2]
@@ -193,7 +205,7 @@ class IrcBot:
 	
 	def c_print( self, msg ):
 		msg = util.NoIrcColors( msg )
-		msg = u"[%s] %s\r\n" % (self.nick, msg)
+		msg = u"[%s] [%s] %s\r\n" % (self.netname, self.nick, msg)
 		try: sys.stdout.write( msg )
 		except: sys.stdout.write( msg.encode("UTF-8") )
 		sys.stdout.write( Style.RESET_ALL )
