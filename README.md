@@ -18,6 +18,18 @@ Python IRC BOT
   - Post Server (use with Osu!np and Osu!post)
   - Bancho Network
 
+v0,3,1
+-------------------
+* Minor bugs fixed
+* Fix ping issue on Connectios
+* Improved "control" command
+* Welcome message and auto messages
+* New Commands
+ - "twitch" added
+ - "osurequest" added
+ - "ctwitch" added
+ - "translate" added
+
 v0,3,0
 -------------------
 * First release
