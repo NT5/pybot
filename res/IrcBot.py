@@ -100,11 +100,12 @@ class IrcBot:
 				if user != self.nick:
 					self.c_print( "%s%-s has joined %s" % ( COLOR['green'], user, chan ) )
 					if self.names.get(chan): self.names[chan].setdefault(user, { "level": 0 })
+					else: self.names.setdefault( chan, { user: { "level": 0 } } )
 					if self.idle['chan'].get(chan): self.idle['chan'][chan] = int( time.time() )
 					self._doJoin(chan, user)
 				else:
 					self.idle['chan'].setdefault(chan, int( time.time() ))
-					self.names.setdefault( chan, [] )
+					self.names.setdefault( chan, { self.nick: { "level": 0 } } )
 					self.send("NAMES :%s" % chan)
 			if event == 'PART':
 				self.c_print( "%s%-s has left %s" % ( COLOR['green'], user, chan ) )
@@ -112,7 +113,9 @@ class IrcBot:
 					if self.names.get( chan ): self.names.pop( chan )
 					if self.idle['chan'].get(chan): self.idle['chan'].pop( chan )
 				else:
-					if self.names.get(chan): self.names[chan].pop(user)
+					if self.names.get(chan):
+						if self.names[chan].get(user):
+							self.names[chan].pop(user)
 					if self.idle['chan'].get(chan): self.idle['chan'][chan] = int( time.time() )
 					self._doPart(chan, user)
 			if event == 'NICK':
@@ -126,7 +129,7 @@ class IrcBot:
 						if name == user:
 							if self.idle['chan'].get(chan): self.idle['chan'][chan] = int(time.time())
 							lvl = self.names[chan][user]['level']
-							self.names[chan].pop(user)
+							if self.names[chan].get(user): self.names[chan].pop(user)
 							self.names[chan].setdefault(newnick, { "level": lvl })
 			if event == 'KICK':
 				chan = data.split(" ")[2]
@@ -135,7 +138,7 @@ class IrcBot:
 				self._doKick(chan, kicked)
 				if kicked == self.nick: self.Join( chan )
 				if self.idle['chan'].get(chan): self.idle['chan'][chan] = int(time.time())
-				self.names[chan].pop(user)
+				if self.names[chan].get(user): self.names[chan].pop(user)
 			if event == 'MODE':
 				chan = data.split(" ")[2]
 				d = data.split(" ")
@@ -151,7 +154,7 @@ class IrcBot:
 					for name in list(tmp_[chan]):
 						if name == user:
 							if self.idle['chan'].get(chan): self.idle['chan'][chan] = int(time.time())
-							self.names[chan].pop(user)
+							if self.names[chan].get(user): self.names[chan].pop(user)
 			if event == 'TOPIC':
 				topic = data.split(":")[2]
 				self.c_print("%s[%s] %s changes topic to: %s" % ( COLOR['green'], chan, user, util.NoIrcColors( topic ) ))
