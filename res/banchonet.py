@@ -11,7 +11,6 @@ class BanchoNet:
 		self.server = server
 		self.port = port
 		self.sender = sender
-		self.last_ping = int( time.time() )
 		if start == True: self.start()
 	
 	def start(self):
@@ -21,17 +20,21 @@ class BanchoNet:
 			self.irc.send('PASS %s\r\n' % self.password)
 			self.irc.send('USER %s 0 * :NT5 Python Bot\r\n' % (self.nick))
 			self.irc.send('NICK %s\r\n' % self.nick)
+			self.last_ping = int( time.time() )
 			print("[+] BanchoNet connect as %s in %s" % ( self.nick, ", ".join(self.channels) ))
 			
+			def _ping_check():
+				if int( time.time() ) - self.last_ping > 1200:
+					print "[-] BanchoNet Timedout, Reconnecting..."
+					time.sleep(25)
+					self.start()
+				threading.Timer(1200, _ping_check)
+			_ping_check()
 			while True:
 				data = self.irc.recv(1204).decode("UTF-8")
-				if (len( data ) == 0) | (int( time.time() ) - self.last_ping > 1200):
+				if len( data ) == 0:
 					print "[-] BanchoNet Reconnecting...."
 					time.sleep(25)
-					try:
-						self.irc.shutdown()
-						self.irc.close()
-					except: pass
 					self.start()
 					break
 				else:

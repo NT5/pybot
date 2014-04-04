@@ -39,19 +39,24 @@ class IrcBot:
 			self.irc.send('PASS %s\r\n' % self.sv_pass)
 			self.irc.send('USER %s 0 * :NT5 Python Bot %s\r\n' % (self.nick, self.version))
 			self.irc.send('NICK %s\r\n' % self.nick)
+			self.idle["bot_ping"] = int( time.time() )
 			self.c_print("%s[+] Bot started" % ( COLOR['blue'] ))
+			
+			def _ping_check():
+				if int( time.time() ) - self.idle['bot_ping'] > 1200:
+					self.c_print("%s[-] Timedout, Reconnecting..." % (COLOR['red'] ))
+					time.sleep(25)
+					self.start()
+				threading.Timer(1200, _ping_check)
+			_ping_check()
 			while True:
 				try: data = self.irc.recv(1204).decode("UTF-8")
 				except: data = self.irc.recv(1204)
-				if (len( data ) == 0) | (int( time.time() ) - self.idle['bot_ping'] > 1200):
+				if len( data ) == 0:
 					self.UpdateAssets()
 					self.c_print("%s%-s" % ( COLOR['red'], "Server Closed the connection." ) )
 					self.c_print("%s%-s" % ( COLOR['blue'], "[+] Reconnecting...." ))
 					time.sleep(25)
-					try:
-						self.irc.shutdown()
-						self.irc.close()
-					except: pass
 					self.start()
 					break
 				else:
