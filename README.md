@@ -4,6 +4,8 @@ pybot
 Python IRC BOT
 -------------------
 
+![pybot](https://cloud.githubusercontent.com/assets/7063644/2620579/d7c100ac-bc40-11e3-9754-b3ac5d96a76f.png)
+
 * See example on
  - irc.banshee.fr.liberty-unleashed.co.uk @ Eiko #NT5
  - irc.gtanet.com @ Shana #anime4ever
