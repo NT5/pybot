@@ -42,12 +42,12 @@ class BanchoNet:
 				else:
 					lines = data.split("\n")
 					for line in lines:
-						line = str(line).strip()
+						line = unicode(line).strip()
 						if line == '':
 							continue
 						self.IrcListen(line)
 		except Exception, e:
-			print("[-] Error on BanchoNet connection! - %s" % str(e) )
+			print("[-] Error on BanchoNet connection! - %s" % e )
 			time.sleep(25)
 			self.start()
 	

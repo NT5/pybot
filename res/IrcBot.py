@@ -64,12 +64,12 @@ class IrcBot:
 				else:
 					lines = data.split("\n")
 					for line in lines:
-						line = str(line).strip()
+						line = unicode(line).strip()
 						if line == '':
 							continue
 						self.IrcListen(line)
 		except Exception, e: 
-			self.c_print("%sError on script :/ - %s" % ( COLOR['red'], str(e) ) )
+			self.c_print("%sError on script :/ - %s" % ( COLOR['red'], e ) )
 			time.sleep(25)
 			self.start()
 	
