@@ -47,8 +47,10 @@ class IrcBot:
 					self.c_print("%s[-] Timedout, Reconnecting..." % (COLOR['red'] ))
 					time.sleep(25)
 					self.start()
-				threading.Timer(1200, _ping_check)
+				t = threading.Timer(1200, _ping_check)
+				t.start()
 			_ping_check()
+			
 			while True:
 				try: data = self.irc.recv(1204).decode("UTF-8")
 				except: data = self.irc.recv(1204)
@@ -61,10 +63,11 @@ class IrcBot:
 					break
 				else:
 					lines = data.split("\n")
-					if len( lines ) > 2:
-						for line in lines:
-							if line: self.IrcListen(line.strip( ' \t\n\r' ))
-					else: self.IrcListen(data.strip( ' \t\n\r' ))
+					for line in lines:
+						line = str(line).strip()
+						if line == '':
+							continue
+						self.IrcListen(line)
 		except Exception, e: 
 			self.c_print("%sError on script :/ - %s" % ( COLOR['red'], str(e) ) )
 			time.sleep(25)
@@ -73,6 +76,7 @@ class IrcBot:
 	def IrcListen(self, data):
 		try: event = data.split(' ')[1]
 		except: event = None
+		
 		if data.split(' ')[0] == 'PING':
 			self.send('PONG %s :TIMEOUTCHECK' % self.server)
 			self.idle['bot_ping'] = int( time.time() )

@@ -22,16 +22,18 @@ class BanchoNet:
 			self.irc.send('NICK %s\r\n' % self.nick)
 			self.last_ping = int( time.time() )
 			print("[+] BanchoNet connect as %s in %s" % ( self.nick, ", ".join(self.channels) ))
-			
+
 			def _ping_check():
 				if int( time.time() ) - self.last_ping > 1200:
 					print "[-] BanchoNet Timedout, Reconnecting..."
 					time.sleep(25)
 					self.start()
-				threading.Timer(1200, _ping_check)
+				t = threading.Timer(1200, _ping_check)
+				t.start()
 			_ping_check()
+			
 			while True:
-				data = self.irc.recv(1204).decode("UTF-8")
+				data = self.irc.recv(4096).decode("UTF-8")
 				if len( data ) == 0:
 					print "[-] BanchoNet Reconnecting...."
 					time.sleep(25)
@@ -39,26 +41,19 @@ class BanchoNet:
 					break
 				else:
 					lines = data.split("\n")
-					if len( lines ) > 2:
-						for line in lines:
-							if line:
-								lE = threading.Thread(target=self.IrcListen, args=(line.strip( ' \t\n\r' ),))
-								lE.setDaemon(True)
-								lE.start()
-					else:
-						lE = threading.Thread(target=self.IrcListen, args=(data.strip( ' \t\n\r' ),))
-						lE.setDaemon(True)
-						lE.start()
-		except Exception, e: 
+					for line in lines:
+						line = str(line).strip()
+						if line == '':
+							continue
+						self.IrcListen(line)
+		except Exception, e:
 			print("[-] Error on BanchoNet connection! - %s" % str(e) )
 			time.sleep(25)
 			self.start()
 	
 	def IrcListen(self, data):
-		try:
-			event = data.split(' ')[1]
-		except:
-			event = None
+		try: event = data.split(' ')[1]
+		except: event = None
 			
 		if data.split(' ')[0] == 'PING':
 			self.send('PONG %s :TIMEOUTCHECK' % self.server)
@@ -67,6 +62,7 @@ class BanchoNet:
 		if event == '001':
 			for chan in self.channels:
 				self.Join( chan )
+
 		if event == 'PRIVMSG':
 			user = util.GetNick( data )
 			chan = util.GetChannel( data )
@@ -92,4 +88,4 @@ class BanchoNet:
 	def send( self, msg ):
 		msg = u"%s\r\n" % msg
 		self.irc.send(msg.encode('utf-8'))
-		
+
