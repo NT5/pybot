@@ -16,28 +16,19 @@ class BanchoNet:
 	def start(self):
 		try:
 			self.irc = socket.socket()
+			self.irc.settimeout(1200)
 			self.irc.connect((self.server, self.port))
 			self.irc.send('PASS %s\r\n' % self.password)
 			self.irc.send('USER %s 0 * :NT5 Python Bot\r\n' % (self.nick))
 			self.irc.send('NICK %s\r\n' % self.nick)
-			self.last_ping = int( time.time() )
 			print("[+] BanchoNet connect as %s in %s" % ( self.nick, ", ".join(self.channels) ))
-
-			def _ping_check():
-				if int( time.time() ) - self.last_ping > 1200:
-					print "[-] BanchoNet Timedout, Reconnecting..."
-					time.sleep(25)
-					self.start()
-				t = threading.Timer(1200, _ping_check)
-				t.start()
-			_ping_check()
 			
 			while True:
-				data = self.irc.recv(4096).decode("UTF-8")
+				try: data = self.irc.recv(4096).decode("UTF-8")
+				except: data = self.irc.recv(4096)
 				if len( data ) == 0:
 					print "[-] BanchoNet Reconnecting...."
-					time.sleep(25)
-					self.start()
+					self.reconnect()
 					break
 				else:
 					lines = data.split("\n")
@@ -48,8 +39,7 @@ class BanchoNet:
 						self.IrcListen(line)
 		except Exception, e:
 			print("[-] Error on BanchoNet connection! - %s" % e )
-			time.sleep(25)
-			self.start()
+			self.reconnect()
 	
 	def IrcListen(self, data):
 		try: event = data.split(' ')[1]
@@ -83,6 +73,12 @@ class BanchoNet:
 			#for loc in self.sender:
 			#	loc.message( "%s: %s" % ( user, text), loc.channels[0] )
 					
+	def reconnect(self):
+		self.irc.shutdown(1)
+		self.irc.close()
+		time.sleep(25)
+		self.start()
+	
 	def Join( self, chan ):
 		self.send("JOIN %s" % chan)
 	def send( self, msg ):

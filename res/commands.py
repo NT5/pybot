@@ -254,6 +254,28 @@ def onModCommand(self, chan, user, cmd, text):
 						self.message(_('7Syntax:1 %s%s %s %s <set/del/remove/get>') % ( prx, cmd, place, param ), chan )
 				else:
 					self.message(_('7Syntax:1 %s%s %s <bancho/np/request>') % ( prx, cmd, place ), chan )
+			elif place == 'lastfm':
+				if param == 'set':
+					if chan in self.assets['config']['last_fm']:
+						self.message(_("10>1 \"%s\" is already on the list of 4Last1FM!") % chan, chan)
+					else:
+						self.assets['config']['last_fm'].append( chan )
+						self.message(_("10>1 \"%s\" now accept messages from 4Last1FM") % chan, chan)
+				elif param == 'del':
+					if chan in self.assets['config']['last_fm']:
+						id = self.assets['config']['last_fm'].index( chan )
+						self.assets['config']['last_fm'].pop( id )
+						self.message(_("10>1 \"%s\" delete from 4Last1FM") % (chan), chan)
+					else:
+						self.message(_("10>1 %s 4is unknown channel to me") % chan, chan )
+				elif param == 'remove':
+					if len( self.assets['config']['last_fm'] ) > 0:
+						self.assets['config']['last_fm'] = []
+						self.message(_("10> 1All channels remove from 4Last1FM"), chan)
+					else:
+						self.message(_("10> 4There is nothing to delete"), chan)
+				else:
+					self.message(_('7Syntax:1 %s%s %s <set/del/remove>') % ( prx, cmd, place ), chan )
 			elif place == 'channel':
 				if param == 'welcome':
 					if value:
@@ -436,9 +458,9 @@ def onModCommand(self, chan, user, cmd, text):
 				else:
 					self.message(_('7Syntax:1 %s%s %s <turn/ignore/formod>') % ( prx, cmd, place ), chan )
 			else:
-				self.message(_('7Syntax:1 %s%s <osu/stats/commands/channel>') % (prx, cmd), chan )
+				self.message(_('7Syntax:1 %s%s <osu/lastfm/stats/commands/channel>') % (prx, cmd), chan )
 		else:
-			self.message(_('7Syntax:1 %s%s <osu/stats/commands/channel>') % (prx, cmd), chan )
+			self.message(_('7Syntax:1 %s%s <osu/lastfm/stats/commands/channel>') % (prx, cmd), chan )
 	
 	else:
 		onCommand(self, chan, user, cmd, text)
@@ -486,10 +508,10 @@ def onCommand(self, chan, user, cmd, text):
 	
 	elif cmd == 'bot':
 		i = util.getinfo()
-		self.message(_('11>1 %s v%s by NT5 3-1 Python %s 3-1 System6:1 %s %s %s 3-1 Uptime6:1 %s 3-1 Channels6:1 %i') % ( self.nick, self.version, sys.version.splitlines()[0], i[0], i[2], i[4], util.getDHMS( int( int( time.time() ) - self.uptime )), len( self.channels )), chan )
+		self.message(_('11>1 %s v%s by NT5 3-1 Python %s 3-1 System6:1 %s %s %s 3-1 Uptime6:1 %s 3-1 Channels6:1 %i') % ( self.nick, self.version, sys.version.splitlines()[0], i[0], i[2], i[4], util.getDHMS( int( int( time.time() ) - self.uptime['server'] )), len( self.channels )), chan )
 		
 	elif cmd == 'uptime':
-		self.message( _('11>1 %s Uptime: %s') % (self.nick, util.getDHMS( int( int( time.time() ) - self.uptime ))), chan)
+		self.message( _('11>1 %s Server Uptime: %s - Script Uptime: %s') % (self.nick, util.getDHMS( int( int( time.time() ) - self.uptime['server'] )), util.getDHMS( int( int( time.time() ) - self.uptime['script'] ))), chan)
 	
 	elif cmd == '8ball':
 		if len(text) > 0:

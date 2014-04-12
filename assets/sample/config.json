@@ -25,6 +25,7 @@
 	"osu_np": {
 		"NT5_projectd": ["#channel1"]
 	},
+	"last_fm": ["#channel1"],
 	"single_channel": {
         "#channel1": {
             "osu_req": {

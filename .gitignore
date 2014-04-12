@@ -6,6 +6,9 @@ _backup/
 *.debug.pyc
 *.debug.bat
 *.debug.sh
+*.debug.po
+*.debug.pot
+*.debug.mo
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

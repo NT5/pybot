@@ -9,6 +9,10 @@
 	"OsunpSever": {
 		"port": 8090
 	},
+	"LastFM": {
+		"key": "lastfm_key",
+		"user": "lastfm_user"
+	},
 	"Bots": [{
 		"nick": "SampleBot",
 		"password": "password",

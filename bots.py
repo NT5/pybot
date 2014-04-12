@@ -5,6 +5,7 @@ import json, threading, sys, time
 from res.IrcBot import IrcBot
 from res.banchonet import BanchoNet
 from res.OsunpServer import OsunpServer
+from res.LastFMNP import NpLastFM
 
 try: config_file = sys.argv[1]
 except: config_file = 'bot.json'
@@ -41,6 +42,13 @@ if Bots_config.get("BanchoNet"):
 #Osu!np
 if Bots_config.get("OsunpSever"):
 	thr = threading.Thread( target=OsunpServer, args=(Bots_config['OsunpSever']['port'], Bots,))
+	thr.setDaemon(True)
+	thr.start()
+	
+#LastFM
+if Bots_config.get("LastFM"):
+	_LastFM = NpLastFM( Bots_config['LastFM']['key'], Bots_config['LastFM']['user'], Bots )
+	thr = threading.Thread( target=_LastFM.run )
 	thr.setDaemon(True)
 	thr.start()
 
