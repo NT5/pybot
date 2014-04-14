@@ -29,6 +29,7 @@ class IrcBot:
 		self.uptime = { "server": 0, "script": int( time.time() ) }
 		self.LoadAssets()
 		self._banchonet = None
+		self.cleverbot = { "type": 1, "users": {} }
 		
 	def setbancho(self, obj): 
 		self._banchonet = obj

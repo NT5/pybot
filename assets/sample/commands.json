@@ -19,6 +19,11 @@
 		"ignore": [],
 		"mod": true
 	},
+	"talk": {
+		"active": true,
+		"ignore": [],
+		"mod": false
+	},
 	"youtube": {
 		"active": true,
 		"ignore": [],

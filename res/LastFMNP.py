@@ -36,20 +36,24 @@ class NpLastFM:
 		print "[+] [%s] LastFM Now playing started" % self.user
 		while True:
 			#Editable
-			send_to = []
+			_make_q = False
 			for loc in self.sender:
 				for chan in loc.assets['config']['last_fm']:
 					if loc.idle['chan'].get(chan):
-						if int( int( time.time() ) - loc.idle['chan'][chan] ) <= 1800: send_to.append( chan )
+						if int( int( time.time() ) - loc.idle['chan'][chan] ) <= 1800:
+							_make_q = True
+							break
 						
 			#If make request
-			if len( send_to ) > 0:
+			if _make_q:
 				data = self.analyze()
 				if data:
+					#Send messages to bots
 					for loc in self.sender:
-						for chan in send_to:
-							#Send messages to bots
-							loc.message( "13[0,4LastFM13]1 13[10%s13]14 %s - %s" % ( self.user, data['name'], data['artist'] ), chan, False )
+						for chan in loc.assets['config']['last_fm']:
+							if loc.idle['chan'].get(chan):
+								if int( int( time.time() ) - loc.idle['chan'][chan] ) <= 1800:
+									loc.message( "13[0,4LastFM13]1 13[10%s13]14 %s - %s" % ( self.user, data['name'], data['artist'] ), chan, False )
 			#Delay
 			time.sleep(25)
 

@@ -455,8 +455,33 @@ def onModCommand(self, chan, user, cmd, text):
 							self.message(_(">4 This is not allowed."), chan)
 					else:
 						self.message('7Syntax:1 %s%s %s %s <command>' % ( prx, cmd, place, param ), chan )
+				elif param == 'new':
+					if value:
+						_message = " ".join(text.split(' ')[3:])
+						if self.assets['commands'].get( value ):
+							self.message(_("> \"%s\" 4already exist!") % value, chan)
+						else:
+							if len( _message ) > 0:
+								self.assets['commands'].setdefault( value.lower(), {"active": True, "mod": False, "ignore": [], "special": _message} )
+								self.message(_("> \"%s%s\" 10new command created") % (prx,value), chan)
+							else:
+								self.message(_('7Syntax:1 %s%s %s %s %s <message>') % ( prx, cmd, place, param, value ), chan )
+					else:
+						self.message(_('7Syntax:1 %s%s %s %s <command> <message>') % ( prx, cmd, place, param ), chan )
+				elif param == 'del':
+					if value:
+						if self.assets['commands'].get( value ):
+							if self.assets['commands'][ value ].get('special'):
+								self.assets['commands'].pop( value )
+								self.message( _("> \"%s%s\" 4is now removed from bot") % ( prx, value ), chan )
+							else:
+								self.message(_(">4 This is not allowed."), chan)
+						else:
+							self.message( _("> %s 4is unknow command to me") % value, chan )
+					else:
+						self.message(_('7Syntax:1 %s%s %s %s <command>') % ( prx, cmd, place, param ), chan )
 				else:
-					self.message(_('7Syntax:1 %s%s %s <turn/ignore/formod>') % ( prx, cmd, place ), chan )
+					self.message(_('7Syntax:1 %s%s %s <turn/ignore/formod/new/del>') % ( prx, cmd, place ), chan )
 			else:
 				self.message(_('7Syntax:1 %s%s <osu/lastfm/stats/commands/channel>') % (prx, cmd), chan )
 		else:
@@ -891,4 +916,50 @@ def onCommand(self, chan, user, cmd, text):
 				self.message( _("4Search failed"), chan )
 		else:
 			self.message(_("7Syntax:1 %s%s <search>") % (prx, cmd), chan)
+	
+	elif cmd == 'talk':
+		if len(text) > 0:
+			def CreateSessionBot():
+				from res.chatterbotapi import ChatterBotFactory
+				factory = ChatterBotFactory()
+				bot = factory.create( self.cleverbot['type'] )
+				return bot.create_session()
+				
+			if ( self.cleverbot['users'].get( user ) == None ):
+				self.cleverbot['users'].setdefault( user, { "core": CreateSessionBot(), "last_use": 0, "waiting": False } )
+				self.message(_("10>1 %s are now talking with %s") % ( user, self.nick ), chan)
+				if len( self.cleverbot['users'] ) > 5:
+					for x in list(self.cleverbot['users']):
+						if ( int( time.time() ) - self.cleverbot['users'][ x ]['last_use'] ) >= 120:
+							del self.cleverbot['users'][ x ]
 			
+			if self.cleverbot['users'][ user ]['waiting'] == True:
+				if ( int( time.time() ) - self.cleverbot['users'][ user ]['last_use'] ) >= 60:
+					self.message(_("10>1 %s 4response timed out :(!, try again!") % user, chan)
+					del self.cleverbot['users'][ user ]
+				else:
+					self.message( _("10>1 %s 4wait for your answer!") % user, chan )
+			elif ( int( time.time() ) - self.cleverbot['users'][ user ]['last_use'] ) <= 2:
+				self.message( _("10>1 %s - Wait one moment before talk") % user, chan )
+			else:
+				try:
+					if ( text.lower() == "stop" ):
+						self.message(_("10>1 %s, see you later!") % ( user ), chan)
+						del self.cleverbot['users'][ user ]
+					else:
+						self.cleverbot['users'][ user ]['waiting'] = True
+						self.cleverbot['users'][ user ]['last_use'] = int( time.time() )
+						response = self.cleverbot['users'][ user ]['core'].think( text.encode('utf-8') )
+						self.message("11>3 %s 1->12 %s:1 %s" % ( self.nick, user, util.NoHTML(response) ), chan)
+						self.cleverbot['users'][ user ]['waiting'] = False
+				except Exception, e:
+					self.message( _("10>4 Talking Fail. - %s") % str( e ), chan )
+					del self.cleverbot['users'][ user ]
+		else:
+			self.message(_("7Syntax:1 %s%s <text/stop>") % (prx, cmd), chan)
+	
+	else:
+		if self.assets['commands'].get( cmd ) and self.assets['commands'][ cmd ].get( "special" ):
+			_message = self.assets['commands'][ cmd ]["special"].format( user = user, chan = chan, me = self.nick )
+			self.message( _message, chan )
+
