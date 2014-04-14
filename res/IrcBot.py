@@ -72,6 +72,11 @@ class IrcBot:
 			#Maintenance 1h 30m
 			if ( int( time.time() ) - self.assets['config']['assets_update'] ) >= 5400:
 				self.UpdateAssets()
+				if len( self.cleverbot['users'] ) > 0:
+					tmp = self.cleverbot['users']
+					for x in list( tmp ):
+						if ( int( time.time() ) - self.cleverbot['users'][ x ]['last_use'] ) >= 120:
+							del self.cleverbot['users'][ x ]
 				gc.collect()
 		if event == '001':
 			self.netname = util.getNetName(data)

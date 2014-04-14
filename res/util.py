@@ -25,7 +25,7 @@ def AutoMessages(self, show = True):
 				_count = _count + 1
 				if show and int( int( time.time() ) - self.idle['chan'][chan] ) <= 1800:
 					self.message("10>14 %s" % random.choice(self.assets['config']['single_channel'][chan]['auto_msgs']['messages']), chan)
-	timer = threading.Timer(1500, AutoMessages, [self])
+	timer = threading.Timer(900, AutoMessages, [self])
 	if _count >= 1: timer.start()
 	else: timer.cancel()
 
