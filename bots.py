@@ -21,7 +21,6 @@ for Bot in Bots_config['Bots']:
 	try:
 		print "Loading %s on %s:%i..." % (Bot['nick'], Bot['server'], Bot['port'])
 		Bots.append( IrcBot( Bot['nick'], Bot['password'], Bot['channels'], Bot['server'], Bot['sv_pass'], Bot['port'], Bot['path'] ) )
-		assets = None
 		thr = threading.Thread(target=Bots[len(Bots)-1].start)
 		thr.setDaemon(True)
 		thr.start()

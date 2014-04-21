@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -⁻- coding: UTF-8 -*-
 
-import socket, threading, time, util as util
+import socket, time, util as util
 
 class BanchoNet:	
 	def __init__(self, nick, password, channels, server, port, sender, start = False):

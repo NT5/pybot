@@ -111,46 +111,45 @@ def onModCommand(self, chan, user, cmd, text):
 				else:
 					self.message(_('7Syntax:1 %s%s %s <del/clean/ignore>') % ( prx, cmd, place ), chan )
 			elif place == 'osu':
-				val_param = util.gettext( text, 3 )
-				par_value = util.gettext( text, 4 )
 				if param == 'request':
+					_osu_user = " ".join(text.split(' ')[3:]).replace(" ", "_")
 					if value == 'set':
-						if val_param:
+						if len( _osu_user ) > 0:
 							if self.assets['config']['single_channel'].get(chan):
 								if self.assets['config']['single_channel'][chan].get("osu_req"):
-									if val_param in self.assets['config']['single_channel'][chan]["osu_req"]['users']:
-										self.message(_("10>1 \"%s\" 4is already on the list of this channel") % val_param, chan)
+									if _osu_user in self.assets['config']['single_channel'][chan]["osu_req"]['users']:
+										self.message(_("10>1 \"%s\" 4is already on the list of this channel") % _osu_user, chan)
 									else:
-										self.assets['config']['single_channel'][chan]["osu_req"]['users'].append(val_param)
+										self.assets['config']['single_channel'][chan]["osu_req"]['users'].append(_osu_user)
 								else:
-									self.assets['config']['single_channel'][chan].setdefault( "osu_req", { "active": True, "users": [val_param] } )
+									self.assets['config']['single_channel'][chan].setdefault( "osu_req", { "active": True, "users": [_osu_user] } )
 							else:
-								self.assets['config']['single_channel'].setdefault( chan, { "osu_req": { "active": True, "users": [val_param] } } )
+								self.assets['config']['single_channel'].setdefault( chan, { "osu_req": { "active": True, "users": [_osu_user] } } )
 							self.message( _("10> 14Osu request set to1 %s 14and send to13:1 %s on BanchoNet") % ( chan, ", ".join(self.assets['config']['single_channel'][chan]['osu_req']['users']) ), chan )
 						else:
-							self.message(_('7Syntax:1 %s%s %s %s <user>') % ( prx, cmd, place, param ), chan )
+							self.message(_('7Syntax:1 %s%s %s %s %s <user>') % ( prx, cmd, place, param, value ), chan )
 					elif value == 'del':
-						if val_param:
+						if len( _osu_user ) > 0:
 							if self.assets['config']['single_channel'].get(chan):
 								if self.assets['config']['single_channel'][chan].get("osu_req"):
-									if val_param in self.assets['config']['single_channel'][chan]['osu_req']['users']:
+									if _osu_user in self.assets['config']['single_channel'][chan]['osu_req']['users']:
 										if len(self.assets['config']['single_channel'][chan]['osu_req']['users']) > 1:
-											id = self.assets['config']['single_channel'][chan]['osu_req']['users'].index(val_param)
+											id = self.assets['config']['single_channel'][chan]['osu_req']['users'].index(_osu_user)
 											self.assets['config']['single_channel'][chan]['osu_req']['users'].pop(id)
-											self.message(_("10>1 \"%s\" 4deleting channel from1 %s") % (val_param, chan), chan)
+											self.message(_("10>1 \"%s\" 4deleting channel from1 %s") % (_osu_user, chan), chan)
 										else:
 											self.assets['config']['single_channel'][chan].pop('osu_req')
 											if len(self.assets['config']['single_channel'][chan]) == 0:
 												self.assets['config']['single_channel'].pop(chan)
-											self.message(_("10>1 \"%s\" 4delete from1 \"%s\"") % (val_param, chan), chan)
+											self.message(_("10>1 \"%s\" 4delete from1 \"%s\"") % (_osu_user, chan), chan)
 									else:
-										self.message( _("> %s 4is unknown name to me") % val_param, chan )
+										self.message( _("> %s 4is unknown name to me") % _osu_user, chan )
 								else:
 									self.message( _("10>1 %s 4is unknown channel to me") % chan, chan )
 							else:
 								self.message( _("10>1 %s 4is unknown channel to me") % chan, chan )
 						else:
-							self.message(_('7Syntax:1 %s%s %s %s <user>') % ( prx, cmd, place, param ), chan )
+							self.message(_('7Syntax:1 %s%s %s %s %s <user>') % ( prx, cmd, place, param, value ), chan )
 					elif value == 'remove':
 						if self.assets['config']['single_channel'].get(chan):
 							if self.assets['config']['single_channel'][chan].get("osu_req"):
@@ -185,67 +184,71 @@ def onModCommand(self, chan, user, cmd, text):
 					else:
 						self.message(_('7Syntax:1 %s%s %s <set/del/remove/turn/get>') % ( prx, cmd, place ), chan )
 				elif (param == 'bancho') | (param == 'np'):
+					_osu_chan = util.gettext( text, 3 )
+					_osu_user = " ".join(text.split(' ')[4:]).replace(" ", "_")
 					if param == 'bancho': _sec = 'bancho_listen'
 					else: _sec = 'osu_np'
 					if value:
 						if value == 'set':
-							if val_param:
-								if par_value and str(par_value)[0] == "#":
-									if self.assets['config'][_sec].get(val_param):
-										if par_value in self.assets['config'][_sec][val_param]:
-											self.message(_("10>1 \"%s\" 4is already on the list of this user") % par_value, chan)
+							if _osu_chan and str(_osu_chan)[0] == "#":
+								if len( _osu_user ) > 0:
+									if self.assets['config'][_sec].get(_osu_user):
+										if _osu_chan in self.assets['config'][_sec][_osu_user]:
+											self.message(_("10>1 \"%s\" 4is already on the list of this user") % _osu_chan, chan)
 										else:
-											self.assets['config'][_sec][val_param].append(par_value)
+											self.assets['config'][_sec][_osu_user].append(_osu_chan)
 									else:
-										self.assets['config'][_sec].setdefault(val_param, [par_value])
+										self.assets['config'][_sec].setdefault(_osu_user, [_osu_chan])
 										if param == 'np':
-											self.notice("> %s Post KEY: %s" % (val_param, cryp.encode(val_param)), user)
-									self.message( _("10> 14Messages of1 %s 14are now send to13:1 %s") % ( val_param, ", ".join(self.assets['config'][_sec][val_param]) ), chan )
+											self.notice("> %s Post KEY: %s" % (_osu_user, cryp.encode(_osu_user)), user)
+									self.message( _("10> 14Messages of1 %s 14are now send to13:1 %s") % ( _osu_user, ", ".join(self.assets['config'][_sec][_osu_user]) ), chan )
 								else:
-									self.message(_('7Syntax:1 %s%s %s %s %s %s <#channel>') % ( prx, cmd, place, param, value, val_param ), chan )
+									self.message(_('7Syntax:1 %s%s %s %s %s %s <user>') % ( prx, cmd, place, param, value, _osu_chan ), chan )
 							else:
-								self.message(_('7Syntax:1 %s%s %s %s %s <user>') % ( prx, cmd, place, param, value ), chan )
+								self.message(_('7Syntax:1 %s%s %s %s %s <#channel>') % ( prx, cmd, place, param, value ), chan )
 						elif value == 'del':
-							if val_param:
-								if par_value and str(par_value)[0] == "#":
-									if self.assets['config'][_sec].get(val_param):
-										if par_value in self.assets['config'][_sec][val_param]:
-											if len(self.assets['config'][_sec][val_param]) > 1:
-												id = self.assets['config'][_sec][val_param].index(par_value)
-												self.assets['config'][_sec][val_param].pop(id)
-												self.message(_("10>1 \"%s\" 4deleting channel from1 %s") % (par_value, val_param), chan)
+							if _osu_chan and str(_osu_chan)[0] == "#":
+								if len( _osu_user ) > 0:
+									if self.assets['config'][_sec].get(_osu_user):
+										if _osu_chan in self.assets['config'][_sec][_osu_user]:
+											if len(self.assets['config'][_sec][_osu_user]) > 1:
+												id = self.assets['config'][_sec][_osu_user].index(_osu_chan)
+												self.assets['config'][_sec][_osu_user].pop(id)
+												self.message(_("10>1 \"%s\" 4deleting channel from1 %s") % (_osu_chan, _osu_user), chan)
 											else:
-												self.assets['config'][_sec].pop( val_param )
+												self.assets['config'][_sec].pop( _osu_user )
 												if len(self.assets['config']['single_channel'][chan]) == 0:
 													self.assets['config']['single_channel'].pop(chan)
-												self.message(_("10>1 \"%s\" 4delete from1 \"%s\"") % (val_param, _sec), chan)
+												self.message(_("10>1 \"%s\" 4delete from1 \"%s\"") % (_osu_user, _sec), chan)
 										else:
-											self.message( _("10>1 %s 4is unknown channel to me") % par_value, chan )
+											self.message( _("10>1 %s 4is unknown channel to me") % _osu_chan, chan )
 									else:
-										self.message( _("> %s 4is unknown name to me") % val_param, chan )
+										self.message( _("> %s 4is unknown name to me") % _osu_user, chan )
 								else:
-									self.message(_('7Syntax:1 %s%s %s %s %s %s <#channel>') % ( prx, cmd, place, param, value, val_param ), chan )
+									self.message(_('7Syntax:1 %s%s %s %s %s %s <user>') % ( prx, cmd, place, param, value, _osu_chan ), chan )
 							else:
-								self.message(_('7Syntax:1 %s%s %s %s %s <user>') % ( prx, cmd, place, param, value ), chan )
+								self.message(_('7Syntax:1 %s%s %s %s %s <#channel>') % ( prx, cmd, place, param, value ), chan )
 						elif value == 'remove':
-							if val_param:
-								if self.assets['config'][_sec].get(val_param) != None:
-									self.assets['config'][_sec].pop( val_param )
+							_osu_user = " ".join(text.split(' ')[3:])
+							if len( _osu_user ) > 0:
+								if self.assets['config'][_sec].get(_osu_user) != None:
+									self.assets['config'][_sec].pop( _osu_user )
 									if len(self.assets['config']['single_channel'][chan]) == 0:
 										self.assets['config']['single_channel'].pop(chan)
-									self.message(_("10>1 \"%s\" 4delete from1 \"%s\"") % (val_param, _sec), chan)
+									self.message(_("10>1 \"%s\" 4delete from1 \"%s\"") % (_osu_user, _sec), chan)
 								else:
-									self.message( _("> %s 4is unknown name to me") % val_param, chan )
+									self.message( _("> %s 4is unknown name to me") % _osu_user, chan )
 							else:
 								self.message(_('7Syntax:1 %s%s %s %s %s <user>') % ( prx, cmd, place, param, value ), chan )
 						elif value == 'get':
-							if val_param:
-								if self.assets['config'][_sec].get(val_param) != None:
-									self.message( _("10> 14Messages of1 %s 14are send to13:1 %s") % ( val_param, ", ".join(self.assets['config'][_sec][val_param]) ), chan )
+							_osu_user = " ".join(text.split(' ')[3:])
+							if len( _osu_user ) > 0:
+								if self.assets['config'][_sec].get(_osu_user) != None:
+									self.message( _("10> 14Messages of1 %s 14are send to13:1 %s") % ( _osu_user, ", ".join(self.assets['config'][_sec][_osu_user]) ), chan )
 									if param == 'np':
-										self.notice("> %s Post KEY: %s" % (val_param, cryp.encode(val_param)), user)
+										self.notice("> %s Post KEY: %s" % (_osu_user, cryp.encode(_osu_user)), user)
 								else:
-									self.message( _("> %s 4is unknown name to me") % val_param, chan )
+									self.message( _("> %s 4is unknown name to me") % _osu_user, chan )
 							else:
 								self.message(_('10> 14All users of1 \"%s\"13:1 %s') % ( _sec, ", ".join(self.assets['config'][_sec]) ), chan )
 						else:
@@ -825,10 +828,10 @@ def onCommand(self, chan, user, cmd, text):
 			self.message(_("7Syntax:1 %s%s <user name/id>") % (prx, cmd), chan)
 			
 	elif cmd == 'osu':
-		if len(text) > 0: user = text.split(' ')[0]
-		else: user = 'NT5_projectd'
+		if len(text) > 0: user = text
+		else: user = '[ NT5 ]'
 		try:
-			q = util.json_request( self.assets['api']['osu']['request'] % ( self.assets['api']['osu']['url'], self.assets['api']['osu']['key'], user ), {} )[0]
+			q = util.json_request( self.assets['api']['osu']['request'] % ( self.assets['api']['osu']['url'], self.assets['api']['osu']['key'], urllib2.quote( user ) ), {} )[0]
 			self.message( _("> 6%s 3- 14Country6: 1%s 3- 14Play Count6:1 %s 3- 14Ranked Score6:1 %s 3- 14Total Score6:1 %s 3- 14Level6:1 %d 3- 14Accuracy6:1 %0.f%% 3- 14PP6:1 %0.f 3- 14Rank6:1 #%s") % ( q['username'], q['country'], util.group( int(q['playcount']) ), util.group( int(q['ranked_score']) ), util.group( int(q['total_score']) ), float( q['level'] ), float( q['accuracy']) , float( q['pp_raw'] ), util.group( int( q['pp_rank']) ) ), chan )
 		except:
 			self.message(_("4Unknown User"), chan)
@@ -960,6 +963,6 @@ def onCommand(self, chan, user, cmd, text):
 	
 	else:
 		if self.assets['commands'].get( cmd ) and self.assets['commands'][ cmd ].get( "special" ):
-			_message = self.assets['commands'][ cmd ]["special"].format( user = user, chan = chan, me = self.nick )
-			self.message( _message, chan )
+			_message = self.assets['commands'][ cmd ]["special"].format( user = user, chan = chan, me = self.nick, text = text )
+			self.message( _message.decode("unicode-escape"), chan )
 
