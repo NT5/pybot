@@ -183,10 +183,11 @@ def onModCommand(self, chan, user, cmd, text):
 							self.message( _("10>1 %s 4is unknown channel to me") % chan, chan )
 					else:
 						self.message(_('7Syntax:1 %s%s %s <set/del/remove/turn/get>') % ( prx, cmd, place ), chan )
-				elif (param == 'bancho') | (param == 'np'):
+				elif (param == 'bancho') | (param == 'np') | (param == 'lastfm'):
 					_osu_chan = util.gettext( text, 3 )
 					_osu_user = " ".join(text.split(' ')[4:]).replace(" ", "_")
 					if param == 'bancho': _sec = 'bancho_listen'
+					elif param == 'lastfm': _sec = 'last_fm'
 					else: _sec = 'osu_np'
 					if value:
 						if value == 'set':
@@ -256,29 +257,8 @@ def onModCommand(self, chan, user, cmd, text):
 					else:
 						self.message(_('7Syntax:1 %s%s %s %s <set/del/remove/get>') % ( prx, cmd, place, param ), chan )
 				else:
-					self.message(_('7Syntax:1 %s%s %s <bancho/np/request>') % ( prx, cmd, place ), chan )
-			elif place == 'lastfm':
-				if param == 'set':
-					if chan in self.assets['config']['last_fm']:
-						self.message(_("10>1 \"%s\" is already on the list of 4Last1FM!") % chan, chan)
-					else:
-						self.assets['config']['last_fm'].append( chan )
-						self.message(_("10>1 \"%s\" now accept messages from 4Last1FM") % chan, chan)
-				elif param == 'del':
-					if chan in self.assets['config']['last_fm']:
-						id = self.assets['config']['last_fm'].index( chan )
-						self.assets['config']['last_fm'].pop( id )
-						self.message(_("10>1 \"%s\" delete from 4Last1FM") % (chan), chan)
-					else:
-						self.message(_("10>1 %s 4is unknown channel to me") % chan, chan )
-				elif param == 'remove':
-					if len( self.assets['config']['last_fm'] ) > 0:
-						self.assets['config']['last_fm'] = []
-						self.message(_("10> 1All channels remove from 4Last1FM"), chan)
-					else:
-						self.message(_("10> 4There is nothing to delete"), chan)
-				else:
-					self.message(_('7Syntax:1 %s%s %s <set/del/remove>') % ( prx, cmd, place ), chan )
+					self.message(_('7Syntax:1 %s%s %s <lastfm/bancho/np/request>') % ( prx, cmd, place ), chan )
+
 			elif place == 'channel':
 				if param == 'welcome':
 					if value:
@@ -418,6 +398,13 @@ def onModCommand(self, chan, user, cmd, text):
 									self.message( _("> \"%s\" 4are now turn on for all channels") % value, chan )
 							else:
 								self.message(_(">4 This is not allowed."), chan)
+						elif self.assets['config']['single_channel'].get(chan) and self.assets['config']['single_channel'][chan].get( 'custom_command' ) and self.assets['config']['single_channel'][chan]['custom_command'].get( value ):
+							if self.assets['config']['single_channel'][chan]['custom_command'][ value ]['active'] == True:
+								self.assets['config']['single_channel'][chan]['custom_command'][ value ]['active'] = False
+								self.message( _("> \"%s\" 4are now ignore on1 %s") % ( value, chan ), chan )
+							else:
+								self.assets['config']['single_channel'][chan]['custom_command'][ value ]['active'] = True
+								self.message( _("> \"%s\" 4are now listened on1 %s") % ( value, chan ), chan )
 						else:
 							self.message( _("> %s 4is unknow command to me") % value, chan )
 					else:
@@ -463,9 +450,17 @@ def onModCommand(self, chan, user, cmd, text):
 						_message = " ".join(text.split(' ')[3:])
 						if self.assets['commands'].get( value ):
 							self.message(_("> \"%s\" 4already exist!") % value, chan)
+						elif self.assets['config']['single_channel'].get( chan ) and self.assets['config']['single_channel'][chan].get( 'custom_command' ) and self.assets['config']['single_channel'][chan]['custom_command'].get( value ):
+							self.message(_("> \"%s\" 4already exist!") % value, chan)
 						else:
 							if len( _message ) > 0:
-								self.assets['commands'].setdefault( value.lower(), {"active": True, "mod": False, "ignore": [], "special": _message} )
+								if self.assets['config']['single_channel'].get( chan ):
+									if self.assets['config']['single_channel'][ chan ].get( 'custom_command' ):
+										self.assets['config']['single_channel'][ chan ]['custom_command'].setdefault( value.lower(), {"active": True, "message": _message} )
+									else:
+										self.assets['config']['single_channel'][ chan ].setdefault( 'custom_command', { value.lower(): {"active": True, "message": _message} } )
+								else:
+									self.assets['config']['single_channel'].setdefault( chan, { 'custom_command': {value.lower(): {"active": True, "message": _message}} } )
 								self.message(_("> \"%s%s\" 10new command created") % (prx,value), chan)
 							else:
 								self.message(_('7Syntax:1 %s%s %s %s %s <message>') % ( prx, cmd, place, param, value ), chan )
@@ -473,22 +468,27 @@ def onModCommand(self, chan, user, cmd, text):
 						self.message(_('7Syntax:1 %s%s %s %s <command> <message>') % ( prx, cmd, place, param ), chan )
 				elif param == 'del':
 					if value:
-						if self.assets['commands'].get( value ):
-							if self.assets['commands'][ value ].get('special'):
-								self.assets['commands'].pop( value )
+						if self.assets['config']['single_channel'].get( chan ):
+							if self.assets['config']['single_channel'][chan].get( 'custom_command' ) and self.assets['config']['single_channel'][chan]['custom_command'].get( value ):
+								if len( self.assets['config']['single_channel'][chan]['custom_command'] ) > 1:
+									self.assets['config']['single_channel'][chan]['custom_command'].pop( value )
+								else:
+									self.assets['config']['single_channel'][chan].pop( 'custom_command' )
+								if len(self.assets['config']['single_channel'][chan]) == 0:
+									self.assets['config']['single_channel'].pop( chan )
 								self.message( _("> \"%s%s\" 4is now removed from bot") % ( prx, value ), chan )
 							else:
-								self.message(_(">4 This is not allowed."), chan)
+								self.message( _("> %s 4is unknow command to me") % value, chan )
 						else:
-							self.message( _("> %s 4is unknow command to me") % value, chan )
+							self.message(_("10> 4This channel is not configured to use this command!"), chan)
 					else:
 						self.message(_('7Syntax:1 %s%s %s %s <command>') % ( prx, cmd, place, param ), chan )
 				else:
 					self.message(_('7Syntax:1 %s%s %s <turn/ignore/formod/new/del>') % ( prx, cmd, place ), chan )
 			else:
-				self.message(_('7Syntax:1 %s%s <osu/lastfm/stats/commands/channel>') % (prx, cmd), chan )
+				self.message(_('7Syntax:1 %s%s <osu/stats/commands/channel>') % (prx, cmd), chan )
 		else:
-			self.message(_('7Syntax:1 %s%s <osu/lastfm/stats/commands/channel>') % (prx, cmd), chan )
+			self.message(_('7Syntax:1 %s%s <osu/stats/commands/channel>') % (prx, cmd), chan )
 	
 	else:
 		onCommand(self, chan, user, cmd, text)
@@ -509,6 +509,10 @@ def onCommand(self, chan, user, cmd, text):
 			if self.assets['commands'][ cmds ]['active'] != False and chan not in self.assets['commands'][ cmds ]['ignore']:
 				if self.assets['commands'][ cmds ]['mod'] and is_mod == False: pass
 				else: buffer += prx + cmds + ", "
+		if self.assets['config']['single_channel'].get(chan) and self.assets['config']['single_channel'][chan].get( 'custom_command' ):
+			for cmds in self.assets['config']['single_channel'][chan]['custom_command']:
+				if self.assets['config']['single_channel'][chan]['custom_command'][ cmds ]['active'] != False:
+					buffer += prx + cmds + ", "
 		if len( self.assets['commands'] ) > 0: self.message('>> %s' % buffer[:len(buffer)-2], chan)
 		else: self.message( _('>> No Commands Found.'), chan)
 		
@@ -962,7 +966,7 @@ def onCommand(self, chan, user, cmd, text):
 			self.message(_("7Syntax:1 %s%s <text/stop>") % (prx, cmd), chan)
 	
 	else:
-		if self.assets['commands'].get( cmd ) and self.assets['commands'][ cmd ].get( "special" ):
-			_message = self.assets['commands'][ cmd ]["special"].format( user = user, chan = chan, me = self.nick, text = text )
+		if self.assets['config']['single_channel'].get(chan) and self.assets['config']['single_channel'][chan].get( 'custom_command' ) and self.assets['config']['single_channel'][chan]['custom_command'].get( cmd ):
+			_message = self.assets['config']['single_channel'][chan]['custom_command'][cmd]['message'].format( user = user, chan = chan, me = self.nick, text = text, cmd = cmd, prx = prx )
 			self.message( _message.decode("unicode-escape"), chan )
 

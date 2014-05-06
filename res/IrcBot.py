@@ -12,7 +12,7 @@ ColoramaInit()
 COLOR = { 'black': Fore.BLACK, 'red': Fore.RED, 'green': Fore.GREEN, 'yellow': Fore.YELLOW, 'blue': Fore.BLUE, 'magenta': Fore.MAGENTA, 'cyan': Fore.CYAN, 'white': Fore.WHITE }
 
 class IrcBot:
-	version = '0.3.1'
+	version = '0.3.2'
 	
 	def __init__(self, nick, password, channels, server, sv_pass, port, path):
 		self.nick = nick
@@ -29,10 +29,9 @@ class IrcBot:
 		self.uptime = { "server": 0, "script": int( time.time() ) }
 		self.LoadAssets()
 		self._banchonet = None
+		self._lastfm = None
 		self.cleverbot = { "type": 1, "users": {} }
 		
-	def setbancho(self, obj): 
-		self._banchonet = obj
 	def start(self):
 		try:
 			self.irc = socket.socket()
@@ -60,7 +59,8 @@ class IrcBot:
 							continue
 						self.IrcListen(line)
 		except Exception, e:
-			self.c_print("%sError on script :/ - %s" % ( COLOR['red'], e ) )
+			try: self.c_print("%sError on script :/ - %s" % ( COLOR['red'], e ) )
+			except: self.c_print("%sError on script :/" % ( COLOR['red'] ) )
 			self.reconnect()
 	
 	def IrcListen(self, data):
@@ -190,6 +190,10 @@ class IrcBot:
 				tmp_text = text[len(cmd)+1:]
 				thr_cmd = None
 				cmd_info = self.assets['commands'].get( cmd[1:].lower() )
+				if cmd_info == None:
+					if self.assets['config']['single_channel'].get(chan) and self.assets['config']['single_channel'][chan].get( 'custom_command' ) and self.assets['config']['single_channel'][chan]['custom_command'].get( cmd[1:].lower() ):
+						missing = { 'ignore': [], 'mod': False }
+						cmd_info = dict( self.assets['config']['single_channel'][chan]['custom_command'][cmd[1:].lower()].items() + missing.items())
 				if user in self.assets['config']['mods']:
 					self.c_print("%s[%s] %s%-s: %s%-s" % (COLOR['green'], chan, COLOR['cyan'], user, COLOR['white'], text))
 					if self.assets['config']['prefix'] == prefix and cmd_info:
@@ -209,12 +213,20 @@ class IrcBot:
 		self.send("QUIT %s" % rq)
 		self.c_print("%s%-s" % ( COLOR['red'], "Quit: %s" % rq ) )
 	
+	def _doStop(self): self.keep = False
+	
 	def reconnect(self):
-		self.UpdateAssets()
-		self.irc.shutdown(1)
-		self.irc.close()
-		time.sleep(25)
-		self.start()
+		try:
+			self.UpdateAssets()
+			try: self.irc.shutdown(1)
+			except: pass
+			time.sleep(25)
+			self.start()
+		except Exception, e:
+			print e
+			self.c_print( "%s[-] Can't connect, trying again..." % ( COLOR['red'] ) )
+			time.sleep(30)
+			self.reconnect()
 	
 	def c_print( self, msg ):
 		msg = util.NoIrcColors( msg )
@@ -255,7 +267,8 @@ class IrcBot:
 	
 	def send( self, msg ):
 		msg = u"%s\r\n" % msg
-		self.irc.send(msg.encode('utf-8'))
+		try: self.irc.send(msg.encode('utf-8'))
+		except Exception, e: pass
 	
 	def LoadAssets(self):
 		self.assets = dict(

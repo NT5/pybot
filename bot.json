@@ -10,8 +10,7 @@
 		"port": 8090
 	},
 	"LastFM": {
-		"key": "lastfm_key",
-		"user": "lastfm_user"
+		"key": "lastfm_key"
 	},
 	"Bots": [{
 		"nick": "SampleBot",

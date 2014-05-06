@@ -4,56 +4,65 @@
 import urllib2, json, time
 
 class NpLastFM:
-	def __init__(self, api_key, user, sender):
+	def __init__(self, api_key, sender):
 		self.sender = sender
 		self.key = api_key
-		self.user = user
-		self.artist = None
-		self.name = None
-		self.url = { "base": "http://ws.audioscrobbler.com", "req": "/2.0/?method=user.getrecenttracks&limit=1&user={user}&api_key={key}&format=json".format( user = self.user, key = self.key ) }
+		self.users = {}
+		self.url = "http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&limit=1&user={user}&api_key={key}&format=json"
 		
-	def request(self):
-		url = "{base}{req}".format( base = self.url['base'], req = self.url['req'] )
-		q = urllib2.urlopen( urllib2.Request(url, None, {}) ).read()
+	def request(self, users):
+		data = {}
 		(true, false, null) = ( str( True ), str( False ), str( None ) )
-		return eval( q )
+		for user in users:
+			try:
+				url = self.url.format( user = user, key = self.key )
+				data.setdefault( user, eval( urllib2.urlopen( urllib2.Request(url, None, {}) ).read() ) )
+				time.sleep(1)
+			except: pass
+		return data
 		
-	def analyze(self):
-		try:
-			q = self.request()
-			if type(q['recenttracks']['track']) == type([]): q = q['recenttracks']['track'][0]
-			else: q = q['recenttracks']['track']
-			
-			if q.get('@attr') and q['@attr'].get('nowplaying') and q['name'] != self.name:
-				self.artist = q['artist']['#text']
-				self.name = q['name']
-				return { "name": q['name'].decode("unicode-escape"), "artist": q['artist']['#text'].decode("unicode-escape") }
-			else:
-				return None
-		except Exception, e: return None
+	def analyze(self, data):
+		_data = {}
+		for user in data:
+			try:
+				q = data[ user ]
+				if type(q['recenttracks']['track']) == type([]): q = q['recenttracks']['track'][0]
+				else: q = q['recenttracks']['track']
+				
+				if q.get('@attr') and q['@attr'].get('nowplaying'):
+					if self.users.get( user ):
+						if q['name'] != self.users[user]['name']:
+							_data.setdefault( user, { "name": q['name'].decode("unicode-escape"), "artist": q['artist']['#text'].decode("unicode-escape") } )
+						
+						self.users[ user ] = { 'artist': q['artist']['#text'], 'name': q['name'], 'date': int( time.time() ) }
+					else:
+						self.users.setdefault(user, { 'artist': q['artist']['#text'], 'name': q['name'], 'date': int( time.time() ) } )
+						_data.setdefault( user, { "name": q['name'].decode("unicode-escape"), "artist": q['artist']['#text'].decode("unicode-escape") } )
+			except: pass
+		return _data
 	
 	def run(self):
-		print "[+] [%s] LastFM Now playing started" % self.user
+		print "[+] LastFM Now playing started"
 		while True:
-			#Editable
-			_make_q = False
+			_users = []
 			for loc in self.sender:
-				for chan in loc.assets['config']['last_fm']:
-					if loc.idle['chan'].get(chan):
-						if int( int( time.time() ) - loc.idle['chan'][chan] ) <= 1800:
-							_make_q = True
-							break
-						
-			#If make request
-			if _make_q:
-				data = self.analyze()
-				if data:
-					#Send messages to bots
+				for user in loc.assets['config']['last_fm']:
+					for chan in loc.assets['config']['last_fm'][user]:
+						if loc.idle['chan'].get(chan) and int( int( time.time() ) - loc.idle['chan'][chan] ) <= 1800:
+								if user not in _users: _users.append( user )
+			
+			for x in list(self.users):
+				if int( time.time() ) - self.users[x]['date'] >= 1800: self.users.pop(x)
+				
+			if len( _users ) > 0:
+				data = self.analyze( self.request( _users ) )
+				if len( data ) > 0:
 					for loc in self.sender:
-						for chan in loc.assets['config']['last_fm']:
-							if loc.idle['chan'].get(chan):
-								if int( int( time.time() ) - loc.idle['chan'][chan] ) <= 1800:
-									loc.message( "13[0,4LastFM13]1 13[10%s13]14 %s - %s" % ( self.user, data['name'], data['artist'] ), chan, False )
+						for user in loc.assets['config']['last_fm']:
+							if data.get(user):
+								for chan in loc.assets['config']['last_fm'][user]:
+									if loc.idle['chan'].get(chan) and int( int( time.time() ) - loc.idle['chan'][chan] ) <= 1800:
+										loc.message( "13[0,4LastFM13]1 13[10%s13]14 %s - %s" % ( user, data[user]['name'], data[user]['artist'] ), chan, False )
 			#Delay
-			time.sleep(25)
+			time.sleep(35)
 

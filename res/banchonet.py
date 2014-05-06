@@ -74,10 +74,15 @@ class BanchoNet:
 			#	loc.message( "%s: %s" % ( user, text), loc.channels[0] )
 					
 	def reconnect(self):
-		self.irc.shutdown(1)
-		self.irc.close()
-		time.sleep(25)
-		self.start()
+		try:
+			try: self.irc.shutdown(1)
+			except: pass
+			time.sleep(25)
+			self.start()
+		except Exception, e:
+			print "[-] Can't connect to bancho, trying again..."
+			time.sleep(30)
+			self.reconnect()
 	
 	def Join( self, chan ):
 		self.send("JOIN %s" % chan)

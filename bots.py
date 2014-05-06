@@ -15,45 +15,57 @@ except Exception, e:
 	print "Bot File error: " + str( e )
 	sys.exit()
 	
-#MainBots
+#MainBots & vars
 Bots = []
+Threads = []
+_BanchoNet = None
+_LastFM = None
+
 for Bot in Bots_config['Bots']:
 	try:
 		print "Loading %s on %s:%i..." % (Bot['nick'], Bot['server'], Bot['port'])
 		Bots.append( IrcBot( Bot['nick'], Bot['password'], Bot['channels'], Bot['server'], Bot['sv_pass'], Bot['port'], Bot['path'] ) )
-		thr = threading.Thread(target=Bots[len(Bots)-1].start)
-		thr.setDaemon(True)
-		thr.start()
+		Threads.append(threading.Thread(target=Bots[len(Bots)-1].start))
+		
 	except Exception, e:
 		print "[-] Can't create BOT %s " % str(e)
 		
 #BanchoNet
 if Bots_config.get("BanchoNet"):
 	_BanchoNet = BanchoNet(Bots_config['BanchoNet']['nick'], Bots_config['BanchoNet']['token'], Bots_config['BanchoNet']['channels'], Bots_config['BanchoNet']['server'], Bots_config['BanchoNet']['port'], Bots)
-	thr = threading.Thread( target=_BanchoNet.start )
-	thr.setDaemon(True)
-	thr.start()
-	#Injection
-	for x in Bots:
-		x.setbancho(_BanchoNet)
-	print "[+] BanchoNet Injected!"
+	Threads.append( threading.Thread( target=_BanchoNet.start ) )
 
 #Osu!np
 if Bots_config.get("OsunpSever"):
-	thr = threading.Thread( target=OsunpServer, args=(Bots_config['OsunpSever']['port'], Bots,))
-	thr.setDaemon(True)
-	thr.start()
+	Threads.append( threading.Thread( target=OsunpServer, args=(Bots_config['OsunpSever']['port'], Bots,)) )
 	
 #LastFM
 if Bots_config.get("LastFM"):
-	_LastFM = NpLastFM( Bots_config['LastFM']['key'], Bots_config['LastFM']['user'], Bots )
-	thr = threading.Thread( target=_LastFM.run )
+	_LastFM = NpLastFM( Bots_config['LastFM']['key'], Bots )
+	Threads.append( threading.Thread( target=_LastFM.run ) )
+
+#Injection
+for x in Bots:
+	if _BanchoNet:
+		x._banchonet = _BanchoNet
+		print "[%s] [+] BanchoNet Injected" % x.nick
+	if _LastFM:
+		x._lastfm = _LastFM
+		print "[%s] [+] LastFM Injected" % x.nick
+
+#Start all Threads
+for thr in Threads:
 	thr.setDaemon(True)
 	thr.start()
+	time.sleep(1)
+print "[+] %i Threads running" % len( Threads )
 
-thr = None
+#Keeps all active
 rq = raw_input("")
 
+#Quit Bots
 for x in Bots:
 	try: x.quit("Stopped from console %s" % u"("+rq+")" if rq else "Stopped from console " )
 	except: print "[%s] Stopped from console (no quit send)" % x.nick
+
+sys.exit()
