@@ -11,14 +11,24 @@ Python IRC BOT
  - irc.gtanet.com @ Shana #anime4ever
  - http://www.twitch.tv/hendel2010
 
+View stats on http://nt5.hopto.org/irc
+
 * Multiple Irc Connections
 * IRC Protocol Support (including Twitch)
 * Names System (need improved)
 * Multi language Commands (Spanish, English)
 * Moderators System (need improved)
 * Osu! support
+  - LastFM
   - Post Server (use with Osu!np and Osu!post)
   - Bancho Network
+
+v0,3,2
+-------------------
+* LastFM Support
+* Possibility to create new custom commands
+* New "talk" command
+* Others bug fixes
 
 v0,3,1
 -------------------
