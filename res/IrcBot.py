@@ -77,6 +77,28 @@ class IrcBot:
 					for x in list( tmp ):
 						if ( int( time.time() ) - self.cleverbot['users'][ x ]['last_use'] ) >= 120:
 							del self.cleverbot['users'][ x ]
+				
+				#Clear stats
+				_range = self.assets['config']['wordstats']['clean_range']
+				if int( time.time() ) - self.assets['config']['wordstats']['last_clean'] >= _range:
+					self.assets['config']['wordstats']['last_clean'] = int( time.time() )
+					
+					for user in list( self.assets['stats']['users'] ):
+						if int( time.time() ) - self.assets['stats']['users'][ user ]['seen'] > _range:
+							self.assets['stats']['users'].pop( user )
+							
+					for chan in list( self.assets['stats']['channels'] ):
+						if int( time.time() ) - self.assets['stats']['channels'][ chan ]['seen'] > _range:
+							self.assets['stats']['channels'].pop( chan )
+							
+					for word in list( self.assets['stats']['words'] ):
+						if int( time.time() ) - self.assets['stats']['words'][ word ]['time'] > _range or self.assets['stats']['words'][ word ]['uses'] <= 5:
+							self.assets['stats']['words'].pop( word )
+							
+					for link in list( self.assets['stats']['links'] ):
+						if int( time.time() ) - self.assets['stats']['links'][ link ]['time'] > _range:
+							self.assets['stats']['links'].pop( link )
+							
 				gc.collect()
 		if event == '001':
 			self.netname = util.getNetName(data)
@@ -179,10 +201,8 @@ class IrcBot:
 				except: pass
 				
 				#Word Stats
-				if self.assets['config']['user_stats']['enable'] and user not in self.assets['config']['user_stats']['ignore']:
-					if self.assets['stats'].get( user ) == None:
-						self.assets['stats'].setdefault( user, { "letters": 0, "words": 0, "lines": 0, "smiles": 0, "seen": 0, "quote": "" } )
-					self.assets['stats'][user] = util.WordStats( self.assets['stats'][user], text, self.assets['config']['user_stats']['emoticonos'] )
+				if self.assets['config']['wordstats']['enable'] and user not in self.assets['config']['wordstats']['ignore'] and chan not in self.assets['config']['wordstats']['ignore']:
+					util.WordStats( self.assets['stats'], user, chan, text, self.assets['config']['wordstats']['emoticonos'] )				
 					
 				cmd = text.split(' ')[0]
 				try: prefix = cmd[0]
@@ -212,8 +232,6 @@ class IrcBot:
 		self.UpdateAssets()
 		self.send("QUIT %s" % rq)
 		self.c_print("%s%-s" % ( COLOR['red'], "Quit: %s" % rq ) )
-	
-	def _doStop(self): self.keep = False
 	
 	def reconnect(self):
 		try:

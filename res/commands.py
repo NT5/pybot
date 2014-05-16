@@ -72,37 +72,50 @@ def onModCommand(self, chan, user, cmd, text):
 			if place == 'stats':
 				if param == 'del':
 					if value:
-						if self.assets['stats'].get( value ):
+						if self.assets['stats']['users'].get( value ):
 							self.message( _("> %s 4is now delete from user stats.") % value, chan )
-							self.assets['stats'].pop( value )
+							self.assets['stats']['users'].pop( value )
+						elif self.assets['stats']['channels'].get( value ):
+							self.message( _("> %s 4is now delete from channel stats.") % value, chan )
+							self.assets['stats']['channels'].pop( value )
 						else:
 							self.message( _("> %s 4is unknown name to me") % value, chan )
 					else:
 						self.message(_('7Syntax:1 %s%s %s %s <user>') % ( prx, cmd, place, param ), chan )
 				elif param == 'clean':
-					users = []
-					tmp = self.assets['stats']
-					for x in tmp:
-						if ( int ( int( time.time() ) - int( self.assets['stats'][ x ]['seen'] ) ) ) >= int( self.assets['config']['user_stats']['clean_range'] ):
-							users.append( x )
-					if len( users ) > 0:
-						for x in users:
-							self.assets['stats'].pop( x )
-						self.message( _("11>1 %i 4users cleaned from users stats 1(%s)4, in a range12 %s") % ( len( users ), ", ".join(users), util.getDHMS( self.assets['config']['user_stats']['clean_range'] ) ), chan )
-					else:
-						self.message( _("11>4 No users found in range (%s)") % util.getDHMS( self.assets['config']['user_stats']['clean_range'] ), chan )
+					_dataclear = { 'users': 0, 'words': 0, 'links': 0, 'channels': 0 }
+					_range = self.assets['config']['wordstats']['clean_range']
+						
+					for user in list( self.assets['stats']['users'] ):
+						if int( time.time() ) - self.assets['stats']['users'][ user ]['seen'] > _range:
+							self.assets['stats']['users'].pop( user )
+							_dataclear['users'] += 1
+							
+					for chan in list( self.assets['stats']['channels'] ):
+						if int( time.time() ) - self.assets['stats']['channels'][ chan ]['seen'] > _range:
+							self.assets['stats']['channels'].pop( chan )
+							_dataclear['channels'] += 1
+							
+					for word in list( self.assets['stats']['words'] ):
+						if int( time.time() ) - self.assets['stats']['words'][ word ]['time'] > _range or self.assets['stats']['words'][ word ]['uses'] <= 5:
+							self.assets['stats']['words'].pop( word )
+							_dataclear['words'] += 1
+							
+					for link in list( self.assets['stats']['links'] ):
+						if int( time.time() ) - self.assets['stats']['links'][ link ]['time'] > _range:
+							self.assets['stats']['links'].pop( link )
+							_dataclear['links'] += 1
+							
+					self.message( _("11>4 Stats cleaned 1(%s)13:1 %s 4Users 3-1 %s 4Words 3-1 %s 4Links 3-1 %s 4Channels") % ( util.getDHMS( _range ), util.group(_dataclear['users']), util.group(_dataclear['words']), util.group(_dataclear['links']), util.group(_dataclear['channels']) ), chan )
 				elif param == 'ignore':
 					if value:
-						if value in self.assets['config']['user_stats']['ignore']:
-							tmp = self.assets['config']['user_stats']['ignore']
-							self.assets['config']['user_stats']['ignore'] = []
-							for x in tmp:
-								if x != value:
-									self.assets['config']['user_stats']['ignore'].append( x )
+						if value in self.assets['config']['wordstats']['ignore']:
+							id = self.assets['config']['wordstats']['ignore'].index( value )
+							self.assets['config']['wordstats']['ignore'].pop( id )
 							self.message(_("> %s 4is not more in ignore list") % value, chan)
 						else:
 							if value in self.names[ chan ]:
-								self.assets['config']['user_stats']['ignore'].append( value )
+								self.assets['config']['wordstats']['ignore'].append( value )
 								self.message( _("> %s 4are now in ignore list") % value, chan )
 							else:
 								self.message( _("> %s 4is not on1 %s") % ( value, chan ), chan )
@@ -540,26 +553,33 @@ def onCommand(self, chan, user, cmd, text):
 	
 	elif cmd == 'bot':
 		i = util.getinfo()
-		self.message(_('11>1 %s v%s by NT5 3-1 Python %s 3-1 System6:1 %s %s %s 3-1 Uptime6:1 %s 3-1 Channels6:1 %i') % ( self.nick, self.version, sys.version.splitlines()[0], i[0], i[2], i[4], util.getDHMS( int( int( time.time() ) - self.uptime['server'] )), len( self.channels )), chan )
+		self.message(_('11>1 %s v%s by NT5 3-1 Python %s 3-1 System6:1 %s %s %s 3-1 Uptime6:1 %s 3-1 Channels6:1 %i 3-1 Stats6:1 (Users6:1 %s Channels6:1 %s Words6:1 %s Links6:1 %s) 3-1 Quotes6:1 %s') % ( self.nick, self.version, sys.version.splitlines()[0], i[0], i[2], i[4], util.getDHMS( int( int( time.time() ) - self.uptime['server'] )), len( self.channels ), util.group(len(self.assets['stats']['users'])), util.group(len(self.assets['stats']['channels'])), util.group(len(self.assets['stats']['words'])), util.group(len(self.assets['stats']['links'])), util.group(len(self.assets['quotes']))), chan )
 		
 	elif cmd == 'uptime':
 		self.message( _('11>1 %s Server Uptime: %s - Script Uptime: %s') % (self.nick, util.getDHMS( int( int( time.time() ) - self.uptime['server'] )), util.getDHMS( int( int( time.time() ) - self.uptime['script'] ))), chan)
 	
 	elif cmd == '8ball':
 		if len(text) > 0:
-			bases = [_("The answer lies in your heart"), _("I do not know"), _("Almost certainly"), _("No"), _("Instead, ask why you need to ask"), _("Go away. I do not wish to answer at this time"), _("Time will only tell")]
+			bases = [_("It is certain"), _("It is decidedly so"), _("Without a doubt"), _("Yes definitely"), _("You may rely on it"), _("As I see it, yes"), _("Most likely"), _("Outlook good"), _("Yes"), _("Signs point to yes"), _("Reply hazy try again"), _("Ask again later"), _("Better not tell you now"), _("Cannot predict now"), _("Concentrate and ask again"), _("Don't count on it"), _("My reply is no"), _("My sources say no"), _("Outlook not so good"), _("Very doubtful")]
 			self.message("> 10%s" % random.choice(bases), chan)
 		else:
 			self.message(_("7Syntax:1 %s%s <question>") % (prx, cmd), chan)
 			
 	elif cmd == 'stats':
-		if len( text ) > 0: user = text
-		if self.assets['stats'].get( user ):
-			u = self.assets['stats'][ user ]
+		u = None
+		if len( text ) > 0: q = text
+		else: q = user
+		
+		if self.assets['stats']['users'].get( q ):
+			u = self.assets['stats']['users'][ q ]
+		elif self.assets['stats']['channels'].get( q ):
+			u = self.assets['stats']['channels'][ q ]
+			
+		if u:
 			Time = int( time.time() ) - u['seen']
-			self.message( _("> %s 10Stats ago13:1 %s 3-10 Letters13:1 %s 10Words13:1 %s 10Lines13:1 %s 10Smiles13:1 %s 3-1 \"%s...\"") % ( user, util.getDHMS( Time ) if Time >= 2 else _("now"), util.group( int( u['letters'] ) ), util.group( int( u['words'] ) ), util.group( int( u['lines'] ) ), util.group( int( u['smiles'] ) ), u['quote'][:50] ), chan )
+			self.message( _("> %s 10Stats ago13:1 %s 3-10 Activity points13:1 %s 3-10 Letters13:1 %s 10Words13:1 %s 10Lines13:1 %s 10Smiles13:1 %s 3-1 \"%s...\"") % ( q, util.getDHMS( Time ) if Time >= 2 else _("now"), util.group( u['timeline']['ap'] ), util.group( int( u['letters'] ) ), util.group( int( u['words'] ) ), util.group( int( u['lines'] ) ), util.group( int( u['smiles'] ) ), u['quote'][:50] ), chan )
 		else:
-			self.message( _("> %s 4is unknown name to me") % user, chan )
+			self.message( _("> %s 4is unknown name to me") % q, chan )
 			
 	elif cmd == 'away':
 		if self.assets['aways'].get( user ):

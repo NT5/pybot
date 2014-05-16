@@ -9,13 +9,65 @@ def EmoticonCount( text, string = "" ):
 	text = text.lower()
 	regex = re.compile("%s(?:\d{1,2}(?:,\d{1,2})?)?" % string, re.UNICODE)
 	return len( regex.findall( text ) )
+	
 
-def WordStats( user, text, emoticons = ""):
-	smiles = ( user['smiles'] + EmoticonCount( text, emoticons ) )
-	letters = ( len( text.replace( " ", "" ) ) + user['letters'] )
-	words = ( len( text.split( " " ) ) + user['words'] )
-	lines = ( user['lines'] + 1 )
-	return { "letters": letters, "words": words, "lines": lines, "smiles": smiles, "seen": int( time.time() ), "quote": text[:50] }
+def WordStats( src, user, chan, text, emoticons = ""):
+	_default = { "letters": 0, "words": 0, "lines": 0, "smiles": 0, "seen": 0, "quote": "", "timeline": { "ap": 0, "date": [] } }
+	if src['users'].get( user ) == None:
+		src['users'].setdefault( user, _default )
+	if src['channels'].get( chan ) == None:
+		src['channels'].setdefault( chan, _default )
+	
+	_smiles = EmoticonCount( text, emoticons )
+	_letters = len( text.replace( " ", "" ) )
+	_words = len( text.split( " " ) )
+	_lines = 1
+	
+	def _setdata( u ):
+		u['smiles'] += _smiles
+		u['letters'] += _letters
+		u['words'] += _words
+		u['lines'] += _lines
+		
+		_ap =  ( _smiles*10+_letters*3+_words*5+_lines*2 ) * (2 if int( time.time() ) - u['seen'] <= 60 else 1)
+		
+		u['timeline']['ap'] += _ap
+		if len( u['timeline']['date'] ) <= 0: u['timeline']['date'].append( { "time": int( time.time() ), "ap": u['timeline']['ap'] } )
+		else:
+			_id = ( len(u['timeline']['date'])-1 )
+			if int( time.time() ) - u['timeline']['date'][_id]['time'] <= 86400:
+				u['timeline']['date'][_id]['ap'] = u['timeline']['ap']
+			else:
+				u['timeline']['date'].append( { "time": int( time.time() ), "ap": u['timeline']['ap'] } )
+		if len( u['timeline']['date'] ) >= 16: u['timeline']['date'].pop(0)
+			
+		u['seen'] = int( time.time() )
+		u['quote'] = text[:50]
+		
+	_setdata( src['users'][ user ] )
+	_setdata( src['channels'][ chan ] )
+	
+	_urls = getURLS( text )
+	if len( _urls ) > 0:
+		for url in _urls:
+			if src['links'].get( url ):
+				src['links'][ url ]['uses'] += 1
+				src['links'][ url ]['user'] = user
+				src['links'][ url ]['time'] = int( time.time() )
+			else:
+				src['links'].setdefault( url, { 'uses': 1, 'user': user, 'time': int( time.time() ) } )
+				
+	_worddict = text.split( " " )
+	if len( _worddict ) > 0:
+		for word in _worddict:
+			if len( word ) > 3:
+				if src['words'].get( word.lower() ):
+					w = src['words'][ word.lower() ]
+					w['uses'] += 1
+					w['user'] = user
+					w['time'] = int( time.time() )
+				else:
+					src['words'].setdefault( word.lower(), { 'uses': 1, 'user': user, 'time': int( time.time() ) } )
 	
 def AutoMessages(self, show = True):
 	_count = 0
@@ -52,6 +104,10 @@ def getNetName( text ):
 def isOsuLink( text ):
 	regex = re.compile("(?:http|https)://osu.ppy.sh/(?:b|s|p)/(.+)?", re.UNICODE)
 	return regex.search(text)
+	
+def getURLS( text ):
+	regex = re.compile( "http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+", re.UNICODE )
+	return regex.findall( text )
 
 def GetLevel( data ):
 	level = data[:1]
