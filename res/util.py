@@ -57,10 +57,11 @@ def WordStats( src, user, chan, text, emoticons = ""):
 			else:
 				src['links'].setdefault( url, { 'uses': 1, 'user': user, 'time': int( time.time() ) } )
 				
-	_worddict = text.split( " " )
-	if len( _worddict ) > 0:
+	_text = removeall( text, [ ".", ",",";", "_", "-", "/", "\\", "?", "!", "&", "$", "{", "}", "[", "]", "*", "+", "(", ")", ":", "<", ">", "@", "=", "\"", "'", "%", "#" ], True )
+	if _text:
+		_worddict = _text.split( " " )
 		for word in _worddict:
-			if len( word ) > 3:
+			if len( word ) >= 3 and isInt( word ) == False:
 				if src['words'].get( word.lower() ):
 					w = src['words'][ word.lower() ]
 					w['uses'] += 1
@@ -86,8 +87,14 @@ def NoHTML( text ):
 	return parser.unescape( text )
 
 def NoIrcColors( text ):
-	regex = re.compile("\x0f|\x1f|\x02|\x03(?:\d{1,2}(?:,\d{1,2})?)?", re.UNICODE)
+	regex = re.compile("\x1d|\x0f|\x1f|\x02|\x03(?:\d{1,2}(?:,\d{1,2})?)?", re.UNICODE)
 	return regex.sub('', text)
+	
+def removeall( text, rem, non_ascii = False ):
+	if non_ascii: text = text.encode("ascii", "ignore")
+	for char in rem:
+		text = text.replace( char, '' )
+	return text if len( text ) > 0 else None
 	
 def GetMessageAction( text ):
 	regex = re.compile("\001ACTION (.+)\001(?:\d{1,2}(?:,\d{1,2})?)?", re.UNICODE)
@@ -143,6 +150,16 @@ def gettext( text, index, tock = " " ):
 		return text.split( tock )[ index ]
 	except:
 		return None
+		
+def neighborhood(iterable):
+	iterator = iter(iterable)
+	prev = None
+	item = iterator.next()
+	for next in iterator:
+		yield (prev,item,next)
+		prev = item
+		item = next
+	yield (prev,item,None)
 
 def getDHMS(seconds):
 	days = seconds / 86400
@@ -195,14 +212,6 @@ def get_google_translate(text, translate_lang, source_lang=None):
 	except Exception, e:
 		return False, '', e
 
-def parsemodes(string):
-	# +ao-vh Shana Shana Eiko Eiko
-	valid = ["q","a","o","h","v"]
-	levels = []
-	names = []
-	for level in string.split(" ")[0]:
-		levels.append( GetLevel(level) )
-
 def gettext( text, index, tock = " " ):
 	try:
 		return text.split( tock )[ index ]
@@ -215,3 +224,4 @@ def isInt(a):
 		return True
 	except:
 		return False
+

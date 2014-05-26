@@ -22,6 +22,7 @@ class IrcBot:
 		self.sv_pass = sv_pass
 		self.port = port
 		self.path = path
+		self.running = True
 		self.assets = {}
 		self.names = {}
 		self.netname = "unknown"
@@ -31,6 +32,7 @@ class IrcBot:
 		self._banchonet = None
 		self._lastfm = None
 		self.cleverbot = { "type": 1, "users": {} }
+		self.flood = {}
 		
 	def start(self):
 		try:
@@ -43,7 +45,7 @@ class IrcBot:
 			self.uptime['server'] = int( time.time() )
 			self.c_print("%s[+] Bot started" % ( COLOR['blue'] ))
 			
-			while True:
+			while self.running:
 				try: data = self.irc.recv(1204).decode("UTF-8")
 				except: data = self.irc.recv(1204)
 				if len( data ) == 0:
@@ -58,6 +60,7 @@ class IrcBot:
 						if line == '':
 							continue
 						self.IrcListen(line)
+			self.c_print("%sStopped successful" % COLOR['red'] )
 		except Exception, e:
 			try: self.c_print("%sError on script :/ - %s" % ( COLOR['red'], e ) )
 			except: self.c_print("%sError on script :/" % ( COLOR['red'] ) )
@@ -96,7 +99,7 @@ class IrcBot:
 							self.assets['stats']['words'].pop( word )
 							
 					for link in list( self.assets['stats']['links'] ):
-						if int( time.time() ) - self.assets['stats']['links'][ link ]['time'] > _range:
+						if int( time.time() ) - self.assets['stats']['links'][ link ]['time'] > _range or self.assets['stats']['links'][ link ]['uses'] <= 3:
 							self.assets['stats']['links'].pop( link )
 							
 				gc.collect()
@@ -132,6 +135,7 @@ class IrcBot:
 				if user == self.nick:
 					if self.names.get( chan ): self.names.pop( chan )
 					if self.idle['chan'].get(chan): self.idle['chan'].pop( chan )
+					if self.flood.get( chan ): self.flood.pop( chan )
 				else:
 					if self.names.get(chan):
 						if self.names[chan].get(user):
@@ -184,12 +188,13 @@ class IrcBot:
 					users = data.split(":")[2]
 					users = users.split(" ")
 					if self.names.get( chan ) == None: self.names.setdefault( chan, {} )
-					else: self.names[ chan ] = {}
-					for x in users:
-						level = util.GetLevel( x )
-						if level <= 0: name = x
-						else: name = x[1:]
-						self.names[ chan ].setdefault( name, { "level": level } )
+					for user in users:
+						level = util.GetLevel( user )
+						if level <= 0: name = user
+						else: name = user[1:]
+						if self.names[ chan ].get( name ):
+							if self.names[ chan ][ name ]['level'] != level: self.names[ chan ][ name ]['level'] = level
+						else: self.names[ chan ].setdefault( name, { "level": level } )
 				except:
 					pass
 			if event == 'PRIVMSG' and chan:
@@ -214,6 +219,39 @@ class IrcBot:
 					if self.assets['config']['single_channel'].get(chan) and self.assets['config']['single_channel'][chan].get( 'custom_command' ) and self.assets['config']['single_channel'][chan]['custom_command'].get( cmd[1:].lower() ):
 						missing = { 'ignore': [], 'mod': False }
 						cmd_info = dict( self.assets['config']['single_channel'][chan]['custom_command'][cmd[1:].lower()].items() + missing.items())
+				
+				if cmd_info and cmd_info['active'] and chan not in cmd_info['ignore'] and chan not in self.assets['config']['flood_protection']['ignore'] and self.assets['config']['flood_protection']['enable']:
+					if self.flood.get( chan ):
+						_flood = self.flood[ chan ]
+						_fltxt = cmd[1:].lower() if self.assets['config']['flood_protection']['only_cmd'] else text.lower()
+						_config = self.assets['config']['flood_protection']
+						def _updatefl():
+							_flood['time'] = int( time.time() )
+							if _flood['text'] == _fltxt: _flood['count'] +=1
+							else: _flood['count'] = 1
+							_flood['text'] = _fltxt
+							
+						if _flood['pass'] and (int( time.time() ) - _flood['time']) >= _config['block_time']:
+							_flood['count'] = 1
+							_flood['pass'] = False
+						elif _flood['pass']:
+							_updatefl()
+							cmd_info = None
+						else:
+							if _flood['count'] >= _config['max_reps'] and _flood['text'] == _fltxt and (int( time.time() ) - _flood['time']) >= _config['min_time'] and (int( time.time() ) - _flood['time']) <= _config['max_time']:
+								if _flood['pass']:
+									_updatefl()
+									cmd_info = None
+								else:
+									self.message( "13> 4Flooding with 14({reps} \"{txt}\" on {time}secs)4 blocking all commands on1 {chan} 14({timebl}secs)".format(chan = chan, reps = _flood['count'], txt = _fltxt, time = (int( time.time() ) - _flood['time']), timebl = _config['block_time']), chan )
+									_flood['pass'] = True
+									cmd_info = None
+									_updatefl()
+							else:
+								_updatefl()
+					else:
+						self.flood.setdefault( chan, { 'time': int( time.time() ), 'count': 1, 'text': cmd[1:].lower(), 'pass': False } )
+				
 				if user in self.assets['config']['mods']:
 					self.c_print("%s[%s] %s%-s: %s%-s" % (COLOR['green'], chan, COLOR['cyan'], user, COLOR['white'], text))
 					if self.assets['config']['prefix'] == prefix and cmd_info:
@@ -257,7 +295,7 @@ class IrcBot:
 	def _doJoin(self, chan, user):
 		if self.assets['config']['single_channel'].get(chan):
 			if self.assets['config']['single_channel'][chan].get("welcome_msg"):
-				try: self.message(self.assets['config']['single_channel'][chan]['welcome_msg'].format(user = user, chan = chan), chan)
+				try: self.message(self.assets['config']['single_channel'][chan]['welcome_msg'].format(user = user, chan = chan, color = "\u0003", underline = "\u001f", bold = "\u0002", italic = "\u001d"), chan)
 				except: self.message(self.assets['config']['single_channel'][chan]['welcome_msg'], chan)
 	def _doPart(self, chan, user):
 		return

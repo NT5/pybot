@@ -8,6 +8,7 @@ class NpLastFM:
 		self.sender = sender
 		self.key = api_key
 		self.users = {}
+		self.running = True
 		self.url = "http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&limit=1&user={user}&api_key={key}&format=json"
 		
 	def request(self, users):
@@ -43,7 +44,7 @@ class NpLastFM:
 	
 	def run(self):
 		print "[+] LastFM Now playing started"
-		while True:
+		while self.running:
 			_users = []
 			for loc in self.sender:
 				for user in loc.assets['config']['last_fm']:
@@ -65,4 +66,8 @@ class NpLastFM:
 										loc.message( "13[0,4LastFM13]1 13[10%s13]14 %s - %s" % ( user, data[user]['name'], data[user]['artist'] ), chan, False )
 			#Delay
 			time.sleep(35)
+			
+	def stop( self ):
+		self.running = False
+		print "[-] LastFM Now playing stopped"
 

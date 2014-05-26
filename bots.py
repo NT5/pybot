@@ -2,15 +2,17 @@
 # -⁻- coding: UTF-8 -*-
 
 import json, threading, sys, time
+import res.util as util
 from res.IrcBot import IrcBot
 from res.banchonet import BanchoNet
 from res.OsunpServer import OsunpServer
 from res.LastFMNP import NpLastFM
 
-try: config_file = sys.argv[1]
-except: config_file = 'bot.json'
+_launch_vars = {}
+for prev, item, next in util.neighborhood( sys.argv ):
+	if item[:1] == "-": _launch_vars.setdefault( item[1:], next )
 
-try: Bots_config = json.loads( open( config_file ).read() )
+try: Bots_config = json.loads( open( "bot.json" if _launch_vars.get('config') == None else _launch_vars['config'] ).read() )
 except Exception, e:
 	print "Bot File error: " + str( e )
 	sys.exit()
@@ -20,6 +22,7 @@ Bots = []
 Threads = []
 _BanchoNet = None
 _LastFM = None
+_OsuNPS = None
 
 for Bot in Bots_config['Bots']:
 	try:
@@ -37,7 +40,8 @@ if Bots_config.get("BanchoNet"):
 
 #Osu!np
 if Bots_config.get("OsunpSever"):
-	Threads.append( threading.Thread( target=OsunpServer, args=(Bots_config['OsunpSever']['port'], Bots,)) )
+	_OsuNPS = OsunpServer(Bots_config['OsunpSever']['port'], Bots)
+	Threads.append( threading.Thread( target=_OsuNPS.start ) )
 	
 #LastFM
 if Bots_config.get("LastFM"):
@@ -57,15 +61,34 @@ for x in Bots:
 for thr in Threads:
 	thr.setDaemon(True)
 	thr.start()
-	time.sleep(1)
+	time.sleep(0.5)
 print "[+] %i Threads running" % len( Threads )
 
 #Keeps all active
 rq = raw_input("")
 
-#Quit Bots
-for x in Bots:
-	try: x.quit("Stopped from console %s" % u"("+rq+")" if rq else "Stopped from console " )
-	except: print "[%s] Stopped from console (no quit send)" % x.nick
+"""Stopping all things"""
 
+#Bots
+for bot in Bots:
+	bot.running = False
+	try: bot.quit("Stopped from console %s" % u"("+rq+")" if rq else "Stopped from console " )
+	except: print "[%s] Stopped from console (no quit send)" % bot.nick
+	
+#BanchoNet
+if _BanchoNet:
+	_BanchoNet.running = False
+	_BanchoNet.quit()
+
+#Osu!np
+if _OsuNPS: _OsuNPS.stop()
+	
+#LastFM
+if _LastFM: _LastFM.stop()
+
+print "Waiting for all threads finish..."
+
+for thr in Threads: thr.join()
+
+print "Script close successful"
 sys.exit()

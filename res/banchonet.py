@@ -11,6 +11,7 @@ class BanchoNet:
 		self.server = server
 		self.port = port
 		self.sender = sender
+		self.running = True
 		if start == True: self.start()
 	
 	def start(self):
@@ -23,7 +24,7 @@ class BanchoNet:
 			self.irc.send('NICK %s\r\n' % self.nick)
 			print("[+] BanchoNet connect as %s in %s" % ( self.nick, ", ".join(self.channels) ))
 			
-			while True:
+			while self.running:
 				try: data = self.irc.recv(4096).decode("UTF-8")
 				except: data = self.irc.recv(4096)
 				if len( data ) == 0:
@@ -37,6 +38,7 @@ class BanchoNet:
 						if line == '':
 							continue
 						self.IrcListen(line)
+			print "[-] BanchoNet Stopped"
 		except Exception, e:
 			print("[-] Error on BanchoNet connection! - %s" % e )
 			self.reconnect()
@@ -46,8 +48,7 @@ class BanchoNet:
 		except: event = None
 			
 		if data.split(' ')[0] == 'PING':
-			self.send('PONG %s :TIMEOUTCHECK' % self.server)
-			self.last_ping = int( time.time() )
+			self.irc.send('PONG %s :TIMEOUTCHECK\r\n' % self.server)
 
 		if event == '001':
 			for chan in self.channels:
@@ -88,5 +89,8 @@ class BanchoNet:
 		self.send("JOIN %s" % chan)
 	def send( self, msg ):
 		msg = u"%s\r\n" % msg
-		self.irc.send(msg.encode('utf-8'))
+		self.irc.send(msg.encode('utf-8'))	
+	def quit(self, rq = "Shutdown"):
+		self.send("QUIT %s" % rq)
+		print "[-] BanchoNet Quit: %s" % rq
 

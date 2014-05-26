@@ -86,14 +86,14 @@ def onModCommand(self, chan, user, cmd, text):
 					_dataclear = { 'users': 0, 'words': 0, 'links': 0, 'channels': 0 }
 					_range = self.assets['config']['wordstats']['clean_range']
 						
-					for user in list( self.assets['stats']['users'] ):
-						if int( time.time() ) - self.assets['stats']['users'][ user ]['seen'] > _range:
-							self.assets['stats']['users'].pop( user )
+					for _user in list( self.assets['stats']['users'] ):
+						if int( time.time() ) - self.assets['stats']['users'][ _user ]['seen'] > _range:
+							self.assets['stats']['users'].pop( _user )
 							_dataclear['users'] += 1
 							
-					for chan in list( self.assets['stats']['channels'] ):
-						if int( time.time() ) - self.assets['stats']['channels'][ chan ]['seen'] > _range:
-							self.assets['stats']['channels'].pop( chan )
+					for _chan in list( self.assets['stats']['channels'] ):
+						if int( time.time() ) - self.assets['stats']['channels'][ _chan ]['seen'] > _range:
+							self.assets['stats']['channels'].pop( _chan )
 							_dataclear['channels'] += 1
 							
 					for word in list( self.assets['stats']['words'] ):
@@ -102,7 +102,7 @@ def onModCommand(self, chan, user, cmd, text):
 							_dataclear['words'] += 1
 							
 					for link in list( self.assets['stats']['links'] ):
-						if int( time.time() ) - self.assets['stats']['links'][ link ]['time'] > _range:
+						if int( time.time() ) - self.assets['stats']['links'][ link ]['time'] > _range or self.assets['stats']['links'][ link ]['uses'] <= 3:
 							self.assets['stats']['links'].pop( link )
 							_dataclear['links'] += 1
 							
@@ -114,11 +114,8 @@ def onModCommand(self, chan, user, cmd, text):
 							self.assets['config']['wordstats']['ignore'].pop( id )
 							self.message(_("> %s 4is not more in ignore list") % value, chan)
 						else:
-							if value in self.names[ chan ]:
-								self.assets['config']['wordstats']['ignore'].append( value )
-								self.message( _("> %s 4are now in ignore list") % value, chan )
-							else:
-								self.message( _("> %s 4is not on1 %s") % ( value, chan ), chan )
+							self.assets['config']['wordstats']['ignore'].append( value )
+							self.message( _("> %s 4are now in ignore list") % value, chan )
 					else:
 						self.message(_('7Syntax:1 %s%s %s %s <user>') % ( prx, cmd, place, param ), chan )
 				else:
@@ -306,6 +303,62 @@ def onModCommand(self, chan, user, cmd, text):
 							self.message(_('7Syntax:1 %s%s %s %s <set/remove>') % ( prx, cmd, place, param ), chan )
 					else:
 						self.message(_('7Syntax:1 %s%s %s %s <set/remove>') % ( prx, cmd, place, param ), chan )
+				elif param == 'join':
+					if value and value[:1] == "#":
+						self.Join( value )
+						if value not in self.channels: self.channels.append( value )
+					else:
+						self.message( _('7Syntax:1 %s%s %s %s <#channel>') % ( prx, cmd, place, param ), chan )
+				elif param == 'part':
+					if value and value[:1] == "#":
+						self.Part( value )
+						if value in self.channels: self.channels.pop( self.channels.index( value ) )
+					else:
+						self.message( _('7Syntax:1 %s%s %s %s <#channel>') % ( prx, cmd, place, param ), chan )
+				elif param == 'flood':
+					if value == 'turn':
+						if self.assets['config']['flood_protection']['enable']: self.assets['config']['flood_protection']['enable'] = False
+						else: self.assets['config']['flood_protection']['enable'] = True
+						self.message( _("10>14 Flood protection are now turned %s") % ( _("on") if self.assets['config']['flood_protection']['enable'] == True else _("off") ), chan )
+					elif value == 'ignore':
+						if chan in self.assets['config']['flood_protection']['ignore']: 
+							self.assets['config']['flood_protection']['ignore'].pop( self.assets['config']['flood_protection']['ignore'].index( chan ) )
+							self.message(_("> %s 4is not more in ignore list") % chan, chan)
+						else:
+							self.assets['config']['flood_protection']['ignore'].append( chan )
+							self.message( _("> %s 4are now in ignore list") % chan, chan )
+					elif value == 'docmd':
+						if self.assets['config']['flood_protection']['only_cmd']: self.assets['config']['flood_protection']['only_cmd'] = False
+						else: self.assets['config']['flood_protection']['only_cmd'] = True
+						self.message( _("10>14 Flood protection catch %s") % (_("only commands") if self.assets['config']['flood_protection']['only_cmd'] == True else _("all text with commands") ), chan )
+					elif value == 'level':
+						_level = util.gettext( text, 3 )
+						_flood = self.assets['config']['flood_protection']
+						if _level:
+							if _level == 'high':
+								_flood['block_time'] = 30
+								_flood['max_reps'] = 3
+								_flood['max_time'] = 10
+								_flood['min_time'] = 1
+								self.message( _("13> 4Flood protection established to %s level 14(Block Time: %isecs - Max Reps: %i - Max Time: %isecs - Min Time: %isecs)") % ( _level, _flood['block_time'], _flood['max_reps'], _flood['max_time'], _flood['min_time'] ), chan )
+							elif _level == 'medium':
+								_flood['block_time'] = 5
+								_flood['max_reps'] = 5
+								_flood['max_time'] = 5
+								_flood['min_time'] = 1
+								self.message( _("13> 4Flood protection established to %s level 14(Block Time: %isecs - Max Reps: %i - Max Time: %isecs - Min Time: %isecs)") % ( _level, _flood['block_time'], _flood['max_reps'], _flood['max_time'], _flood['min_time'] ), chan )
+							elif _level == 'low':
+								_flood['block_time'] = 3
+								_flood['max_reps'] = 8
+								_flood['max_time'] = 3
+								_flood['min_time'] = 1
+								self.message( _("13> 4Flood protection established to %s level 14(Block Time: %isecs - Max Reps: %i - Max Time: %isecs - Min Time: %isecs)") % ( _level, _flood['block_time'], _flood['max_reps'], _flood['max_time'], _flood['min_time'] ), chan )
+							else:
+								self.message( _('7Syntax:1 %s%s %s %s %s <high/medium/low>') % ( prx, cmd, place, param, value ), chan )
+						else:
+							self.message( _('7Syntax:1 %s%s %s %s %s <high/medium/low>') % ( prx, cmd, place, param, value ), chan )
+					else:
+						self.message( _('7Syntax:1 %s%s %s %s <turn/ignore/docmd/level>') % ( prx, cmd, place, param ), chan )
 				elif param == 'automessages':
 					if value == 'set':
 						_message = " ".join(text.split(' ')[3:])
@@ -397,7 +450,7 @@ def onModCommand(self, chan, user, cmd, text):
 					else:
 						self.message(_('7Syntax:1 %s%s %s %s <set/del/remove/turn/list>') % ( prx, cmd, place, param ), chan )
 				else:
-					self.message(_('7Syntax:1 %s%s %s <welcome/automessages>') % ( prx, cmd, place ), chan )
+					self.message(_('7Syntax:1 %s%s %s <join/part/welcome/automessages/flood>') % ( prx, cmd, place ), chan )
 			elif place == 'commands':
 				if param == 'turn':
 					if value:
@@ -553,7 +606,7 @@ def onCommand(self, chan, user, cmd, text):
 	
 	elif cmd == 'bot':
 		i = util.getinfo()
-		self.message(_('11>1 %s v%s by NT5 3-1 Python %s 3-1 System6:1 %s %s %s 3-1 Uptime6:1 %s 3-1 Channels6:1 %i 3-1 Stats6:1 (Users6:1 %s Channels6:1 %s Words6:1 %s Links6:1 %s) 3-1 Quotes6:1 %s') % ( self.nick, self.version, sys.version.splitlines()[0], i[0], i[2], i[4], util.getDHMS( int( int( time.time() ) - self.uptime['server'] )), len( self.channels ), util.group(len(self.assets['stats']['users'])), util.group(len(self.assets['stats']['channels'])), util.group(len(self.assets['stats']['words'])), util.group(len(self.assets['stats']['links'])), util.group(len(self.assets['quotes']))), chan )
+		self.message(_('11>1 %s v%s by NT5 3-1 Python %s 3-1 System6:1 %s %s %s 3-1 Uptime6:1 %s 3-1 Channels6:1 %i 3-1 Stats6:1 (Users6:1 %s Channels6:1 %s Words6:1 %s Links6:1 %s) 3-1 Quotes6:1 %s 3-1 Aways6:1 %s') % ( self.nick, self.version, sys.version.splitlines()[0], i[0], i[2], i[4], util.getDHMS( int( int( time.time() ) - self.uptime['server'] )), len( self.channels ), util.group(len(self.assets['stats']['users'])), util.group(len(self.assets['stats']['channels'])), util.group(len(self.assets['stats']['words'])), util.group(len(self.assets['stats']['links'])), util.group(len(self.assets['quotes'])), util.group(len(self.assets['aways']))), chan )
 		
 	elif cmd == 'uptime':
 		self.message( _('11>1 %s Server Uptime: %s - Script Uptime: %s') % (self.nick, util.getDHMS( int( int( time.time() ) - self.uptime['server'] )), util.getDHMS( int( int( time.time() ) - self.uptime['script'] ))), chan)
@@ -721,6 +774,7 @@ def onCommand(self, chan, user, cmd, text):
 						if util.isOsuLink( text ):
 							for _user in self.assets['config']['single_channel'][chan]['osu_req']['users']:
 								self._banchonet.send("PRIVMSG %s :[REQUEST] [%s]: %s" % (_user, user, text))
+								time.sleep(1)
 							self.message(_("10> 14Your request was sent13:1 \"%s\" 14to13:1 %s") % (text, ", ".join(self.assets['config']['single_channel'][chan]['osu_req']['users'])), chan)
 						else:
 							self.message(_("10> 4Invalid link!"), chan)
@@ -831,7 +885,7 @@ def onCommand(self, chan, user, cmd, text):
 	
 	elif cmd == 'facebook':
 		if len( text ) > 0:
-			search = str( urllib2.quote( text.encode("utf-8") ) )
+			search = str( urllib2.quote( text.encode("utf-8").replace( ' ', '.' ) ) )
 			try:
 				messages = []
 				q = util.json_request( self.assets['api']['facebook']['request'][0] % ( self.assets['api']['facebook']['url'], search ), {} )
@@ -987,6 +1041,9 @@ def onCommand(self, chan, user, cmd, text):
 	
 	else:
 		if self.assets['config']['single_channel'].get(chan) and self.assets['config']['single_channel'][chan].get( 'custom_command' ) and self.assets['config']['single_channel'][chan]['custom_command'].get( cmd ):
-			_message = self.assets['config']['single_channel'][chan]['custom_command'][cmd]['message'].format( user = user, chan = chan, me = self.nick, text = text, cmd = cmd, prx = prx )
-			self.message( _message.decode("unicode-escape"), chan )
+			try:
+				_message = self.assets['config']['single_channel'][chan]['custom_command'][cmd]['message'].format( user = user, chan = chan, me = self.nick, text = text, cmd = cmd, prx = prx, color = "\u0003", underline = "\u001f", bold = "\u0002", italic = "\u001d" )
+				self.message( _message.decode("unicode-escape"), chan )
+			except:
+				self.message( self.assets['config']['single_channel'][chan]['custom_command'][cmd]['message'], chan )
 

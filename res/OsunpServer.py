@@ -9,6 +9,7 @@ cryp = Encryp()
 class osunp_handler_class(BaseHTTPRequestHandler):
 	def log_message(self, format, *args):
 		return
+			
 	def _set_headers(self, code = 200):
 		self.send_response(code)
 		self.send_header('Content-type', 'text/html')
@@ -90,7 +91,15 @@ class SenderIns:
 		
 class OsunpServer:
 	def __init__(self, port, sender):
-		print "[+] Osu!np server started"
 		SenderIns.senders = sender
+		self.port = port
 		self.server = HTTPServer(('', port), osunp_handler_class)
+		
+	def start(self):
+		print "[+] Osu!np server started in port %s" % self.port 
 		self.server.serve_forever()
+		
+	def stop(self):
+		self.server.shutdown()
+		print "[-] Osu!np server stopped"
+	
