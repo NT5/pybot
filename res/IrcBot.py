@@ -12,7 +12,7 @@ ColoramaInit()
 COLOR = { 'black': Fore.BLACK, 'red': Fore.RED, 'green': Fore.GREEN, 'yellow': Fore.YELLOW, 'blue': Fore.BLUE, 'magenta': Fore.MAGENTA, 'cyan': Fore.CYAN, 'white': Fore.WHITE }
 
 class IrcBot:
-	version = '0.3.2'
+	version = '0.3.3 beta build 7'
 	
 	def __init__(self, nick, password, channels, server, sv_pass, port, path):
 		self.nick = nick
@@ -33,6 +33,7 @@ class IrcBot:
 		self._lastfm = None
 		self.cleverbot = { "type": 1, "users": {} }
 		self.flood = {}
+		self.limiter = { 'messages': { 'allowance': 15, 'rate': 15, 'per': 1, 'last_check': int( time.time() ) }, 'commands': {  } }
 		
 	def start(self):
 		try:
@@ -48,7 +49,7 @@ class IrcBot:
 			while self.running:
 				try: data = self.irc.recv(1204).decode("UTF-8")
 				except: data = self.irc.recv(1204)
-				if len( data ) == 0:
+				if len( data ) == 0 and self.running:
 					self.c_print("%s%-s" % ( COLOR['red'], "Server Closed the connection." ) )
 					self.c_print("%s%-s" % ( COLOR['blue'], "[+] Reconnecting...." ))
 					self.reconnect()
@@ -64,7 +65,7 @@ class IrcBot:
 		except Exception, e:
 			try: self.c_print("%sError on script :/ - %s" % ( COLOR['red'], e ) )
 			except: self.c_print("%sError on script :/" % ( COLOR['red'] ) )
-			self.reconnect()
+			if self.running: self.reconnect()
 	
 	def IrcListen(self, data):
 		try: event = data.split(' ')[1]
@@ -180,23 +181,29 @@ class IrcBot:
 							if self.idle['chan'].get(chan): self.idle['chan'][chan] = int(time.time())
 							if self.names[chan].get(user): self.names[chan].pop(user)
 			if event == 'TOPIC':
-				topic = data.split(":")[2]
+				topic =	" ".join(data.split(':')[2:])
 				self.c_print("%s[%s] %s changes topic to: %s" % ( COLOR['green'], chan, user, util.NoIrcColors( topic ) ))
 				if self.idle['chan'].get(chan): self.idle['chan'][chan] = int(time.time())
 			if event == '353':
 				try:
 					users = data.split(":")[2]
-					users = users.split(" ")
 					if self.names.get( chan ) == None: self.names.setdefault( chan, {} )
-					for user in users:
-						level = util.GetLevel( user )
-						if level <= 0: name = user
-						else: name = user[1:]
-						if self.names[ chan ].get( name ):
-							if self.names[ chan ][ name ]['level'] != level: self.names[ chan ][ name ]['level'] = level
-						else: self.names[ chan ].setdefault( name, { "level": level } )
+					if self.names[chan].get( '@_tmpnames' ):
+						self.names[chan]['@_tmpnames'].append( users )
+					self.names[chan].setdefault( '@_tmpnames', [users] )
 				except:
 					pass
+			if event == '366':
+				if self.names.get( chan ) and self.names[chan].get( "@_tmpnames" ):
+					_tmp_names = self.names[chan]["@_tmpnames"]
+					self.names[ chan ] = { }
+					for _lnames in _tmp_names:
+						_lnames = _lnames.split(" ")
+						for user in _lnames:
+							level = util.GetLevel( user )
+							if level <= 0: name = user
+							else: name = user[1:]
+							self.names[ chan ].setdefault( name, { "level": level } )
 			if event == 'PRIVMSG' and chan:
 				if self.idle['chan'].get(chan): self.idle['chan'][chan] = int(time.time())
 				try:
@@ -219,6 +226,11 @@ class IrcBot:
 					if self.assets['config']['single_channel'].get(chan) and self.assets['config']['single_channel'][chan].get( 'custom_command' ) and self.assets['config']['single_channel'][chan]['custom_command'].get( cmd[1:].lower() ):
 						missing = { 'ignore': [], 'mod': False }
 						cmd_info = dict( self.assets['config']['single_channel'][chan]['custom_command'][cmd[1:].lower()].items() + missing.items())
+				
+				if cmd_info and chan not in cmd_info['ignore']:
+					if self.limiter['commands'].get( chan ):
+						if cmd[1:].lower() in self.limiter['commands'][ chan ]:
+							cmd_info = None
 				
 				if cmd_info and cmd_info['active'] and chan not in cmd_info['ignore'] and chan not in self.assets['config']['flood_protection']['ignore'] and self.assets['config']['flood_protection']['enable']:
 					if self.flood.get( chan ):
@@ -272,17 +284,18 @@ class IrcBot:
 		self.c_print("%s%-s" % ( COLOR['red'], "Quit: %s" % rq ) )
 	
 	def reconnect(self):
-		try:
-			self.UpdateAssets()
-			try: self.irc.shutdown(1)
-			except: pass
-			time.sleep(25)
-			self.start()
-		except Exception, e:
-			print e
-			self.c_print( "%s[-] Can't connect, trying again..." % ( COLOR['red'] ) )
-			time.sleep(30)
-			self.reconnect()
+		if self.running:
+			try:
+				self.UpdateAssets()
+				try: self.irc.shutdown(1)
+				except: pass
+				time.sleep(25)
+				self.start()
+			except Exception, e:
+				print e
+				self.c_print( "%s[-] Can't connect, trying again..." % ( COLOR['red'] ) )
+				time.sleep(30)
+				self.reconnect()
 	
 	def c_print( self, msg ):
 		msg = util.NoIrcColors( msg )
@@ -310,16 +323,28 @@ class IrcBot:
 		self.send("JOIN %s" % chan)
 	def Part(self, chan):
 		self.send("PART %s" % chan)
-	def notice( self, msg, place ):
-		self.send( "NOTICE %s :%s" % ( place.encode('utf-8'), msg.encode('utf-8') ) )	
-	def action( self, msg, channel ):
-		self.send("PRIVMSG %s :\001ACTION %s\001" % ( channel.encode('utf-8'), msg.encode('utf-8') ))
-	def message(self, msg, chan, show = True):
-		if self.assets['config'].get('nocolors'): msg = util.NoIrcColors( msg )
-		if show == True: self.c_print( "%s[%s] %s%-s: %s%-s" % (COLOR['green'], chan, COLOR['yellow'], self.nick, COLOR['white'], msg[:450]) )
-		self.send("PRIVMSG %s :%s" % (chan, msg[:450]))
-		if len(msg) > 450:
-			self.message( msg[450:], chan )
+	
+	def message(self, msg, chan, show = True, type = "m"):
+		current = int( time.time() )
+		time_passed = (current - self.limiter['messages']['last_check'])
+		self.limiter['messages']['last_check'] = current
+		self.limiter['messages']['allowance'] += time_passed * (self.limiter['messages']['rate'] / self.limiter['messages']['per'])
+		if self.limiter['messages']['allowance'] > self.limiter['messages']['rate']:
+			self.limiter['messages']['allowance'] = self.limiter['messages']['rate']
+		if self.limiter['messages']['allowance'] < 1: 
+			timer = threading.Timer(1.5, self.message, [msg, chan,  show, type])
+			timer.start()
+		else:
+			self.limiter['messages']['allowance'] -= 1
+			if self.assets['config'].get('nocolors'): msg = util.NoIrcColors( msg )
+			if show == True: self.c_print( "%s[%s] %s%-s: %s%-s" % (COLOR['green'], chan, COLOR['yellow'], self.nick, COLOR['white'], msg[:450]) )
+			
+			if type == "n": self.send( "NOTICE %s :%s" % ( chan, msg[:450]) )
+			elif type == "a": self.send( "PRIVMSG %s :\001ACTION %s\001" % ( chan, msg[:450]) )
+			else: self.send( "PRIVMSG %s :%s" % ( chan, msg[:450]) )
+			
+			if len(msg) > 450:
+				self.message( msg[450:], chan,  show, type)
 	
 	def send( self, msg ):
 		msg = u"%s\r\n" % msg

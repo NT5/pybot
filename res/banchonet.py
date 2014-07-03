@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -⁻- coding: UTF-8 -*-
 
-import socket, time, util as util
+import socket, time, threading, util as util
 
 class BanchoNet:	
 	def __init__(self, nick, password, channels, server, port, sender, start = False):
@@ -12,6 +12,7 @@ class BanchoNet:
 		self.port = port
 		self.sender = sender
 		self.running = True
+		self.limiter = { 'allowance': 3, 'rate': 3, 'per': 1, 'last_check': int( time.time() ) }
 		if start == True: self.start()
 	
 	def start(self):
@@ -27,7 +28,7 @@ class BanchoNet:
 			while self.running:
 				try: data = self.irc.recv(4096).decode("UTF-8")
 				except: data = self.irc.recv(4096)
-				if len( data ) == 0:
+				if len( data ) == 0 and self.running:
 					print "[-] BanchoNet Reconnecting...."
 					self.reconnect()
 					break
@@ -41,7 +42,7 @@ class BanchoNet:
 			print "[-] BanchoNet Stopped"
 		except Exception, e:
 			print("[-] Error on BanchoNet connection! - %s" % e )
-			self.reconnect()
+			if self.running: self.reconnect()
 	
 	def IrcListen(self, data):
 		try: event = data.split(' ')[1]
@@ -70,26 +71,47 @@ class BanchoNet:
 					for chan in loc.assets['config']['bancho_listen'][user]:
 						if loc.idle['chan'].get(chan):
 							if int( int( time.time() ) - loc.idle['chan'][chan] ) <= 1800:
-								loc.message( "13[Osu!] [10%s13]14 %s" % (user, text), chan, False )
+								loc.message( "13[Osu!] [10%s13]14 %s" % (user, text), chan, show = False )
 			#for loc in self.sender:
 			#	loc.message( "%s: %s" % ( user, text), loc.channels[0] )
 					
 	def reconnect(self):
-		try:
-			try: self.irc.shutdown(1)
-			except: pass
-			time.sleep(25)
-			self.start()
-		except Exception, e:
-			print "[-] Can't connect to bancho, trying again..."
-			time.sleep(30)
-			self.reconnect()
+		if self.running:
+			try:
+				try: self.irc.shutdown(1)
+				except: pass
+				time.sleep(25)
+				self.start()
+			except Exception, e:
+				print "[-] Can't connect to bancho, trying again..."
+				time.sleep(30)
+				self.reconnect()
 	
 	def Join( self, chan ):
 		self.send("JOIN %s" % chan)
+		
 	def send( self, msg ):
 		msg = u"%s\r\n" % msg
-		self.irc.send(msg.encode('utf-8'))	
+		self.irc.send(msg.encode('utf-8'))
+	
+	def message(self, msg, chan):
+		current = int( time.time() )
+		time_passed = (current - self.limiter['last_check'])
+		self.limiter['last_check'] = current
+		self.limiter['allowance'] += time_passed * (self.limiter['rate'] / self.limiter['per'])
+		
+		if self.limiter['allowance'] > self.limiter['rate']:
+			self.limiter['allowance'] = self.limiter['rate']
+		
+		if self.limiter['allowance'] < 1: 
+			timer = threading.Timer(2.5, self.message, [msg, chan])
+			timer.start()
+		else:
+			self.limiter['allowance'] -= 1
+			self.send( "PRIVMSG %s :%s" % ( chan, msg[:450]) )
+			if len(msg) > 450:
+				self.message( msg[450:], chan )
+	
 	def quit(self, rq = "Shutdown"):
 		self.send("QUIT %s" % rq)
 		print "[-] BanchoNet Quit: %s" % rq

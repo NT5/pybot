@@ -19,7 +19,7 @@
 	},
 	"osu": {
 		"url": "https://osu.ppy.sh/api/",
-		"request": "%sget_user?k=%s&m=0&u=%s",
+		"request": "%sget_user?k=%s&m=%i&u=%s",
 		"key": "osu_api_key"
 	},
 	"twitch": {

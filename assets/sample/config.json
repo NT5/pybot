@@ -9,7 +9,8 @@
 	"KICK",
 	"TOPIC",
 	"PRIVMSG",
-	"353"],
+	"353",
+	"366"],
 	"use_langs": {
 		"es_ES": [],
 		"en_US": []

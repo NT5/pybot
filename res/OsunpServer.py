@@ -51,7 +51,7 @@ class osunp_handler_class(BaseHTTPRequestHandler):
 					for loc in SenderIns.senders:
 						if loc.assets['config']['osu_np'].get(user):
 							for chan in loc.assets['config']['osu_np'][user]:
-								loc.message( "13[Osu!] [10%s13]14 %s" % (user, " - ".join(messages)), chan, False )
+								loc.message( "13[Osu!] [10%s13]14 %s" % (user, " - ".join(messages)), chan, show = False )
 							self.wfile.write("<h1>[%s] Accepted</h1>" % loc.nick)
 						else:
 							self.wfile.write("<h1>[%s] Access denied!</h1>" % loc.nick)
@@ -96,7 +96,7 @@ class OsunpServer:
 		self.server = HTTPServer(('', port), osunp_handler_class)
 		
 	def start(self):
-		print "[+] Osu!np server started in port %s" % self.port 
+		print "[+] Osu!np server started on port %s" % self.port 
 		self.server.serve_forever()
 		
 	def stop(self):

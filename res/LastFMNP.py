@@ -9,6 +9,9 @@ class NpLastFM:
 		self.key = api_key
 		self.users = {}
 		self.running = True
+		self.limiter = { 'rate': 1500, 'per': (5 * 60) }
+		self.allowance = self.limiter['rate']
+		self.last_check = int( time.time() )
 		self.url = "http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&limit=1&user={user}&api_key={key}&format=json"
 		
 	def request(self, users):
@@ -16,9 +19,21 @@ class NpLastFM:
 		(true, false, null) = ( str( True ), str( False ), str( None ) )
 		for user in users:
 			try:
-				url = self.url.format( user = user, key = self.key )
-				data.setdefault( user, eval( urllib2.urlopen( urllib2.Request(url, None, {}) ).read() ) )
-				time.sleep(1)
+				current = int( time.time() )
+				time_passed = (current - self.last_check)
+				self.last_check = current
+				self.allowance += time_passed * (self.limiter['rate'] / self.limiter['per'])
+				if self.allowance > self.limiter['rate']:
+					self.allowance = self.limiter['rate']
+				if self.allowance < 1:
+					print "[-] LastFM rate limit exceeded"
+					self.allowance = self.limiter['rate']
+					time.sleep(60)
+				else:
+					url = self.url.format( user = user, key = self.key )
+					data.setdefault( user, eval( urllib2.urlopen( urllib2.Request(url, None, {}) ).read() ) )
+					self.allowance -= 1
+					time.sleep(1)
 			except: pass
 		return data
 		

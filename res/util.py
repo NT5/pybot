@@ -10,7 +10,6 @@ def EmoticonCount( text, string = "" ):
 	regex = re.compile("%s(?:\d{1,2}(?:,\d{1,2})?)?" % string, re.UNICODE)
 	return len( regex.findall( text ) )
 	
-
 def WordStats( src, user, chan, text, emoticons = ""):
 	_default = { "letters": 0, "words": 0, "lines": 0, "smiles": 0, "seen": 0, "quote": "", "timeline": { "ap": 0, "date": [] } }
 	if src['users'].get( user ) == None:
@@ -57,7 +56,7 @@ def WordStats( src, user, chan, text, emoticons = ""):
 			else:
 				src['links'].setdefault( url, { 'uses': 1, 'user': user, 'time': int( time.time() ) } )
 				
-	_text = removeall( text, [ ".", ",",";", "_", "-", "/", "\\", "?", "!", "&", "$", "{", "}", "[", "]", "*", "+", "(", ")", ":", "<", ">", "@", "=", "\"", "'", "%", "#" ], True )
+	_text = removeall( text, [ ".", ",",";", "_", "-", "/", "\\", "?", "!", "&", "$", "{", "}", "[", "]", "*", "+", "(", ")", ":", "<", ">", "@", "=", "\"", "'", "%", "#", "~", "^" ], True, " " )
 	if _text:
 		_worddict = _text.split( " " )
 		for word in _worddict:
@@ -70,6 +69,20 @@ def WordStats( src, user, chan, text, emoticons = ""):
 				else:
 					src['words'].setdefault( word.lower(), { 'uses': 1, 'user': user, 'time': int( time.time() ) } )
 	
+def _cmdLimiter( self, action, chan, cmd ):
+	if action == 'b':
+		if self.limiter['commands'].get( chan ):
+			if cmd not in self.limiter['commands'][ chan ]:
+				self.limiter['commands'][ chan ].append( cmd )
+		else:
+			self.limiter['commands'].setdefault( chan, [ cmd ] )
+	else:
+		if self.limiter['commands'].get( chan ) and cmd in self.limiter['commands'][ chan ]:
+			if len( self.limiter['commands'][ chan ] ) == 1:
+				self.limiter['commands'].pop( chan )
+			else:
+				self.limiter['commands'][ chan ].pop( self.limiter['commands'][ chan ].index( cmd ) )
+
 def AutoMessages(self, show = True):
 	_count = 0
 	for chan in self.assets['config']['single_channel']:
@@ -81,6 +94,12 @@ def AutoMessages(self, show = True):
 	timer = threading.Timer(900, AutoMessages, [self])
 	if _count >= 1: timer.start()
 	else: timer.cancel()
+	
+def GetLangStrings( self, strings, user ):
+	if self.assets['config']['use_langs'].get('es_ES') and user in self.assets['config']['use_langs']['es_ES']:
+		return strings["es_ES"].gettext
+	else:
+		return strings["en_US"].gettext
 
 def NoHTML( text ):
 	parser = HTMLParser()
@@ -90,10 +109,10 @@ def NoIrcColors( text ):
 	regex = re.compile("\x1d|\x0f|\x1f|\x02|\x03(?:\d{1,2}(?:,\d{1,2})?)?", re.UNICODE)
 	return regex.sub('', text)
 	
-def removeall( text, rem, non_ascii = False ):
+def removeall( text, rem, non_ascii = False, re_char = '' ):
 	if non_ascii: text = text.encode("ascii", "ignore")
 	for char in rem:
-		text = text.replace( char, '' )
+		text = text.replace( char, re_char )
 	return text if len( text ) > 0 else None
 	
 def GetMessageAction( text ):
@@ -188,14 +207,16 @@ def group(number):
 	
 def json_request( url, headers, met = None ):
 	req = urllib2.Request(url, met, headers)
-	json = urllib2.urlopen(req).read()
+	json = urllib2.urlopen(req, timeout = 15).read()
 	(true,false,null) = (str( True ),str( False ),str( None ))
 	return eval(json)
 	
 def web_request( url, headers = { 'User-Agent' : 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)' } ):
 	req = urllib2.Request(url, None, headers)
-	response = urllib2.urlopen( req )
-	return response.read()
+	query = urllib2.urlopen( req, timeout = 15 )
+	response = query.read()
+	query.close()
+	return response
 	
 def get_google_translate(text, translate_lang, source_lang=None):
 	if source_lang == None: source_lang= 'auto' 
@@ -203,7 +224,7 @@ def get_google_translate(text, translate_lang, source_lang=None):
 	http_headers = {"User-Agent":"Mozilla/4.0 (compatible; MSIE 5.5;Windows NT)"} 
 	request_object = urllib2.Request('http://translate.google.com/translate_a/t?'+params, None, http_headers)
 	try: 
-		response = urllib2.urlopen(request_object)
+		response = urllib2.urlopen(request_object, timeout = 15)
 		string = re.sub(',,,|,,',',"0",', response.read()) 
 		n = json.loads(string) 
 		translate_text = n[0][0][0] 
@@ -211,6 +232,13 @@ def get_google_translate(text, translate_lang, source_lang=None):
 		return True, res_source_lang, translate_text 
 	except Exception, e:
 		return False, '', e
+
+def uniq(input):
+	output = []
+	for x in input:
+		if x not in output:
+			output.append(x)
+	return output
 
 def gettext( text, index, tock = " " ):
 	try:

@@ -25,30 +25,27 @@ for lang in LANG:
 
 	
 def onModCommand(self, chan, user, cmd, text):
-	if self.assets['config']['use_langs'].get('es_ES') and user in self.assets['config']['use_langs']['es_ES']:
-		_ = strings["es_ES"].gettext
-	else:
-		_ = strings["en_US"].gettext
+	_ = util.GetLangStrings( self, strings, user )
 	
 	prx = self.assets['config']['prefix']
 	if cmd == 'exe':
 		if len(text) > 0:
 			try: exec text
 			except Exception, e:
-				self.message( _('4Error:1 %s') % str( e ), chan )		
+				self.message( _('4Error:1 %s') % str( e ), chan )	
 		else:
-			self.message( _("%s%s <string code>") % (prx, cmd), chan)
+			self.message(_("7Syntax:1 {syntax}").format(syntax = "%s%s <python>" % (prx, cmd)), chan)
 			
 	elif cmd == 'adduser':
 		if len(text) > 0:
 			text2 = text.split(' ')[0]
 			if text2 in self.assets['config']['mods']:
-				self.message(_("10>1 %s already in bot list.") % text2, chan)
+				self.message(_("10>1 %s is already in a bot list.") % text2, chan)
 			else:
 				self.assets['config']['mods'].append( text2 )
-				self.message(_("10>1 %s is now bot user.") % text2, chan)
+				self.message(_("10>1 %s is now a bot user.") % text2, chan)
 		else:
-			self.message(_("7Syntax:1 %s%s <user>, Current Users: %s") % (prx, cmd, ", ".join(self.assets['config']['mods'])), chan)
+			self.message(_("7Syntax:1 {syntax}").format(syntax = "%s%s <user> [%s]" % (prx, cmd, ", ".join(self.assets['config']['mods']))), chan)
 	
 	elif cmd == 'deluser':
 		if len(text) > 0:
@@ -58,11 +55,11 @@ def onModCommand(self, chan, user, cmd, text):
 				self.assets['config']['mods'] = []
 				for x in list(tmp):
 					if x != exclude: self.assets['config']['mods'].append( x )
-				self.message(_("10>1 %s is not more bot user.") % exclude, chan)
+				self.message(_("10>1 %s is no longer a bot user") % exclude, chan)
 			else:
 				self.message(_("10>1 %s unknown name, Current Users: %s") % (exclude, ", ".join(self.assets['config']['mods'])), chan)
 		else:
-			self.message(_("7Syntax:1 %s%s <user>, Current Users: %s") % (prx, cmd, ", ".join(self.assets['config']['mods'])), chan)
+			self.message(_("7Syntax:1 {syntax}").format(syntax = "%s%s <user> [%s]" % (prx, cmd, ", ".join(self.assets['config']['mods']))), chan)
 	
 	elif cmd == 'control':
 		if len(text) > 0:
@@ -73,15 +70,15 @@ def onModCommand(self, chan, user, cmd, text):
 				if param == 'del':
 					if value:
 						if self.assets['stats']['users'].get( value ):
-							self.message( _("> %s 4is now delete from user stats.") % value, chan )
+							self.message( _("> %s 4has been deleted from user stats.") % value, chan )
 							self.assets['stats']['users'].pop( value )
 						elif self.assets['stats']['channels'].get( value ):
-							self.message( _("> %s 4is now delete from channel stats.") % value, chan )
+							self.message( _("> %s 4has been deleted from channel stats") % value, chan )
 							self.assets['stats']['channels'].pop( value )
 						else:
-							self.message( _("> %s 4is unknown name to me") % value, chan )
+							self.message( _("> %s 4is a unknown name to me") % value, chan )
 					else:
-						self.message(_('7Syntax:1 %s%s %s %s <user>') % ( prx, cmd, place, param ), chan )
+						self.message(_("7Syntax:1 {syntax}").format(syntax = "%s%s %s %s <user>" % (prx, cmd, place, param)), chan)
 				elif param == 'clean':
 					_dataclear = { 'users': 0, 'words': 0, 'links': 0, 'channels': 0 }
 					_range = self.assets['config']['wordstats']['clean_range']
@@ -112,14 +109,14 @@ def onModCommand(self, chan, user, cmd, text):
 						if value in self.assets['config']['wordstats']['ignore']:
 							id = self.assets['config']['wordstats']['ignore'].index( value )
 							self.assets['config']['wordstats']['ignore'].pop( id )
-							self.message(_("> %s 4is not more in ignore list") % value, chan)
+							self.message(_("> %s 4is no longer on ignore list") % value, chan)
 						else:
 							self.assets['config']['wordstats']['ignore'].append( value )
-							self.message( _("> %s 4are now in ignore list") % value, chan )
+							self.message( _("> %s 4is now on ignore list") % value, chan )
 					else:
-						self.message(_('7Syntax:1 %s%s %s %s <user>') % ( prx, cmd, place, param ), chan )
+						self.message(_("7Syntax:1 {syntax}").format(syntax = "%s%s %s %s <user>" % (prx, cmd, place, param)), chan)
 				else:
-					self.message(_('7Syntax:1 %s%s %s <del/clean/ignore>') % ( prx, cmd, place ), chan )
+					self.message(_("7Syntax:1 {syntax}").format(syntax = "%s%s %s <del/clean/ignore>" % (prx, cmd, place)), chan)
 			elif place == 'osu':
 				if param == 'request':
 					_osu_user = " ".join(text.split(' ')[3:]).replace(" ", "_")
@@ -128,7 +125,7 @@ def onModCommand(self, chan, user, cmd, text):
 							if self.assets['config']['single_channel'].get(chan):
 								if self.assets['config']['single_channel'][chan].get("osu_req"):
 									if _osu_user in self.assets['config']['single_channel'][chan]["osu_req"]['users']:
-										self.message(_("10>1 \"%s\" 4is already on the list of this channel") % _osu_user, chan)
+										self.message(_("10>1 \"%s\" 4is already on the channel's list") % _osu_user, chan)
 									else:
 										self.assets['config']['single_channel'][chan]["osu_req"]['users'].append(_osu_user)
 								else:
@@ -137,7 +134,7 @@ def onModCommand(self, chan, user, cmd, text):
 								self.assets['config']['single_channel'].setdefault( chan, { "osu_req": { "active": True, "users": [_osu_user] } } )
 							self.message( _("10> 14Osu request set to1 %s 14and send to13:1 %s on BanchoNet") % ( chan, ", ".join(self.assets['config']['single_channel'][chan]['osu_req']['users']) ), chan )
 						else:
-							self.message(_('7Syntax:1 %s%s %s %s %s <user>') % ( prx, cmd, place, param, value ), chan )
+							self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s %s %s %s <user>" % (prx, cmd, place, param, value)), chan)
 					elif value == 'del':
 						if len( _osu_user ) > 0:
 							if self.assets['config']['single_channel'].get(chan):
@@ -153,13 +150,13 @@ def onModCommand(self, chan, user, cmd, text):
 												self.assets['config']['single_channel'].pop(chan)
 											self.message(_("10>1 \"%s\" 4delete from1 \"%s\"") % (_osu_user, chan), chan)
 									else:
-										self.message( _("> %s 4is unknown name to me") % _osu_user, chan )
+										self.message( _("> %s 4is a unknown name to me") % _osu_user, chan )
 								else:
-									self.message( _("10>1 %s 4is unknown channel to me") % chan, chan )
+									self.message( _("10>1 %s 4is a unknown channel to me") % chan, chan )
 							else:
-								self.message( _("10>1 %s 4is unknown channel to me") % chan, chan )
+								self.message( _("10>1 %s 4is a unknown channel to me") % chan, chan )
 						else:
-							self.message(_('7Syntax:1 %s%s %s %s %s <user>') % ( prx, cmd, place, param, value ), chan )
+							self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s %s %s %s <user>" % (prx, cmd, place, param, value)), chan)
 					elif value == 'remove':
 						if self.assets['config']['single_channel'].get(chan):
 							if self.assets['config']['single_channel'][chan].get("osu_req"):
@@ -169,30 +166,30 @@ def onModCommand(self, chan, user, cmd, text):
 									self.assets['config']['single_channel'].pop(chan)
 								self.message(_("10>1 \"%s\" 4delete from1 \"%s\"") % (", ".join(_users), chan), chan)
 							else:
-								self.message( _("10>1 %s 4is unknown channel to me") % chan, chan )
+								self.message( _("10>1 %s 4is a unknown channel to me") % chan, chan )
 						else:
-							self.message( _("10>1 %s 4is unknown channel to me") % chan, chan )
+							self.message( _("10>1 %s 4is a unknown channel to me") % chan, chan )
 					elif value == 'turn':
 						if self.assets['config']['single_channel'].get(chan):
 							if self.assets['config']['single_channel'][chan].get("osu_req"):
 								_Ac = self.assets['config']['single_channel'][chan]['osu_req']['active']
 								if _Ac == True: self.assets['config']['single_channel'][chan]['osu_req']['active'] = False
 								else: self.assets['config']['single_channel'][chan]['osu_req']['active'] = True
-								self.message(_("10>14 Osu!request are now turned %s, in1 %s") % ( _("off") if _Ac == True else _("on"), chan ), chan)
+								self.message(_("10>14 Osu!request has been turned %s, at1 %s") % ( _("off") if _Ac == True else _("on"), chan ), chan)
 							else:
-								self.message( _("10>1 %s 4is unknown channel to me") % chan, chan )
+								self.message( _("10>1 %s 4is a unknown channel to me") % chan, chan )
 						else:
-							self.message( _("10>1 %s 4is unknown channel to me") % chan, chan )
+							self.message( _("10>1 %s 4is a unknown channel to me") % chan, chan )
 					elif value == 'get':
 						if self.assets['config']['single_channel'].get(chan):
 							if self.assets['config']['single_channel'][chan].get("osu_req"):
-								self.message(_("10> 13Osu!request14 on1 %s 14are send to1 %s") % ( chan, ", ".join(self.assets['config']['single_channel'][chan]['osu_req']['users'])), chan)
+								self.message(_("10> 13Osu!request14 at1 %s 14has been sent to1 %s") % ( chan, ", ".join(self.assets['config']['single_channel'][chan]['osu_req']['users'])), chan)
 							else:
-								self.message( _("10>1 %s 4is unknown channel to me") % chan, chan )
+								self.message( _("10>1 %s 4is a unknown channel to me") % chan, chan )
 						else:
-							self.message( _("10>1 %s 4is unknown channel to me") % chan, chan )
+							self.message( _("10>1 %s 4is a unknown channel to me") % chan, chan )
 					else:
-						self.message(_('7Syntax:1 %s%s %s <set/del/remove/turn/get>') % ( prx, cmd, place ), chan )
+						self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s %s <set/del/remove/turn/get>" % (prx, cmd, place)), chan)
 				elif (param == 'bancho') | (param == 'np') | (param == 'lastfm'):
 					_osu_chan = util.gettext( text, 3 )
 					_osu_user = " ".join(text.split(' ')[4:]).replace(" ", "_")
@@ -205,18 +202,18 @@ def onModCommand(self, chan, user, cmd, text):
 								if len( _osu_user ) > 0:
 									if self.assets['config'][_sec].get(_osu_user):
 										if _osu_chan in self.assets['config'][_sec][_osu_user]:
-											self.message(_("10>1 \"%s\" 4is already on the list of this user") % _osu_chan, chan)
+											self.message(_("10>1 \"%s\" 4is already on the user's list") % _osu_chan, chan)
 										else:
 											self.assets['config'][_sec][_osu_user].append(_osu_chan)
 									else:
 										self.assets['config'][_sec].setdefault(_osu_user, [_osu_chan])
 										if param == 'np':
 											self.notice("> %s Post KEY: %s" % (_osu_user, cryp.encode(_osu_user)), user)
-									self.message( _("10> 14Messages of1 %s 14are now send to13:1 %s") % ( _osu_user, ", ".join(self.assets['config'][_sec][_osu_user]) ), chan )
+									self.message( _("10>14Messages of1 %s 14have been sent to13:1 %s") % ( _osu_user, ", ".join(self.assets['config'][_sec][_osu_user]) ), chan )
 								else:
-									self.message(_('7Syntax:1 %s%s %s %s %s %s <user>') % ( prx, cmd, place, param, value, _osu_chan ), chan )
+									self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s %s %s %s %s <user>" % (prx, cmd, place, param, value, _osu_chan)), chan)
 							else:
-								self.message(_('7Syntax:1 %s%s %s %s %s <#channel>') % ( prx, cmd, place, param, value ), chan )
+								self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s %s %s %s <#channel>" % (prx, cmd, place, param, value)), chan)
 						elif value == 'del':
 							if _osu_chan and str(_osu_chan)[0] == "#":
 								if len( _osu_user ) > 0:
@@ -228,46 +225,42 @@ def onModCommand(self, chan, user, cmd, text):
 												self.message(_("10>1 \"%s\" 4deleting channel from1 %s") % (_osu_chan, _osu_user), chan)
 											else:
 												self.assets['config'][_sec].pop( _osu_user )
-												if len(self.assets['config']['single_channel'][chan]) == 0:
-													self.assets['config']['single_channel'].pop(chan)
 												self.message(_("10>1 \"%s\" 4delete from1 \"%s\"") % (_osu_user, _sec), chan)
 										else:
-											self.message( _("10>1 %s 4is unknown channel to me") % _osu_chan, chan )
+											self.message( _("10>1 %s 4is a unknown channel to me") % _osu_chan, chan )
 									else:
-										self.message( _("> %s 4is unknown name to me") % _osu_user, chan )
+										self.message( _("> %s 4is a unknown name to me") % _osu_user, chan )
 								else:
-									self.message(_('7Syntax:1 %s%s %s %s %s %s <user>') % ( prx, cmd, place, param, value, _osu_chan ), chan )
+									self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s %s %s %s %s <user>" % (prx, cmd, place, param, value, _osu_chan)), chan)
 							else:
-								self.message(_('7Syntax:1 %s%s %s %s %s <#channel>') % ( prx, cmd, place, param, value ), chan )
+								self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s %s %s %s <#channel>" % (prx, cmd, place, param, value)), chan)
 						elif value == 'remove':
 							_osu_user = " ".join(text.split(' ')[3:])
 							if len( _osu_user ) > 0:
 								if self.assets['config'][_sec].get(_osu_user) != None:
 									self.assets['config'][_sec].pop( _osu_user )
-									if len(self.assets['config']['single_channel'][chan]) == 0:
-										self.assets['config']['single_channel'].pop(chan)
 									self.message(_("10>1 \"%s\" 4delete from1 \"%s\"") % (_osu_user, _sec), chan)
 								else:
-									self.message( _("> %s 4is unknown name to me") % _osu_user, chan )
+									self.message( _("> %s 4is a unknown name to me") % _osu_user, chan )
 							else:
-								self.message(_('7Syntax:1 %s%s %s %s %s <user>') % ( prx, cmd, place, param, value ), chan )
+								self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s %s %s %s <user>" % (prx, cmd, place, param, value)), chan)
 						elif value == 'get':
 							_osu_user = " ".join(text.split(' ')[3:])
 							if len( _osu_user ) > 0:
 								if self.assets['config'][_sec].get(_osu_user) != None:
-									self.message( _("10> 14Messages of1 %s 14are send to13:1 %s") % ( _osu_user, ", ".join(self.assets['config'][_sec][_osu_user]) ), chan )
+									self.message( _("10>14Messages of1 %s 14have been sent to13:1 %s") % ( _osu_user, ", ".join(self.assets['config'][_sec][_osu_user]) ), chan )
 									if param == 'np':
 										self.notice("> %s Post KEY: %s" % (_osu_user, cryp.encode(_osu_user)), user)
 								else:
-									self.message( _("> %s 4is unknown name to me") % _osu_user, chan )
+									self.message( _("> %s 4is a unknown name to me") % _osu_user, chan )
 							else:
 								self.message(_('10> 14All users of1 \"%s\"13:1 %s') % ( _sec, ", ".join(self.assets['config'][_sec]) ), chan )
 						else:
-							self.message(_('7Syntax:1 %s%s %s %s <set/del/remove/get>') % ( prx, cmd, place, param ), chan )
+							self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s %s %s <set/del/remove/get>" % (prx, cmd, place, param)), chan)
 					else:
-						self.message(_('7Syntax:1 %s%s %s %s <set/del/remove/get>') % ( prx, cmd, place, param ), chan )
+						self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s %s %s <set/del/remove/get>" % (prx, cmd, place, param)), chan)
 				else:
-					self.message(_('7Syntax:1 %s%s %s <lastfm/bancho/np/request>') % ( prx, cmd, place ), chan )
+					self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s %s <lastfm/bancho/np/request>" % (prx, cmd, place)), chan)
 
 			elif place == 'channel':
 				if param == 'welcome':
@@ -284,9 +277,9 @@ def onModCommand(self, chan, user, cmd, text):
 										self.assets['config']['single_channel'][chan].setdefault("welcome_msg", _message)
 								else:
 									self.assets['config']['single_channel'].setdefault(chan, { "welcome_msg": _message })
-								self.message(_("10>14 Welcome message of1 %s 14set at13:1 \"%s\"") % (chan, _message), chan)
+								self.message(_("10>14 Welcome message from1 %s 14set at13:1 \"%s\"") % (chan, _message), chan)
 							else:
-								self.message(_('7Syntax:1 %s%s %s %s %s <message>') % ( prx, cmd, place, param, value ), chan )
+								self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s %s %s %s <message>" % (prx, cmd, place, param, value)), chan)
 						elif value == 'remove':
 							if self.assets['config']['single_channel'].get(chan):
 								if self.assets['config']['single_channel'][chan].get("welcome_msg"):
@@ -300,33 +293,33 @@ def onModCommand(self, chan, user, cmd, text):
 							else:
 								self.message(_("10> 4This channel is not configured to use this command!"), chan)
 						else:
-							self.message(_('7Syntax:1 %s%s %s %s <set/remove>') % ( prx, cmd, place, param ), chan )
+							self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s %s %s <set/remove>" % (prx, cmd, place, param)), chan)
 					else:
-						self.message(_('7Syntax:1 %s%s %s %s <set/remove>') % ( prx, cmd, place, param ), chan )
+						self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s %s %s <set/remove>" % (prx, cmd, place, param)), chan)
 				elif param == 'join':
 					if value and value[:1] == "#":
 						self.Join( value )
 						if value not in self.channels: self.channels.append( value )
 					else:
-						self.message( _('7Syntax:1 %s%s %s %s <#channel>') % ( prx, cmd, place, param ), chan )
+						self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s %s %s <#channel>" % (prx, cmd, place, param)), chan)
 				elif param == 'part':
 					if value and value[:1] == "#":
 						self.Part( value )
 						if value in self.channels: self.channels.pop( self.channels.index( value ) )
 					else:
-						self.message( _('7Syntax:1 %s%s %s %s <#channel>') % ( prx, cmd, place, param ), chan )
+						self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s %s %s <#channel>" % (prx, cmd, place, param)), chan)
 				elif param == 'flood':
 					if value == 'turn':
 						if self.assets['config']['flood_protection']['enable']: self.assets['config']['flood_protection']['enable'] = False
 						else: self.assets['config']['flood_protection']['enable'] = True
-						self.message( _("10>14 Flood protection are now turned %s") % ( _("on") if self.assets['config']['flood_protection']['enable'] == True else _("off") ), chan )
+						self.message( _("10>14 Flood protection has been turned %s") % ( _("on") if self.assets['config']['flood_protection']['enable'] == True else _("off") ), chan )
 					elif value == 'ignore':
 						if chan in self.assets['config']['flood_protection']['ignore']: 
 							self.assets['config']['flood_protection']['ignore'].pop( self.assets['config']['flood_protection']['ignore'].index( chan ) )
-							self.message(_("> %s 4is not more in ignore list") % chan, chan)
+							self.message(_("> %s 4is no longer on ignore list") % chan, chan)
 						else:
 							self.assets['config']['flood_protection']['ignore'].append( chan )
-							self.message( _("> %s 4are now in ignore list") % chan, chan )
+							self.message( _("> %s 4is now on ignore list") % chan, chan )
 					elif value == 'docmd':
 						if self.assets['config']['flood_protection']['only_cmd']: self.assets['config']['flood_protection']['only_cmd'] = False
 						else: self.assets['config']['flood_protection']['only_cmd'] = True
@@ -354,11 +347,11 @@ def onModCommand(self, chan, user, cmd, text):
 								_flood['min_time'] = 1
 								self.message( _("13> 4Flood protection established to %s level 14(Block Time: %isecs - Max Reps: %i - Max Time: %isecs - Min Time: %isecs)") % ( _level, _flood['block_time'], _flood['max_reps'], _flood['max_time'], _flood['min_time'] ), chan )
 							else:
-								self.message( _('7Syntax:1 %s%s %s %s %s <high/medium/low>') % ( prx, cmd, place, param, value ), chan )
+								self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s %s %s %s <high/medium/low>" % (prx, cmd, place, param, value)), chan)
 						else:
-							self.message( _('7Syntax:1 %s%s %s %s %s <high/medium/low>') % ( prx, cmd, place, param, value ), chan )
+							self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s %s %s %s <high/medium/low>" % (prx, cmd, place, param, value)), chan)
 					else:
-						self.message( _('7Syntax:1 %s%s %s %s <turn/ignore/docmd/level>') % ( prx, cmd, place, param ), chan )
+						self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s %s %s <turn/ignore/docmd/level>" % (prx, cmd, place, param)), chan)
 				elif param == 'automessages':
 					if value == 'set':
 						_message = " ".join(text.split(' ')[3:])
@@ -382,7 +375,7 @@ def onModCommand(self, chan, user, cmd, text):
 								i += 1
 							self.message(_("10> 14Auto messages with13:1 %s 14and on a loop of 25min.") % (buffer[:len(buffer)-2]), chan)
 						else:
-							self.message(_('7Syntax:1 %s%s %s %s %s <message>') % ( prx, cmd, place, param, value ), chan )
+							self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s %s %s %s <message>" % (prx, cmd, place, param, value)), chan)
 					elif value == 'del':
 						id = util.gettext( text, 3 )
 						if id:
@@ -409,7 +402,7 @@ def onModCommand(self, chan, user, cmd, text):
 							else:
 								self.message(_("> %s is unknown message ID") % id, chan)
 						else:
-							self.message(_('7Syntax:1 %s%s %s %s %s <id>') % ( prx, cmd, place, param, value ), chan )
+							self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s %s %s %s <id>" % (prx, cmd, place, param, value)), chan)
 					elif value == 'remove':
 						if self.assets['config']['single_channel'].get(chan):
 							if self.assets['config']['single_channel'][chan].get('auto_msgs'):
@@ -448,9 +441,9 @@ def onModCommand(self, chan, user, cmd, text):
 						else:
 							self.message(_("10> 4This channel is not configured to use this command!"), chan)
 					else:
-						self.message(_('7Syntax:1 %s%s %s %s <set/del/remove/turn/list>') % ( prx, cmd, place, param ), chan )
+						self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s %s %s <set/del/remove/turn/list>" % (prx, cmd, place, param)), chan)
 				else:
-					self.message(_('7Syntax:1 %s%s %s <join/part/welcome/automessages/flood>') % ( prx, cmd, place ), chan )
+					self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s %s <join/part/welcome/automessages/flood>" % (prx, cmd, place)), chan)
 			elif place == 'commands':
 				if param == 'turn':
 					if value:
@@ -472,9 +465,9 @@ def onModCommand(self, chan, user, cmd, text):
 								self.assets['config']['single_channel'][chan]['custom_command'][ value ]['active'] = True
 								self.message( _("> \"%s\" 4are now listened on1 %s") % ( value, chan ), chan )
 						else:
-							self.message( _("> %s 4is unknow command to me") % value, chan )
+							self.message( _("> %s 4is a unknow command to me") % value, chan )
 					else:
-						self.message(_('7Syntax:1 %s%s %s %s <command>') % ( prx, cmd, place, param ), chan )
+						self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s %s %s <command>" % (prx, cmd, place, param)), chan)
 				elif param == 'ignore':
 					if value:
 						if value != cmd:
@@ -490,11 +483,11 @@ def onModCommand(self, chan, user, cmd, text):
 											self.assets['commands'][ value ]['ignore'].append( x )
 									self.message( _("> \"%s\" 4are now listened on1 %s") % ( value, chan ), chan )
 							else:
-								self.message( _("> %s 4is unknow command to me") % value, chan )
+								self.message( _("> %s 4is a unknow command to me") % value, chan )
 						else:
 							self.message(_(">4 This is not allowed."), chan)
 					else:
-						self.message(_('7Syntax:1 %s%s %s %s <command>') % ( prx, cmd, place, param ), chan )
+						self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s %s %s <command>" % (prx, cmd, place, param)), chan)
 				elif param == 'formod':
 					if value:
 						if value != cmd:
@@ -506,18 +499,18 @@ def onModCommand(self, chan, user, cmd, text):
 									self.assets['commands'][ value ]['mod'] = True
 									self.message( _(">4 Now1 \"%s\" 4is only for bot users") % value, chan )
 							else:
-								self.message( _("> %s 4is unknow command to me") % value, chan )
+								self.message( _("> %s 4is a unknow command to me") % value, chan )
 						else:
 							self.message(_(">4 This is not allowed."), chan)
 					else:
-						self.message('7Syntax:1 %s%s %s %s <command>' % ( prx, cmd, place, param ), chan )
+						self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s %s %s <command>" % (prx, cmd, place, param)), chan)
 				elif param == 'new':
 					if value:
 						_message = " ".join(text.split(' ')[3:])
 						if self.assets['commands'].get( value ):
-							self.message(_("> \"%s\" 4already exist!") % value, chan)
+							self.message(_("> \"%s\" 4already exists!") % value, chan)
 						elif self.assets['config']['single_channel'].get( chan ) and self.assets['config']['single_channel'][chan].get( 'custom_command' ) and self.assets['config']['single_channel'][chan]['custom_command'].get( value ):
-							self.message(_("> \"%s\" 4already exist!") % value, chan)
+							self.message(_("> \"%s\" 4already exists!") % value, chan)
 						else:
 							if len( _message ) > 0:
 								if self.assets['config']['single_channel'].get( chan ):
@@ -529,9 +522,9 @@ def onModCommand(self, chan, user, cmd, text):
 									self.assets['config']['single_channel'].setdefault( chan, { 'custom_command': {value.lower(): {"active": True, "message": _message}} } )
 								self.message(_("> \"%s%s\" 10new command created") % (prx,value), chan)
 							else:
-								self.message(_('7Syntax:1 %s%s %s %s %s <message>') % ( prx, cmd, place, param, value ), chan )
+								self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s %s %s %s <message>" % (prx, cmd, place, param, value)), chan)
 					else:
-						self.message(_('7Syntax:1 %s%s %s %s <command> <message>') % ( prx, cmd, place, param ), chan )
+						self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s %s %s <command> <message>" % (prx, cmd, place, param)), chan)
 				elif param == 'del':
 					if value:
 						if self.assets['config']['single_channel'].get( chan ):
@@ -544,26 +537,23 @@ def onModCommand(self, chan, user, cmd, text):
 									self.assets['config']['single_channel'].pop( chan )
 								self.message( _("> \"%s%s\" 4is now removed from bot") % ( prx, value ), chan )
 							else:
-								self.message( _("> %s 4is unknow command to me") % value, chan )
+								self.message( _("> %s 4is a unknow command to me") % value, chan )
 						else:
 							self.message(_("10> 4This channel is not configured to use this command!"), chan)
 					else:
-						self.message(_('7Syntax:1 %s%s %s %s <command>') % ( prx, cmd, place, param ), chan )
+						self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s %s %s <command>" % (prx, cmd, place, param)), chan)
 				else:
-					self.message(_('7Syntax:1 %s%s %s <turn/ignore/formod/new/del>') % ( prx, cmd, place ), chan )
+					self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s %s <turn/ignore/formod/new/del>" % (prx, cmd, place)), chan)
 			else:
-				self.message(_('7Syntax:1 %s%s <osu/stats/commands/channel>') % (prx, cmd), chan )
+				self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s <osu/stats/commands/channel>" % (prx, cmd)), chan)
 		else:
-			self.message(_('7Syntax:1 %s%s <osu/stats/commands/channel>') % (prx, cmd), chan )
+			self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s <osu/stats/commands/channel>" % (prx, cmd)), chan)
 	
 	else:
 		onCommand(self, chan, user, cmd, text)
 	
 def onCommand(self, chan, user, cmd, text):
-	if self.assets['config']['use_langs'].get('es_ES') and user in self.assets['config']['use_langs']['es_ES']:
-		_ = strings["es_ES"].gettext
-	else:
-		_ = strings["en_US"].gettext
+	_ = util.GetLangStrings( self, strings, user )
 	
 	prx = self.assets['config']['prefix']
 	
@@ -586,7 +576,7 @@ def onCommand(self, chan, user, cmd, text):
 		if len(text) > 0:
 			if text in LANG:
 				if user in self.assets['config']['use_langs'][text]:
-					self.message(_("10>4 You already using this language"), chan)
+					self.message(_("10>4 You are already using this language"), chan)
 				else:
 					self.assets['config']['use_langs'][text].append(user)
 					tmp = self.assets['config']['use_langs']
@@ -600,9 +590,9 @@ def onCommand(self, chan, user, cmd, text):
 										self.assets['config']['use_langs'][x].append(_user)
 					self.message(_("10>1 %s 14change your own language to1 %s") % (user, text), chan)
 			else:
-				self.message(_("7Syntax:1 %s%s %s") % (prx, cmd, ", ".join(LANG)), chan)
+				self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s %s" % (prx, cmd, ", ".join(LANG)) ), chan)
 		else:
-			self.message(_("7Syntax:1 %s%s %s") % (prx, cmd, ", ".join(LANG)), chan)
+			self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s %s" % (prx, cmd, ", ".join(LANG)) ), chan)
 	
 	elif cmd == 'bot':
 		i = util.getinfo()
@@ -616,7 +606,7 @@ def onCommand(self, chan, user, cmd, text):
 			bases = [_("It is certain"), _("It is decidedly so"), _("Without a doubt"), _("Yes definitely"), _("You may rely on it"), _("As I see it, yes"), _("Most likely"), _("Outlook good"), _("Yes"), _("Signs point to yes"), _("Reply hazy try again"), _("Ask again later"), _("Better not tell you now"), _("Cannot predict now"), _("Concentrate and ask again"), _("Don't count on it"), _("My reply is no"), _("My sources say no"), _("Outlook not so good"), _("Very doubtful")]
 			self.message("> 10%s" % random.choice(bases), chan)
 		else:
-			self.message(_("7Syntax:1 %s%s <question>") % (prx, cmd), chan)
+			self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s < ...? >" % (prx, cmd) ), chan)
 			
 	elif cmd == 'stats':
 		u = None
@@ -632,7 +622,7 @@ def onCommand(self, chan, user, cmd, text):
 			Time = int( time.time() ) - u['seen']
 			self.message( _("> %s 10Stats ago13:1 %s 3-10 Activity points13:1 %s 3-10 Letters13:1 %s 10Words13:1 %s 10Lines13:1 %s 10Smiles13:1 %s 3-1 \"%s...\"") % ( q, util.getDHMS( Time ) if Time >= 2 else _("now"), util.group( u['timeline']['ap'] ), util.group( int( u['letters'] ) ), util.group( int( u['words'] ) ), util.group( int( u['lines'] ) ), util.group( int( u['smiles'] ) ), u['quote'][:50] ), chan )
 		else:
-			self.message( _("> %s 4is unknown name to me") % q, chan )
+			self.message( _("> %s 4is a unknown name to me") % q, chan )
 			
 	elif cmd == 'away':
 		if self.assets['aways'].get( user ):
@@ -647,7 +637,7 @@ def onCommand(self, chan, user, cmd, text):
 			self.message( _(">10 %s 14is back from6:1 %s. 14Time13:1 %s") % ( user, self.assets['aways'][ user ]['reason'], util.getDHMS( int( int( time.time() ) - self.assets['aways'][ user ]['time'] )) ), chan )
 			self.assets['aways'].pop( user )
 		else:
-			self.message( _("> 4Error 3- 14You not have away status."), chan )
+			self.message( _("10>4 Please type {away} before using {back}").format( away = "%saway" % prx, back = "%s%s" % ( prx, cmd ) ), chan )
 			
 	
 	elif cmd == 'afk':
@@ -655,8 +645,19 @@ def onCommand(self, chan, user, cmd, text):
 			if self.assets['aways'].get( text ):
 				x = self.assets['aways'].get( text )
 				self.message( _(">10 %s 3- 14reason13:1 %s 3- 14Time13:1 %s") % ( text, x['reason'], util.getDHMS( int( int( time.time() ) - x['time'] )) ), chan )
+			elif text.lower() == "@all":
+				if len( self.assets['aways'] ) > 0:
+					util._cmdLimiter( self, 'b', chan, cmd )
+						
+					for x in self.assets['aways']:
+						self.message( _(">10 %s 3- 14reason13:1 %s 3- 14Time13:1 %s") % ( x, self.assets['aways'][ x ]['reason'], util.getDHMS( int( int( time.time() ) - self.assets['aways'][ x ]['time'] )) ), chan )
+					
+					util._cmdLimiter( self, 'u', chan, cmd )
+					
+				else:
+					self.message( _(">14 Nobody in this channel is absent."), chan )
 			else:
-				self.message( _(">10 %s 14not have away status.") % text, chan )
+				self.message( _("> %s 4is a unknown name to me") % text, chan )
 		else:
 			if len( self.assets['aways'] ) > 0:
 				c_channel = 0
@@ -665,9 +666,9 @@ def onCommand(self, chan, user, cmd, text):
 						c_channel += 1
 						self.message( _(">10 %s 3- 14reason13:1 %s 3- 14Time13:1 %s") % ( x, self.assets['aways'][ x ]['reason'], util.getDHMS( int( int( time.time() ) - self.assets['aways'][ x ]['time'] )) ), chan )
 				if c_channel == 0:
-					self.message( _(">14 Anybody from this channel have away status"), chan )
+					self.message( _(">14 Nobody in this channel is absent."), chan )
 			else:
-				self.message( _(">14 Anybody from this channel have away status"), chan )
+				self.message( _(">14 Nobody in this channel is absent."), chan )
 	
 	elif cmd == 'quote':
 		if len( text ) > 0:
@@ -698,10 +699,10 @@ def onCommand(self, chan, user, cmd, text):
 				except Exception, e:
 					self.message( _(">4 %i is unknown quote to me.") % ( int( text ) ), chan )
 			else:
-				self.message(_("7Syntax:1 %s%s <add/del/last/quoute id>") % (prx, cmd), chan)
+				self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s <add/del/last/id>" % (prx, cmd) ), chan)
 		else:
 			if len( self.assets['quotes'] ) == 0:
-				self.message(_("7Syntax:1 %s%s <add/del/last/quoute id>") % (prx, cmd), chan)
+				self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s <add/del/last/id>" % (prx, cmd) ), chan)
 			else:
 				q = random.choice( self.assets['quotes'] )
 				self.message( _("> \"%s\" 3- 10by13:1 %s 3-10 Saved13:1 %s") % ( q['text'], q['author'], util.getDHMS( int( int( time.time() ) - q['date'] )) ), chan )
@@ -745,7 +746,7 @@ def onCommand(self, chan, user, cmd, text):
 									self.message(_("10> 14Game was change to13:1 %s") % game, chan)
 								except Exception, e: self.message(_("4Error occurred :("), chan)
 							else:
-								self.message(_("7Syntax:1 %s%s <game/title> <parameter>") % (prx, cmd), chan)
+								self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s <game/title> <parameter>" % (prx, cmd) ), chan)
 						elif param == 'title':
 							if util.gettext(text, 1):
 								title = text[len(param)+1:]
@@ -754,11 +755,11 @@ def onCommand(self, chan, user, cmd, text):
 									self.message(_("10> 14Title set to13:1 %s") % title, chan)
 								except Exception, e: self.message(_("4Error occurred :("), chan)
 							else:
-								self.message(_("7Syntax:1 %s%s <game/title> <parameter>") % (prx, cmd), chan)
+								self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s <game/title> <parameter>" % (prx, cmd) ), chan)
 						else:
-							self.message(_("7Syntax:1 %s%s <game/title> <parameter>") % (prx, cmd), chan)
+							self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s <game/title> <parameter>" % (prx, cmd) ), chan)
 					else:
-						self.message(_("7Syntax:1 %s%s <game/title> <parameter>") % (prx, cmd), chan)
+						self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s <game/title> <parameter>" % (prx, cmd) ), chan)
 				else:
 					self.message(_("10> 4You do not have permission to use this command."), chan)
 			else:
@@ -773,7 +774,7 @@ def onCommand(self, chan, user, cmd, text):
 					if self.assets['config']['single_channel'][chan]['osu_req']['active']:
 						if util.isOsuLink( text ):
 							for _user in self.assets['config']['single_channel'][chan]['osu_req']['users']:
-								self._banchonet.send("PRIVMSG %s :[REQUEST] [%s]: %s" % (_user, user, text))
+								self._banchonet.message("[REQUEST] [%s]: %s" % (user, text), _user )
 								time.sleep(1)
 							self.message(_("10> 14Your request was sent13:1 \"%s\" 14to13:1 %s") % (text, ", ".join(self.assets['config']['single_channel'][chan]['osu_req']['users'])), chan)
 						else:
@@ -781,7 +782,7 @@ def onCommand(self, chan, user, cmd, text):
 					else:
 						self.message(_("10> 4The requests are turned off."), chan)
 				else:
-					self.message(_("7Syntax:1 %s%s <osu link>") % (prx, cmd), chan)
+					self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s <osu link>" % (prx, cmd) ), chan)
 			else:
 				self.message(_("10> 4This channel is not configured to use this command!"), chan)
 		else:
@@ -789,37 +790,7 @@ def onCommand(self, chan, user, cmd, text):
 	
 	elif cmd == 'vcmp':
 		if len( text ) > 0:
-			if util.gettext( text, 0 ) == 'add' and user in self.assets['config']['mods']:		
-				name = util.gettext( text, 1 )
-				server = util.gettext( text, 2 )
-				ip = util.gettext( server, 0, ':' )
-				port = util.gettext( server, 1, ':' )
-				if ip and port:
-					if self.assets['config']['vcmp_servers'].get( name ):
-						self.assets['config']['vcmp_servers'][ name ]['ip'] = str( ip )
-						self.assets['config']['vcmp_servers'][ name ]['port'] = int( port )
-					else:
-						self.assets['config']['vcmp_servers'].setdefault( name, { "ip": str( ip ), "port": int( port ) } )
-					self.message( _("10> 3Server1 \"%s\" 3has been saved,1 %s%s %s") % ( name, prx, cmd, name ), chan )
-				else:
-					self.message(_('7Syntax:1 %s%s add <ServerName> <IP:PORT>') % ( prx, cmd ), chan )
-			elif util.gettext( text, 0 ) == 'del' and user in self.assets['config']['mods']:
-				if util.gettext( text,1 ):
-					if self.assets['config']['vcmp_servers'].get( util.gettext( text, 1 ) ):
-						self.assets['config']['vcmp_servers'].pop( util.gettext( text, 1 ) )
-						self.message( _("10>1 \"%s\" 4is now removed from server list") % util.gettext( text, 1 ), chan )
-					else:
-						self.message( _("10>1 \"%s\" 4is unknown server to me") % util.gettext( text, 1 ), chan )
-				else:
-					self.message(_('7Syntax:1 %s%s del <ServerName>') % ( prx, cmd ), chan )
-			elif util.gettext( text, 0 ) == 'list':
-				if len( self.assets['config']['vcmp_servers'] ) > 0:
-					self.message( "%s%s <%s>" % ( prx, cmd, ", ".join(self.assets['config']['vcmp_servers']) ), chan )
-				else:
-					self.message( _("10>4 No have any server saved."), chan )
-			elif self.assets['config']['vcmp_servers'].get( util.gettext( text, 0 ) ):
-				ip = self.assets['config']['vcmp_servers'][ util.gettext( text, 0 ) ]['ip']
-				port = self.assets['config']['vcmp_servers'][ util.gettext( text, 0 ) ]['port']
+			def _doQuery( ip, port ):
 				q = vcmpQuery( None, str( ip ), int( port ) )
 				if q:
 					try:
@@ -836,30 +807,80 @@ def onCommand(self, chan, user, cmd, text):
 					except Exception, e:
 						self.message( _("10>4 Unknown server"), chan )
 				q.close()
+				
+			if util.gettext( text, 0 ) == 'add' and user in self.assets['config']['mods']:		
+				name = util.gettext( text, 1 )
+				server = util.gettext( text, 2 )
+				ip = util.gettext( server, 0, ':' )
+				port = util.gettext( server, 1, ':' )
+				if ip and port:
+					if self.assets['config']['vcmp_servers'].get( name ):
+						self.assets['config']['vcmp_servers'][ name ]['ip'] = str( ip )
+						self.assets['config']['vcmp_servers'][ name ]['port'] = int( port )
+					else:
+						self.assets['config']['vcmp_servers'].setdefault( name, { "ip": str( ip ), "port": int( port ) } )
+					self.message( _("10> 3Server1 \"%s\" 3has been saved,1 %s%s %s") % ( name, prx, cmd, name ), chan )
+				else:
+					self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s add <server> <IP:PORT>" % (prx, cmd)), chan)
+			elif util.gettext( text, 0 ) == 'del' and user in self.assets['config']['mods']:
+				if util.gettext( text,1 ):
+					if self.assets['config']['vcmp_servers'].get( util.gettext( text, 1 ) ):
+						self.assets['config']['vcmp_servers'].pop( util.gettext( text, 1 ) )
+						self.message( _("10>1 \"%s\" 4is now removed from server list") % util.gettext( text, 1 ), chan )
+					else:
+						self.message( _("10>1 \"%s\" 4is a unknown server to me") % util.gettext( text, 1 ), chan )
+				else:
+					self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s del <server>" % (prx, cmd)), chan)
+			elif util.gettext( text, 0 ) == 'list':
+				if len( self.assets['config']['vcmp_servers'] ) > 0:
+					self.message( "%s%s <%s>" % ( prx, cmd, ", ".join(self.assets['config']['vcmp_servers']) ), chan )
+				else:
+					self.message( _("10>4 Without servers."), chan )
+			elif util.gettext( text, 0 ) == 'master':
+				util._cmdLimiter( self, 'b', chan, cmd )
+					
+				_masterlist = {}
+				_servers = []
+				_progress = 0
+				_timeout =  0.5
+				_timeexec = int( time.time() )
+				try: _masterlist = util.uniq( util.web_request( "http://vicecitymultiplayer.com/servers.php" ).split( "\n" ) )
+				except Exception, e: self.message( _("> 4Can't connect to master list %s") % e, chan )
+
+				self.message( _("10>1 %i 14Servers on master list, estimated time13:1 %s") % (len( _masterlist ), util.getDHMS(int(len( _masterlist ) * _timeout))), chan )
+				self.message( "10"+"~-"[:6]*35, chan )
+
+				for server in _masterlist:
+					try:
+						_progress += 1
+						if len( server.split(":") ) > 1:
+							query = vcmpQuery( None, str( server.split(":")[0] ), int( server.split(":")[1] ), timeout = _timeout )
+							if query:
+								try:
+									query.connect()
+									info = query.getInfo()
+									_servers.append( {'hostname': info['hostname'], 'gamemode': info['gamemode'], 'players': info['players'], 'maxplayers': info['maxplayers'], 'ip': server} )
+									self.message(  "10> 13[{progress}%]6 {hostname} {gamemode} 13[{players}/{maxplayers}]10 {ip}".format( hostname = info['hostname'], gamemode = info['gamemode'], players = info['players'], maxplayers = info['maxplayers'], ip = server, progress = ( 100 * _progress / len( _masterlist ) ) ), chan, show = False )
+									query.close()
+								except Exception, e: pass
+					except: pass
+				self.message( "10"+"~-"[:6]*35, chan )
+				self.message( _("10> 13[100%%]14 %i Valid servers 3-1 %s") % (len( _servers ), util.getDHMS( int( time.time() ) - _timeexec)), chan )
+				util._cmdLimiter( self, 'u', chan, cmd )
+						
+			elif self.assets['config']['vcmp_servers'].get( util.gettext( text, 0 ) ):
+				ip = self.assets['config']['vcmp_servers'][ util.gettext( text, 0 ) ]['ip']
+				port = self.assets['config']['vcmp_servers'][ util.gettext( text, 0 ) ]['port']
+				_doQuery( ip, port )
 			else:
 				ip = util.gettext( text, 0, ':' )
 				port = util.gettext( text, 1, ':' )
 				if ip and port:
-					q = vcmpQuery( None, str( ip ), int( port ) )
-					if q:
-						try:
-							q.connect()
-							info = q.getInfo()
-							try: players = q.getBasicPlayers()
-							except: players = []
-							player_string = ""
-							if len( players ) > 0:
-								for x in players: player_string += "%s6:7 %i1, " % ( x['name'], x['score'] )
-							self.message( _("10> 10Server6:1 %s 10Gamemode6:1 %s 10Players6:1 [%i/%i] %s") % ( info['hostname'], info['gamemode'], info['players'], info['maxplayers'], _('4Close') if info['password'] == 1 else _('3Open')), chan )
-							if len( player_string ) > 0:
-								self.message( player_string[:len(player_string)-2], chan )
-						except Exception, e:
-							self.message( _("10>4 Unknown server"), chan )
-					q.close()
+					_doQuery( ip, port )
 				else:
-					self.message(_('7Syntax:1 %s%s %s') % ( prx, cmd, '<list/add/del/IP:PORT/Server Name>' if user in self.assets['config']['mods'] else '<list/IP:PORT/Server Name>' ), chan)
+					self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s %s" % (prx, cmd, '<master/list/add/del/IP:PORT/server>' if user in self.assets['config']['mods'] else '<master/list/IP:PORT/server>' ) ), chan)
 		else:
-			self.message(_('7Syntax:1 %s%s %s') % ( prx, cmd, '<list/add/del/IP:PORT/Server Name>' if user in self.assets['config']['mods'] else '<list/IP:PORT/Server Name>' ), chan)
+			self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s %s" % (prx, cmd, '<master/list/add/del/IP:PORT/server>' if user in self.assets['config']['mods'] else '<master/list/IP:PORT/server>' ) ), chan)
 	
 	elif cmd == 'weather':
 		if len( text ) > 0:
@@ -869,19 +890,33 @@ def onCommand(self, chan, user, cmd, text):
 			except Exception, e:
 				self.message( _("4Search failed"), chan )
 		else:
-			self.message(_("7Syntax:1 %s%s <search>") % (prx, cmd), chan)
+			self.message(_("7Syntax:1 {syntax} <search>").format( syntax = "%s%s" % (prx, cmd) ), chan)
 			
 	elif cmd == 'translate':
 		if len( text ) > 0:
-			result, code, string = util.get_google_translate( text, 'en' )
-			if code == 'en' or result == False:
-				result, code, string = util.get_google_translate( text, 'es' )
-			if result:
-				self.message( _("13> 14Translate from1 %s13:1 \"%s\".") % (code, string), chan )
+			util._cmdLimiter( self, 'b', chan, cmd )
+			_langs = {"af": "Afrikaans","sq": "Albanian","ar": "Arabic","az": "Azerbaijani","eu": "Basque","bn": "Bengali","be": "Belarusian","bg": "Bulgarian","ca": "Catalan","zh-CN": "Chinese Simplified","zh-TW": "Chinese Traditional","hr": "Croatian","cs": "Czech","da": "Danish","nl": "Dutch","en": "English","eo": "Esperanto","et": "Estonian","tl": "Filipino","fi": "Finnish","fr": "French","gl": "Galician","ka": "Georgian","de": "German","el": "Greek","gu": "Gujarati","ht": "Haitian Creole","iw": "Hebrew","hi": "Hindi","hu": "Hungarian","is": "Icelandic","id": "Indonesian","ga": "Irish","it": "Italian","ja": "Japanese","kn": "Kannada","ko": "Korean","la": "Latin","lv": "Latvian","lt": "Lithuanian","mk": "Macedonian","ms": "Malay","mt": "Maltese","no": "Norwegian","fa": "Persian","pl": "Polish","pt": "Portuguese","ro": "Romanian","ru": "Russian","sr": "Serbian","sk": "Slovak","sl": "Slovenian","es": "Spanish","sw": "Swahili","sv": "Swedish","ta": "Tamil","te": "Telugu","th": "Thai","tr": "Turkish","uk": "Ukrainian","ur": "Urdu","vi": "Vietnamese","cy": "Welsh","yi": "Yiddish"}
+
+			regex = re.compile("({langs}\.*?):({langs}\.*?) (.+)".format( langs = "|".join(_langs) ), re.MULTILINE).findall(text)
+			if len(regex) > 0:
+				_from = regex[0][0]
+				_to = regex[0][1]
+				_text = regex[0][2]
+				result, code, string = util.get_google_translate( _text, _to, _from )
+				if result:
+					self.message( _("13> 14Translate from1 %s13:1 14to13:1 %s14 \"%s\".") % (_langs[_from], _langs[_to], string), chan )
+				else:
+					self.message( _("13> 4Can't translate text1 %s") % (string), chan )
+			elif text.lower() == "@list":
+				b = ""
+				for lang in _langs:
+					b += "%s13:1%s, " % ( _langs[lang], lang )
+				self.message( _("13> 14Available languages13:1 %s") % b[:len(b)-2], chan )
 			else:
-				self.message( _("13> 4Can't translate text1 %s") % (string), chan )
+				self.message( _("13> 4Can't translate text1 Invalid language"), chan )
+			util._cmdLimiter( self, 'u', chan, cmd )
 		else:
-			self.message(_("7Syntax:1 %s%s <string>") % (prx, cmd), chan)
+			self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s [@list] <en,es..>:<es,en..> <text>" % (prx, cmd)), chan)
 	
 	elif cmd == 'facebook':
 		if len( text ) > 0:
@@ -903,16 +938,32 @@ def onCommand(self, chan, user, cmd, text):
 			except Exception, e:
 				self.message( _("4Some of the aliases you requested do not exist:1 %s") % text.encode("utf-8"), chan )
 		else:
-			self.message(_("7Syntax:1 %s%s <user name/id>") % (prx, cmd), chan)
+			self.message(_("7Syntax:1 {syntax} <search>").format( syntax = "%s%s" % (prx, cmd) ), chan)
 			
 	elif cmd == 'osu':
-		if len(text) > 0: user = text
-		else: user = '[ NT5 ]'
-		try:
-			q = util.json_request( self.assets['api']['osu']['request'] % ( self.assets['api']['osu']['url'], self.assets['api']['osu']['key'], urllib2.quote( user ) ), {} )[0]
-			self.message( _("> 6%s 3- 14Country6: 1%s 3- 14Play Count6:1 %s 3- 14Ranked Score6:1 %s 3- 14Total Score6:1 %s 3- 14Level6:1 %d 3- 14Accuracy6:1 %0.f%% 3- 14PP6:1 %0.f 3- 14Rank6:1 #%s") % ( q['username'], q['country'], util.group( int(q['playcount']) ), util.group( int(q['ranked_score']) ), util.group( int(q['total_score']) ), float( q['level'] ), float( q['accuracy']) , float( q['pp_raw'] ), util.group( int( q['pp_rank']) ) ), chan )
-		except:
-			self.message(_("4Unknown User"), chan)
+		if len(text) > 0:
+			regex = re.compile("m:(standar|taiko|ctb|mania\.*?) (.+)", re.MULTILINE).findall(text)
+			if len(regex) > 0:
+				try:
+					_user = regex[0][1]
+					mode = regex[0][0]
+				except:
+					mode = 'standar'
+					_user = text
+			else:
+				mode = 'standar'
+				_user = text
+			if mode == 'taiko': mode = 1
+			elif mode == 'ctb': mode = 2
+			elif mode == 'mania': mode = 3
+			else: mode = 0
+			try:
+				q = util.json_request( self.assets['api']['osu']['request'] % ( self.assets['api']['osu']['url'], self.assets['api']['osu']['key'], mode, urllib2.quote( _user ) ), {} )[0]
+				self.message( _("> 6%s 3- 14Country6: 1%s 3- 14Play Count6:1 %s 3- 14Ranked Score6:1 %s 3- 14Total Score6:1 %s 3- 14Level6:1 %d 3- 14Accuracy6:1 %0.f%% 3- 14PP6:1 %0.f 3- 14Rank6:1 #%s") % ( q['username'], q['country'], util.group( int(q['playcount']) ), util.group( int(q['ranked_score']) ), util.group( int(q['total_score']) ), float( q['level'] ), float( q['accuracy']) , float( q['pp_raw'] ), util.group( int( q['pp_rank']) ) ), chan )
+			except Exception, e:
+				self.message(_("4Unknown User"), chan)
+		else:
+			self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s [m:<ctb, taiko, mania, standar>] <user name>" % (prx, cmd) ), chan)
 	
 	elif cmd == 'animeflv':
 		if len( text ) > 0:
@@ -926,7 +977,7 @@ def onCommand(self, chan, user, cmd, text):
 			except Exception, e:
 				self.message( _("4Search Failed"), chan )
 		else:
-			self.message(_("7Syntax:1 %s%s <search>") % (prx, cmd), chan)
+			self.message(_("7Syntax:1 {syntax} <search>").format( syntax = "%s%s" % (prx, cmd) ), chan)
 			
 	elif cmd == 'konachan':
 		if len(text) > 0:
@@ -938,7 +989,7 @@ def onCommand(self, chan, user, cmd, text):
 			except Exception, e:
 				self.message( _("4Search Failed"), chan )
 		else:
-			self.message(_("7Syntax:1 %s%s <search>") % (prx, cmd), chan)
+			self.message(_("7Syntax:1 {syntax} <search>").format( syntax = "%s%s" % (prx, cmd) ), chan)
 	
 	elif cmd == 'danbooru':
 		if len(text) > 0:
@@ -950,7 +1001,7 @@ def onCommand(self, chan, user, cmd, text):
 			except Exception, e:
 				self.message( _("4Search Failed"), chan )
 		else:
-			self.message(_("7Syntax:1 %s%s <search>") % (prx, cmd), chan)
+			self.message(_("7Syntax:1 {syntax} <search>").format( syntax = "%s%s" % (prx, cmd) ), chan)
 			
 	elif cmd == 'wdanbooru':
 		if len(text) > 0:
@@ -964,7 +1015,7 @@ def onCommand(self, chan, user, cmd, text):
 			except Exception, e:
 				self.message( _("4Search Failed"), chan )
 		else:
-			self.message(_("7Syntax:1 %s%s <search>") % (prx, cmd), chan)
+			self.message(_("7Syntax:1 {syntax} <search>").format( syntax = "%s%s" % (prx, cmd) ), chan)
 	
 	elif cmd == 'redtube':
 		if len(text) < 0: sq = ""
@@ -996,7 +1047,7 @@ def onCommand(self, chan, user, cmd, text):
 			except:
 				self.message( _("4Search failed"), chan )
 		else:
-			self.message(_("7Syntax:1 %s%s <search>") % (prx, cmd), chan)
+			self.message(_("7Syntax:1 {syntax} <search>").format( syntax = "%s%s" % (prx, cmd) ), chan)
 	
 	elif cmd == 'talk':
 		if len(text) > 0:
@@ -1037,7 +1088,7 @@ def onCommand(self, chan, user, cmd, text):
 					self.message( _("10>4 Talking Fail. - %s") % str( e ), chan )
 					del self.cleverbot['users'][ user ]
 		else:
-			self.message(_("7Syntax:1 %s%s <text/stop>") % (prx, cmd), chan)
+			self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s <text/stop>" % (prx, cmd) ), chan)
 	
 	else:
 		if self.assets['config']['single_channel'].get(chan) and self.assets['config']['single_channel'][chan].get( 'custom_command' ) and self.assets['config']['single_channel'][chan]['custom_command'].get( cmd ):
