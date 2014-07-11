@@ -208,7 +208,7 @@ def onModCommand(self, chan, user, cmd, text):
 									else:
 										self.assets['config'][_sec].setdefault(_osu_user, [_osu_chan])
 										if param == 'np':
-											self.notice("> %s Post KEY: %s" % (_osu_user, cryp.encode(_osu_user)), user)
+											self.message("> %s Post KEY: %s" % (_osu_user, cryp.encode(_osu_user)), user, type = "n")
 									self.message( _("10>14Messages of1 %s 14have been sent to13:1 %s") % ( _osu_user, ", ".join(self.assets['config'][_sec][_osu_user]) ), chan )
 								else:
 									self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s %s %s %s %s <user>" % (prx, cmd, place, param, value, _osu_chan)), chan)
@@ -250,7 +250,7 @@ def onModCommand(self, chan, user, cmd, text):
 								if self.assets['config'][_sec].get(_osu_user) != None:
 									self.message( _("10>14Messages of1 %s 14have been sent to13:1 %s") % ( _osu_user, ", ".join(self.assets['config'][_sec][_osu_user]) ), chan )
 									if param == 'np':
-										self.notice("> %s Post KEY: %s" % (_osu_user, cryp.encode(_osu_user)), user)
+										self.message("> %s Post KEY: %s" % (_osu_user, cryp.encode(_osu_user)), user, type = "n")
 								else:
 									self.message( _("> %s 4is a unknown name to me") % _osu_user, chan )
 							else:
@@ -772,11 +772,23 @@ def onCommand(self, chan, user, cmd, text):
 			if self.assets['config']['single_channel'][chan].get('osu_req') and self._banchonet:
 				if len( text ) > 0:
 					if self.assets['config']['single_channel'][chan]['osu_req']['active']:
-						if util.isOsuLink( text ):
-							for _user in self.assets['config']['single_channel'][chan]['osu_req']['users']:
-								self._banchonet.message("[REQUEST] [%s]: %s" % (user, text), _user )
-								time.sleep(1)
-							self.message(_("10> 14Your request was sent13:1 \"%s\" 14to13:1 %s") % (text, ", ".join(self.assets['config']['single_channel'][chan]['osu_req']['users'])), chan)
+						_map = util.getOsuLink( text )
+						if _map:
+							util._cmdLimiter( self, 'b', chan, cmd )
+							def _getstats(stats):
+								format = "[%s%s]"
+								return format % ( "*"*int(float(stats)), "-"*(10-int(float(stats))) )
+							try:
+								q = util.json_request( self.assets['api']['osu']['request'][1] % ( self.assets['api']['osu']['url'], self.assets['api']['osu']['key'], "=".join(_map) ), {} )[0]
+								_msg = "%s - %s %s (%s) mapped by: %s - BPM: %s - %s (Stars: %.2f - AR: %.2f - CS: %.2f - OD: %.2f - HP: %.2f) - %s" % ( q['title'], q['artist'], "("+q['source'].decode("unicode-escape")+")" if len(q['source']) > 0 else "", util.getDHMS(int(q['total_length'])), q['creator'], q['bpm'], _getstats(q['difficultyrating']), float(q['difficultyrating']), float(q['diff_approach']), float(q['diff_size']), float(q['diff_overall']), float(q['diff_drain']), "http://osu.ppy.sh/"+"/".join(_map))
+								for _user in self.assets['config']['single_channel'][chan]['osu_req']['users']:
+									self._banchonet.message("[REQUEST] [%s]: %s" % (user, _msg), _user )
+									time.sleep(1)
+								self.message(_("10> 14Your request was sent13:1 \"%s\" 14to13:1 %s") % (_msg, ", ".join(self.assets['config']['single_channel'][chan]['osu_req']['users'])), chan)
+							except:
+								self.message(_("10> 4Invalid link!"), chan)
+							time.sleep(1.5)
+							util._cmdLimiter( self, 'u', chan, cmd )
 						else:
 							self.message(_("10> 4Invalid link!"), chan)
 					else:
@@ -958,7 +970,7 @@ def onCommand(self, chan, user, cmd, text):
 			elif mode == 'mania': mode = 3
 			else: mode = 0
 			try:
-				q = util.json_request( self.assets['api']['osu']['request'] % ( self.assets['api']['osu']['url'], self.assets['api']['osu']['key'], mode, urllib2.quote( _user ) ), {} )[0]
+				q = util.json_request( self.assets['api']['osu']['request'][0] % ( self.assets['api']['osu']['url'], self.assets['api']['osu']['key'], mode, urllib2.quote( _user ) ), {} )[0]
 				self.message( _("> 6%s 3- 14Country6: 1%s 3- 14Play Count6:1 %s 3- 14Ranked Score6:1 %s 3- 14Total Score6:1 %s 3- 14Level6:1 %d 3- 14Accuracy6:1 %0.f%% 3- 14PP6:1 %0.f 3- 14Rank6:1 #%s") % ( q['username'], q['country'], util.group( int(q['playcount']) ), util.group( int(q['ranked_score']) ), util.group( int(q['total_score']) ), float( q['level'] ), float( q['accuracy']) , float( q['pp_raw'] ), util.group( int( q['pp_rank']) ) ), chan )
 			except Exception, e:
 				self.message(_("4Unknown User"), chan)

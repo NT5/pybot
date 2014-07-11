@@ -127,9 +127,16 @@ def getNetName( text ):
 	try: return regex.findall(text)[0]
 	except: return None
 
-def isOsuLink( text ):
-	regex = re.compile("(?:http|https)://osu.ppy.sh/(?:b|s|p)/(.+)?", re.UNICODE)
-	return regex.search(text)
+def getOsuLink( text, type = "b" ):
+	if type == "b": _formated = "(?:http|https)://osu.ppy.sh/(b|s)+/(\d+)?"
+	elif type == "u": _formated = "(?:http|https)://osu.ppy.sh/u/(\d+)?"
+	else: _formated = ""
+	regex = re.compile("%s" % _formated, re.UNICODE)
+	r = regex.search(text)
+	if r:
+		return r.groups()
+	else:
+		return None
 	
 def getURLS( text ):
 	regex = re.compile( "http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+", re.UNICODE )
