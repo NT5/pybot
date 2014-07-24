@@ -95,9 +95,17 @@ def AutoMessages(self, show = True):
 	if _count >= 1: timer.start()
 	else: timer.cancel()
 	
-def GetLangStrings( self, strings, user ):
-	if self.assets['config']['use_langs'].get('es_ES') and user in self.assets['config']['use_langs']['es_ES']:
+def GetLangStrings( self, strings, user, chan ):
+	_uc_ES = self.assets['config']['use_langs'].get('es_ES')
+	_uc_EN = self.assets['config']['use_langs'].get('en_US')
+	if _uc_ES and user in _uc_ES:
 		return strings["es_ES"].gettext
+	elif _uc_EN and user in _uc_EN:
+		return strings["en_US"].gettext
+	elif _uc_ES and chan in _uc_ES:
+		return strings["es_ES"].gettext
+	elif _uc_EN and chan in _uc_EN:
+		return strings["en_US"].gettext
 	else:
 		return strings["en_US"].gettext
 
@@ -214,13 +222,13 @@ def group(number):
 	
 def json_request( url, headers, met = None ):
 	req = urllib2.Request(url, met, headers)
-	json = urllib2.urlopen(req, timeout = 15).read()
+	json = urllib2.urlopen(req, timeout = 35).read()
 	(true,false,null) = (str( True ),str( False ),str( None ))
 	return eval(json)
 	
 def web_request( url, headers = { 'User-Agent' : 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)' } ):
 	req = urllib2.Request(url, None, headers)
-	query = urllib2.urlopen( req, timeout = 15 )
+	query = urllib2.urlopen( req, timeout = 35 )
 	response = query.read()
 	query.close()
 	return response
@@ -239,6 +247,25 @@ def get_google_translate(text, translate_lang, source_lang=None):
 		return True, res_source_lang, translate_text 
 	except Exception, e:
 		return False, '', e
+		
+def get_google_search( text, max = 3 ):
+	def parse_html( string ):
+		string = removeall( string, rem = [ "<b>", "</b>" ], re_char = "" )
+		return NoHTML( string.replace("<br>", '').decode("UTF-8") )
+	def regx( string ):
+		regex = re.compile("<a class=\"l\" href=\"(.*?)\".*?\">(.*?)</a></h2>.*?<span class=\"s\">(.*?)</span><br>",re.UNICODE)
+		return regex.findall(string)
+		
+	data = web_request( "http://www.google.com/custom?hl=en&client=pub-4099951843714863&q=%s" % ( urllib2.quote(text.encode('utf-8')) ), headers = {  'User-Agent':'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1985.125 Safari/537.36' } )
+	
+	q = regx( data[3000:-8000] )
+	_res = []
+	_count = 0
+	for res in q:
+		_count += 1
+		if _count <= max:
+			_res.append( { 'title': parse_html( res[1] ), 'link': parse_html(res[0]), 'description': parse_html(res[2]) } )
+	return _res
 
 def uniq(input):
 	output = []

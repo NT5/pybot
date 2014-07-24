@@ -3,7 +3,6 @@
 
 import gettext
 import util as util, sys, time, random, urllib2, re
-from google.search import GoogleSearch, SearchError
 from vcmpQuery import vcmpQuery
 
 from encryp import Encryp
@@ -25,7 +24,7 @@ for lang in LANG:
 
 	
 def onModCommand(self, chan, user, cmd, text):
-	_ = util.GetLangStrings( self, strings, user )
+	_ = util.GetLangStrings( self, strings, user, chan )
 	
 	prx = self.assets['config']['prefix']
 	if cmd == 'exe':
@@ -553,7 +552,7 @@ def onModCommand(self, chan, user, cmd, text):
 		onCommand(self, chan, user, cmd, text)
 	
 def onCommand(self, chan, user, cmd, text):
-	_ = util.GetLangStrings( self, strings, user )
+	_ = util.GetLangStrings( self, strings, user, chan )
 	
 	prx = self.assets['config']['prefix']
 	
@@ -637,7 +636,7 @@ def onCommand(self, chan, user, cmd, text):
 			self.message( _(">10 %s 14is back from6:1 %s. 14Time13:1 %s") % ( user, self.assets['aways'][ user ]['reason'], util.getDHMS( int( int( time.time() ) - self.assets['aways'][ user ]['time'] )) ), chan )
 			self.assets['aways'].pop( user )
 		else:
-			self.message( _("10>4 Please type {away} before using {back}").format( away = "%saway" % prx, back = "%s%s" % ( prx, cmd ) ), chan )
+			self.message( _("10>4 You are not set away"), chan )
 			
 	
 	elif cmd == 'afk':
@@ -651,7 +650,7 @@ def onCommand(self, chan, user, cmd, text):
 						
 					for x in self.assets['aways']:
 						self.message( _(">10 %s 3- 14reason13:1 %s 3- 14Time13:1 %s") % ( x, self.assets['aways'][ x ]['reason'], util.getDHMS( int( int( time.time() ) - self.assets['aways'][ x ]['time'] )) ), chan )
-					
+					time.sleep(2)
 					util._cmdLimiter( self, 'u', chan, cmd )
 					
 				else:
@@ -732,6 +731,7 @@ def onCommand(self, chan, user, cmd, text):
 					if len( text ) > 0:
 						param = util.gettext(text, 0)
 						def _dotwitch(send, data):
+							urllib2.socket.setdefaulttimeout(15)
 							opener = urllib2.build_opener(urllib2.HTTPHandler)
 							request = urllib2.Request('%skraken/channels/%s' % (self.assets['api']['twitch']['url'], self.assets['config']['single_channel'][chan]['twitch_control']['api']['user']), data='channel[%s]=%s' % (data, send.replace(' ', '+')))
 							request.add_header('Accept', 'application/vnd.twitchtv.v3+json')
@@ -744,7 +744,9 @@ def onCommand(self, chan, user, cmd, text):
 								try:
 									_dotwitch(urllib2.quote(game.encode('utf-8')), 'game')
 									self.message(_("10> 14Game was change to13:1 %s") % game, chan)
-								except Exception, e: self.message(_("4Error occurred :("), chan)
+								except Exception, e:
+									print e
+									self.message(_("4Error occurred :("), chan)
 							else:
 								self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s <game/title> <parameter>" % (prx, cmd) ), chan)
 						elif param == 'title':
@@ -753,7 +755,9 @@ def onCommand(self, chan, user, cmd, text):
 								try:
 									_dotwitch(urllib2.quote(title.encode('utf-8')), 'status')
 									self.message(_("10> 14Title set to13:1 %s") % title, chan)
-								except Exception, e: self.message(_("4Error occurred :("), chan)
+								except Exception, e:
+									print e
+									self.message(_("4Error occurred :("), chan)
 							else:
 								self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s <game/title> <parameter>" % (prx, cmd) ), chan)
 						else:
@@ -813,7 +817,7 @@ def onCommand(self, chan, user, cmd, text):
 						player_string = ""
 						if len( players ) > 0:
 							for x in players: player_string += "%s6:7 %i1, " % ( x['name'], x['score'] )
-						self.message( _("10>1 %s 3- 10Server6:1 %s 10IP6:1 %s:%s 10Gamemode6:1 %s 10Players6:1 [%i/%i] %s") % ( util.gettext( text, 0 ), info['hostname'], str(ip), str(port), info['gamemode'], info['players'], info['maxplayers'], _('4Close') if info['password'] == 1 else _('3Open')), chan )
+						self.message( _("10>1 %s 3- 10Server6:1 %s 10IP6:1 %s:%s 10Gamemode6:1 %s 10Players6:1 [%i/%i] %s") % ( util.gettext( text, 0 ), info['hostname'].decode('utf-8'), str(ip), str(port), info['gamemode'].decode('utf-8'), info['players'], info['maxplayers'], _('4Close') if info['password'] == 1 else _('3Open')), chan )
 						if len( player_string ) > 0:
 							self.message( player_string[:len(player_string)-2], chan )
 					except Exception, e:
@@ -872,7 +876,7 @@ def onCommand(self, chan, user, cmd, text):
 									query.connect()
 									info = query.getInfo()
 									_servers.append( {'hostname': info['hostname'], 'gamemode': info['gamemode'], 'players': info['players'], 'maxplayers': info['maxplayers'], 'ip': server} )
-									self.message(  "10> 13[{progress}%]6 {hostname} {gamemode} 13[{players}/{maxplayers}]10 {ip}".format( hostname = info['hostname'], gamemode = info['gamemode'], players = info['players'], maxplayers = info['maxplayers'], ip = server, progress = ( 100 * _progress / len( _masterlist ) ) ), chan, show = False )
+									self.message(  "10> 13[{progress}%]6 {hostname} {gamemode} 13[{players}/{maxplayers}]10 {ip}".format( hostname = info['hostname'].decode('utf-8'), gamemode = info['gamemode'].decode('utf-8'), players = info['players'], maxplayers = info['maxplayers'], ip = server, progress = ( 100 * _progress / len( _masterlist ) ) ), chan, show = False )
 									query.close()
 								except Exception, e: pass
 					except: pass
@@ -979,15 +983,31 @@ def onCommand(self, chan, user, cmd, text):
 	
 	elif cmd == 'animeflv':
 		if len( text ) > 0:
+			util._cmdLimiter( self, 'b', chan, cmd )
 			try:
+			
+				def gender_split( string ):
+					regex = re.compile("<a href=\".*?\">(.*?)</a>",re.UNICODE)
+					find = regex.findall( string )
+					if find: return ", ".join(find)
+					else: return None
+					
 				page = util.web_request( self.assets['api']['animeflv']['request'] % ( self.assets['api']['animeflv']['url'], urllib2.quote( text.encode("utf-8") ) ) )
-				lktitulo = re.compile( "<a href=\"(?:(.+))\" * title=\"(?:(.+))\">", re.UNICODE )
-				lktitulo = lktitulo.findall( page )
-				sinopsis = re.compile("<div class=\"sinopsis\">(?:(.+))<\/div>", re.UNICODE)
-				sinopsis = sinopsis.findall( page )
-				self.message( _("> 10Title6:1 %s 3- 10Link6: 12%s%s 3- 10Sinopsis6:1 %s") % ( util.NoHTML(lktitulo[0][1].decode('utf-8')), self.assets['api']['animeflv']['url'][:-1], util.NoHTML(lktitulo[0][0].decode('utf-8')), util.NoHTML(sinopsis[0].decode('utf-8')) ), chan )
+				regex = re.compile("<a href=\"(.*?)\" title=\"(.*?)\" class=\"titulo\">.*?\</a>\n<div class=\"generos_links\">(.*?)</div>\n<div class=\"sinopsis\">(.*?)(?:</div>|\n</div>)",re.UNICODE)
+				regexf = regex.findall( page )
+				if len( regexf ) > 0:
+					_count = 0
+					for anim in regexf:
+						_count += 1
+						if _count <= 5:
+							anime = { 'link': anim[0], 'title': anim[1], 'gender': gender_split( anim[2] ), 'synopsis': anim[3] }
+					
+							self.message( _("> 10Title6:1 %s 3- 10Link6: 12%s%s 3- 10Gender6:1 %s 3- 10Synopsis6:1 %s") % ( util.NoHTML(anime['title'].decode('utf-8')), self.assets['api']['animeflv']['url'][:-1], util.NoHTML(anime['link'].decode('utf-8')), util.NoHTML(anime['gender']), util.NoHTML(anime['synopsis'].decode('utf-8')) ), chan )
+				else:
+					self.message( _("4Search Failed"), chan )
 			except Exception, e:
 				self.message( _("4Search Failed"), chan )
+			util._cmdLimiter( self, 'u', chan, cmd )
 		else:
 			self.message(_("7Syntax:1 {syntax} <search>").format( syntax = "%s%s" % (prx, cmd) ), chan)
 			
@@ -1051,13 +1071,17 @@ def onCommand(self, chan, user, cmd, text):
 	
 	elif cmd == 'google':
 		if len(text) > 0:
+			util._cmdLimiter( self, 'b', chan, cmd )
 			try:
-				gs = GoogleSearch( text.encode("utf-8") )
-				gs.results_per_page = 50
-				results = gs.get_results()
-				self.message( _('2G4o7o2g3l4e 10Search: 14%s 3- 14%s 3- 12%s') % ( results[0].title.encode("utf8"), results[0].desc.encode("utf8"), results[0].url.encode("utf8") ), chan )
-			except:
+				_gs = util.get_google_search( text )
+				if len( _gs ) > 0:
+					for gs in _gs:
+						self.message( _('2G4o7o2g3l4e 10Search: 14%s 3- 14%s 3- 12%s') % ( gs['title'], gs['description'], gs['link'] ), chan )
+				else:
+					self.message( _("4Search failed"), chan )
+			except Exception, e:
 				self.message( _("4Search failed"), chan )
+			util._cmdLimiter( self, 'u', chan, cmd )
 		else:
 			self.message(_("7Syntax:1 {syntax} <search>").format( syntax = "%s%s" % (prx, cmd) ), chan)
 	
