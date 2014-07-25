@@ -232,7 +232,24 @@ def web_request( url, headers = { 'User-Agent' : 'Mozilla/4.0 (compatible; MSIE 
 	response = query.read()
 	query.close()
 	return response
+
+def get_steam_calc( user ):
+	def split_status( status ):
+		regex = re.compile("(?:(.*?)<a href=\".*?\">(.*?)</a>|(Online?)|(Offline?))",re.UNICODE)
+		find = regex.findall( status )
+		if find: return "".join(find[0])
+		else: return "Unknown"
+		
+	regex = re.compile("<h1 class=\"header-title\">(?:<span class=\".*?\" title=\"User's Steam Level\">(.*?)</span>|)<a href=\"(.*?)\" target=\"_blank\">(.*?)</a></h1><h1 class=\"header-subtitle\">(.*?)</h1><h1 class=\"header-price\">.*?\<span id=\"price\" class=\"calculator-price\">(.*?)</span>.*?<span class=\"calculator-price-lowest\">(.*?)</span>.*?\<tbody><tr>.*?\<i>(.*?)</i></td>.*?\<td class=\"span2\">Status</td><td>(.*?)</td></tr><tr><td class=\"span2\">Profile creation</td><td><span class=\"timeago\" title=\".*?\"></span> <i>(.*?)</i></td></tr><tr><td class=\"span2\">Last log off</td><td><span class=\"timeago\" title=\".*?\"></span> <i>(.*?)</i></td></tr></tbody></table></div><div class=\"span6\"><table class=\"table table-bordered table-hover table-fixed\"><tbody><tr><td class=\"span2\">Games owned</td><td class=\"bold\">(.*?)</td></tr><tr><td class=\"span2\">Games not played</td><td><b>(.*?)</b> <i>(.*?)</i></td></tr><tr><td class=\"span2\">Games not in store</td><td class=\"bold\">(.*?)</td>",re.UNICODE)
 	
+	data = web_request( "http://steamdb.info/calculator/?player=%s&currency=us" % ( urllib2.quote(user.encode('utf-8')) ) )
+	reg = regex.findall( data )
+	if reg:
+		reg = reg[0]
+		return { 'lvl': reg[0], 'url': reg[1], 'nick': reg[2], 'hours_spent': reg[3], 'price': reg[4], 'off_price': reg[5], 'real_name': reg[6], 'status': split_status(reg[7]), 'timeago': reg[8], 'timeago2': reg[9], 'games_owned': reg[10], 'games_not_played': reg[11], 'games_not_played_per': reg[12], 'games_not_in_store': reg[13] }
+	else: return None
+	
+
 def get_google_translate(text, translate_lang, source_lang=None):
 	if source_lang == None: source_lang= 'auto' 
 	params = urllib.urlencode({'client':'t', 'tl':translate_lang, 'q':text.encode('utf-8'), 'sl':source_lang})

@@ -109,6 +109,11 @@
 		"ignore": [],
 		"mod": false
 	},
+	"steam": {
+		"active": true,
+		"ignore": [],
+		"mod": false
+	},
 	"facebook": {
 		"active": true,
 		"ignore": [],
