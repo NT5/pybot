@@ -131,12 +131,6 @@
 		"alias": [],
 		"mod": false
 	},
-	"steam": {
-		"active": true,
-		"ignore": [],
-		"alias": [],
-		"mod": false
-	},
 	"mal": {
 		"active": true,
 		"ignore": [],

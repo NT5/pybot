@@ -50,6 +50,15 @@
                 ]
             }
         }
+    },
+	 "flood_protection": {
+        "block_time": 5, 
+        "enable": true, 
+        "ignore": [], 
+        "max_reps": 5, 
+        "max_time": 5, 
+        "min_time": 1, 
+        "only_cmd": false
     }, 
 	"wordstats": {
 		"ignore": [],

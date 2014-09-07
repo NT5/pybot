@@ -1045,19 +1045,6 @@ def onCommand(self, chan, user, cmd, text):
 		else:
 			self.message(_("7Syntax:1 {syntax}").format( syntax = "<myanimelist user>" ), chan )
 	
-	elif cmd == 'steam':
-		if len(text) > 0:
-			try:
-				u = util.get_steam_calc( text )
-				if u:
-					self.message(_("> %s (%s) 3- 10Status6:1 %s 3- 10Real Name6:1 %s 3- 10Link6:1 %s 3-1 %s 3- 10This account is worth6:1 %s 10If all games were bought on sale, it would be6:1 %s 3- 10Games owned6:1 %s  3- 10Games not played6:1 %s %s 3- 10Profile creation6:1 %s 3- 10Last log off6:1 %s") % (u['nick'].decode('utf-8'), u['lvl'], u['status'], u['real_name'].decode('utf-8'), "http:"+u['url'], u['hours_spent'], u['price'], u['off_price'], u['games_owned'], u['games_not_played'], u['games_not_played_per'], u['timeago'].decode('utf-8'), u['timeago2'].decode('utf-8')), chan)
-				else:
-					self.message(_("4Unknown User"), chan)
-			except:
-				self.message(_("4Unknown User"), chan)
-		else:
-			self.message(_("7Syntax:1 {syntax}").format( syntax = "<steam user/id>" ), chan )
-	
 	elif cmd == 'osu':
 		if len(text) > 0:
 			regex = re.compile("m:(standar|taiko|ctb|mania\.*?) (.+)", re.MULTILINE).findall(text)

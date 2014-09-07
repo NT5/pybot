@@ -12,7 +12,7 @@ ColoramaInit()
 COLOR = { 'black': Fore.BLACK, 'red': Fore.RED, 'green': Fore.GREEN, 'yellow': Fore.YELLOW, 'blue': Fore.BLUE, 'magenta': Fore.MAGENTA, 'cyan': Fore.CYAN, 'white': Fore.WHITE }
 
 class IrcBot:
-	version = '0.3.3 beta build 16'
+	version = '0.3.3 beta build 17'
 	
 	def __init__(self, nick, password, channels, server, sv_pass, port, path):
 		self.nick = nick
