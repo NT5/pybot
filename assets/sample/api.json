@@ -35,6 +35,11 @@
 		"request": ["%s%s",
 		"http://www.facebook.com/profile.php?id="]
 	},
+	"myanimelist": {
+		"url": "http://myanimelist.net",
+		"request": "%s/profile/%s",
+		"agent": "malapi_agent"
+	},
 	"animeflv": {
 		"url": "http://animeflv.net/",
 		"request": "%sanimes/?buscar=%s"

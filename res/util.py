@@ -83,6 +83,12 @@ def _cmdLimiter( self, action, chan, cmd ):
 			else:
 				self.limiter['commands'][ chan ].pop( self.limiter['commands'][ chan ].index( cmd ) )
 
+def isCmdAlias(self, text):
+	for cmd in self.assets['commands']:
+		if text in self.assets['commands'][ cmd ]['alias']:
+			return cmd
+	return None
+				
 def AutoMessages(self, show = True):
 	_count = 0
 	for chan in self.assets['config']['single_channel']:

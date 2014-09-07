@@ -12,7 +12,7 @@ ColoramaInit()
 COLOR = { 'black': Fore.BLACK, 'red': Fore.RED, 'green': Fore.GREEN, 'yellow': Fore.YELLOW, 'blue': Fore.BLUE, 'magenta': Fore.MAGENTA, 'cyan': Fore.CYAN, 'white': Fore.WHITE }
 
 class IrcBot:
-	version = '0.3.3 beta build 14'
+	version = '0.3.3 beta build 16'
 	
 	def __init__(self, nick, password, channels, server, sv_pass, port, path):
 		self.nick = nick
@@ -223,9 +223,15 @@ class IrcBot:
 				thr_cmd = None
 				cmd_info = self.assets['commands'].get( cmd[1:].lower() )
 				if cmd_info == None:
+					is_alias = util.isCmdAlias( self, cmd[1:].lower() )
+					
 					if self.assets['config']['single_channel'].get(chan) and self.assets['config']['single_channel'][chan].get( 'custom_command' ) and self.assets['config']['single_channel'][chan]['custom_command'].get( cmd[1:].lower() ):
-						missing = { 'ignore': [], 'mod': False }
+						missing = { 'ignore': [], 'mod': False, 'alias': [] }
 						cmd_info = dict( self.assets['config']['single_channel'][chan]['custom_command'][cmd[1:].lower()].items() + missing.items())
+					
+					if is_alias:
+						cmd_info = self.assets['commands'][ is_alias ]
+						cmd = "%s%s" % (prefix, is_alias)
 				
 				if cmd_info and chan not in cmd_info['ignore']:
 					if self.limiter['commands'].get( chan ):

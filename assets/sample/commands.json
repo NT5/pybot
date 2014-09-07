@@ -2,156 +2,193 @@
 	"control": {
 		"active": true,
 		"ignore": [],
+		"alias": [],
 		"mod": true
 	},
 	"google": {
 		"active": true,
 		"ignore": [],
+		"alias": [],
 		"mod": false
 	},
 	"translate": {
 		"active": true,
 		"ignore": [],
+		"alias": [],
 		"mod": false
 	},
 	"adduser": {
 		"active": true,
 		"ignore": [],
+		"alias": [],
 		"mod": true
 	},
 	"talk": {
 		"active": true,
 		"ignore": [],
+		"alias": [],
 		"mod": false
 	},
 	"youtube": {
 		"active": true,
 		"ignore": [],
+		"alias": [],
 		"mod": false
 	},
 	"osu": {
 		"active": true,
 		"ignore": [],
+		"alias": [],
 		"mod": false
 	},
 	"osurequest": {
 		"active": true,
 		"ignore": [],
+		"alias": [],
 		"mod": false
 	},
 	"twitch": {
 		"active": true,
 		"ignore": [],
+		"alias": [],
 		"mod": false
 	}, 
 	"ctwitch": {
 		"active": true, 
 		"ignore": [], 
+		"alias": [],
 		"mod": false
     },
 	"back": {
 		"active": true,
 		"ignore": [],
+		"alias": [],
 		"mod": false
 	},
 	"weather": {
 		"active": true,
 		"ignore": [],
+		"alias": [],
 		"mod": false
 	},
 	"animeflv": {
 		"active": true,
 		"ignore": [],
+		"alias": [],
 		"mod": false
 	},
 	"8ball": {
 		"active": true,
 		"ignore": [],
+		"alias": [],
 		"mod": false
 	},
 	"uptime": {
 		"active": true,
 		"ignore": [],
+		"alias": [],
 		"mod": false
 	},
 	"stats": {
 		"active": true,
 		"ignore": [],
+		"alias": [],
 		"mod": false
 	},
 	"afk": {
 		"active": true,
 		"ignore": [],
+		"alias": [],
 		"mod": false
 	},
 	"away": {
 		"active": true,
 		"ignore": [],
+		"alias": [],
 		"mod": false
 	},
 	"danbooru": {
 		"active": true,
 		"ignore": [],
+		"alias": [],
 		"mod": false
 	},
 	"konachan": {
 		"active": true,
 		"ignore": [],
+		"alias": [],
 		"mod": false
 	},
 	"quote": {
 		"active": true,
 		"ignore": [],
+		"alias": [],
 		"mod": false
 	},
 	"setlang": {
 		"active": true,
 		"ignore": [],
+		"alias": [],
 		"mod": false
 	},
 	"steam": {
 		"active": true,
 		"ignore": [],
+		"alias": [],
+		"mod": false
+	},
+	"mal": {
+		"active": true,
+		"ignore": [],
+		"alias": [],
 		"mod": false
 	},
 	"facebook": {
 		"active": true,
 		"ignore": [],
+		"alias": [],
 		"mod": false
 	},
 	"wdanbooru": {
 		"active": true,
 		"ignore": [],
+		"alias": [],
 		"mod": false
 	},
 	"redtube": {
 		"active": true,
 		"ignore": [],
+		"alias": [],
 		"mod": false
 	},
 	"commands": {
 		"active": true,
 		"ignore": [],
+		"alias": [],
 		"mod": false
 	},
 	"exe": {
 		"active": true,
 		"ignore": [],
+		"alias": [],
 		"mod": true
 	},
 	"bot": {
 		"active": true,
 		"ignore": [],
+		"alias": [],
 		"mod": false
 	},
 	"deluser": {
 		"active": true,
 		"ignore": [],
+		"alias": [],
 		"mod": true
 	},
 	"vcmp": {
 		"active": true,
 		"ignore": [],
+		"alias": [],
 		"mod": false
 	}
 }

@@ -88,7 +88,7 @@ if _LastFM: _LastFM.stop()
 
 print "Waiting for all threads finish..."
 
-for thr in Threads: thr.join(60)
+for thr in Threads: thr.join(2)
 
 print "Script close successful"
 sys.exit()

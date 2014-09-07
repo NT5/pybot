@@ -503,6 +503,29 @@ def onModCommand(self, chan, user, cmd, text):
 							self.message(_(">4 This is not allowed."), chan)
 					else:
 						self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s %s %s <command>" % (prx, cmd, place, param)), chan)
+				elif param == 'alias':
+					if value:
+						if self.assets['commands'].get( value ):
+							_alias = " ".join(text.split(' ')[3:])
+							if len(_alias) > 0:
+								if self.assets['commands'].get( _alias ):
+									self.message(_("> \"%s\" 4already exists!") % _alias, chan)
+								else:
+									if _alias.lower() in self.assets['commands'][ value ]['alias']:
+										self.assets['commands'][ value ]['alias'].pop( self.assets['commands'][ value ]['alias'].index(_alias.lower()) )
+										self.message( _("> \"%s%s\" 4is now removed from bot") % ( prx, _alias ), chan )
+									else:
+										if util.isCmdAlias( self, _alias ) == None:
+											self.assets['commands'][ value ]['alias'].append( _alias.lower() )
+											self.message(_("> \"%s%s\" 10new command created") % (prx,_alias), chan)
+										else:
+											self.message(_("> \"%s\" 4already exists!") % _alias, chan)
+							else:
+								self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s %s %s %s <alias>" % (prx, cmd, place, param, value)), chan)
+						else:
+							self.message( _("> %s 4is a unknow command to me") % value, chan )
+					else:
+						self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s %s %s <command> <alias>" % (prx, cmd, place, param)), chan)
 				elif param == 'new':
 					if value:
 						_message = " ".join(text.split(' ')[3:])
@@ -542,7 +565,7 @@ def onModCommand(self, chan, user, cmd, text):
 					else:
 						self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s %s %s <command>" % (prx, cmd, place, param)), chan)
 				else:
-					self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s %s <turn/ignore/formod/new/del>" % (prx, cmd, place)), chan)
+					self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s %s <turn/ignore/formod/new/del/alias>" % (prx, cmd, place)), chan)
 			else:
 				self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s <osu/stats/commands/channel>" % (prx, cmd)), chan)
 		else:
@@ -563,7 +586,7 @@ def onCommand(self, chan, user, cmd, text):
 		for cmds in self.assets['commands']:
 			if self.assets['commands'][ cmds ]['active'] != False and chan not in self.assets['commands'][ cmds ]['ignore']:
 				if self.assets['commands'][ cmds ]['mod'] and is_mod == False: pass
-				else: buffer += prx + cmds + ", "
+				else: buffer += "%s%s, " % (prx + cmds, "" if len(self.assets['commands'][ cmds ]['alias']) <= 0 else "(%s)" % (", ".join(self.assets['commands'][ cmds ]['alias'])))
 		if self.assets['config']['single_channel'].get(chan) and self.assets['config']['single_channel'][chan].get( 'custom_command' ):
 			for cmds in self.assets['config']['single_channel'][chan]['custom_command']:
 				if self.assets['config']['single_channel'][chan]['custom_command'][ cmds ]['active'] != False:
@@ -956,6 +979,72 @@ def onCommand(self, chan, user, cmd, text):
 		else:
 			self.message(_("7Syntax:1 {syntax} <search>").format( syntax = "%s%s" % (prx, cmd) ), chan)
 			
+	elif cmd == 'mal':
+		if len(text) > 0:
+			def get_mal_user( user ):
+				regexs = {
+					"user": "<div .*?>(.*?) Details</div>",
+					"lastonline": "<td .*?>Last Online</td>\s.*\s<td>(.*?)</td>\s.*\s</tr>",
+					"gender": "<tr>\s.*\s<td .*?>Gender</td>\s.*\s<td>(.*?)</td>\s.*\s</tr>",
+					"birthday": "<td .*?>Birthday</td>\s.*\s<td>(.*?)</td>\s.*\s</tr>",
+					"location": "<tr>\s.*\s<td .*?>Location</td>\s.*\s<td>(.*?)</td>\s.*\s</tr>",
+					"website": "<td .*?>Website</td>\s.*\s<td><a href=\"(.*?)\" target=\"_blank\">.*?</a></td>\s.*\s</tr>",
+					"joindate": "<tr>\s.*\s<td .*?>Join Date</td>\s.*\s<td>(.*?)</td>\s.*\s</tr>",
+					"rank": "<tr>\s.*\s<td .*?>Access Rank</td>\s.*\s<td>(.*?)</td>\s.*\s</tr>",
+					"viewsanimes": "<tr>\s.*\s<td .*?>Anime List Views</td>\s.*\s<td>(.*?)</td>\s.*\s</tr>",
+					"viewsmangas": "<tr>\s.*\s<td .*?>Manga List Views</td>\s.*\s<td>(.*?)</td>\s.*\s</tr>",
+					"listupdates": "<a href=\"(.*?)\">(.*?)</a> <a href=\".*?\" title=\".*?\" class=\".*?\">add</a> \s.*\s<div class=\"spaceit_pad\">(.*?)</div>\s.*\s<div class=\"lightLink\">(.*?)</div>",
+					"mang_anim_stats": "<td width=\".*?\"><span class=\".*?\">(.*?)</span></td>\s.*\s<td align=\".*?\">(.*?)</td>"
+				}
+				
+				data = util.web_request( self.assets['api']['myanimelist']['request'] % ( self.assets['api']['myanimelist']['url'], user ), headers = { 'User-Agent' : self.assets['api']['myanimelist']['agent'] } )
+				
+				_re = {}
+				
+				for k, v in regexs.items():
+					regex = regex = re.compile( v ,re.UNICODE)
+					par_ = regex.findall( data )
+					if par_:
+						_re.setdefault( k, par_)
+					else:
+						_re.setdefault( k, ["Unknown"])
+						
+				if len( _re ) > 0:
+					return _re
+				else:
+					return None
+			
+			mal = get_mal_user( urllib2.quote(text.encode('utf-8')) )
+			if mal:
+				try:
+					list_updates = []
+					mang_anim_stats = { "manga": [], "anime": [] }
+					if mal['listupdates'] != ["Unknown"]:
+						for ani in mal['listupdates']:
+							list_updates.append( "%s6: %s (12%s%s) %s" % (ani[2], ani[1].decode("unicode-escape"), self.assets['api']['myanimelist']['url'], ani[0].decode("unicode-escape"), ani[3] ) )
+					else:
+						list_updates.append( "Unknown" )
+						
+					if mal['mang_anim_stats'] != ["Unknown"]:
+						_count = 0
+						for val in mal['mang_anim_stats']:
+							if _count <= 5:
+								mang_anim_stats['anime'].append( "6: ".join( val ) )
+							else:
+								mang_anim_stats['manga'].append( "6: ".join( val ) )
+							_count += 1
+					else:
+						mang_anim_stats = { "manga": ["Unknown"], "anime": ["Unknown"] }
+						
+					self.message( _("> %s Details 3- 2Last Online6:1 %s 3- 2Gender6:1 %s 3- 2Birthday6:1 %s 3- 2Location6:1 %s 3- 2Website6:1 12%s 3- 2Join Date6:1 %s 3- 2Rank6:1 %s 3- 2Anime List Views6:1 %s 3- 2Manga List Views6:1 %s 3- 2Last List Updates6:1 %s 3- 2Anime Stats6:1 (%s) 3- 2Manga Stats6:1 (%s)") % (mal['user'][0], mal['lastonline'][0], mal['gender'][0], mal['birthday'][0], mal['location'][0], mal['website'][0], mal['joindate'][0], mal['rank'][0], mal['viewsanimes'][0], mal['viewsmangas'][0], ", ".join(list_updates), " - ".join( mang_anim_stats['anime'] ), " - ".join( mang_anim_stats['manga'] ) ), chan )
+				
+				except Exception, e:
+					self.message(_("4Unknown User"), chan)
+			else:
+				self.message(_("4Unknown User"), chan)
+		else:
+			self.message(_("7Syntax:1 {syntax}").format( syntax = "<myanimelist user>" ), chan )
+	
 	elif cmd == 'steam':
 		if len(text) > 0:
 			try:
@@ -1108,7 +1197,7 @@ def onCommand(self, chan, user, cmd, text):
 				
 			if ( self.cleverbot['users'].get( user ) == None ):
 				self.cleverbot['users'].setdefault( user, { "core": CreateSessionBot(), "last_use": 0, "waiting": False } )
-				self.message(_("10>1 %s are now talking with %s") % ( user, self.nick ), chan)
+				self.message(_("10>1 %s is now talking with %s") % ( user, self.nick ), chan)
 				if len( self.cleverbot['users'] ) > 5:
 					for x in list(self.cleverbot['users']):
 						if ( int( time.time() ) - self.cleverbot['users'][ x ]['last_use'] ) >= 120:

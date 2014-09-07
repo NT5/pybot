@@ -83,6 +83,31 @@ class osunp_handler_class(BaseHTTPRequestHandler):
 					else: self.wfile.write("<h1>No message to send!</h1>")
 				except Exception, e: self.wfile.write("<h1>Exception ocurred %s</h1>" % str(e))
 				self.wfile.write("</body></html>")
+
+		elif self.path == '/pynp':
+			self._set_headers()		
+			content_len = int(self.headers.getheader('content-length'))
+			post_body = self.rfile.read(content_len)
+			vars = self._parse_post(post_body)
+			self.wfile.write("<html><body>")
+			if vars:
+				try:
+					messages = []
+					user = cryp.decode(vars['key'])
+					if vars.get("output"): messages.append("%s" % urllib2.unquote(vars['status']).replace('+', ' '))
+					if len(messages) > 0:
+						#Send messages to bots
+						for loc in SenderIns.senders:
+							if loc.assets['config']['osu_np'].get(user):
+								for chan in loc.assets['config']['osu_np'][user]:
+									loc.message( "13[Osu!] [10%s13]14 %s" % (user, " - ".join(messages)), chan, False )
+								self.wfile.write("<h1>[%s] Accepted</h1>" % loc.nick)
+							else:
+								self.wfile.write("<h1>[%s] Access denied!</h1>" % loc.nick)
+					else: self.wfile.write("<h1>No message to send!</h1>")
+				except Exception, e: self.wfile.write("<h1>Exception ocurred %s</h1>" % str(e))
+				self.wfile.write("</body></html>")
+		
 		else:
 			self._set_headers(404)
         
