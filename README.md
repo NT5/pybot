@@ -25,6 +25,17 @@ View stats on http://nt5.hopto.org/irc
 
 v0,3,2
 -------------------
+* New anti-flood system
+* Stats System Improved
+* Threading Fix
+* New "alias" system
+* New "mal" command
+* New "mc" command
+* Remove Google Sources
+* Others bug fixes
+
+v0,3,2
+-------------------
 * LastFM Support
 * Possibility to create new custom commands
 * New "talk" command
