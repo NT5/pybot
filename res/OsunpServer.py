@@ -94,7 +94,7 @@ class osunp_handler_class(BaseHTTPRequestHandler):
 				try:
 					messages = []
 					user = cryp.decode(vars['key'])
-					if vars.get("output"): messages.append("%s" % urllib2.unquote(vars['status']).replace('+', ' '))
+					if vars.get("output"): messages.append("%s" % urllib2.unquote(vars['output']).replace('+', ' '))
 					if len(messages) > 0:
 						#Send messages to bots
 						for loc in SenderIns.senders:

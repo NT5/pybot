@@ -184,5 +184,11 @@
 		"ignore": [],
 		"alias": [],
 		"mod": false
+	},
+	"mc": {
+		"active": true,
+		"ignore": [],
+		"alias": [],
+		"mod": false
 	}
 }

@@ -123,6 +123,10 @@ def NoIrcColors( text ):
 	regex = re.compile("\x1d|\x0f|\x1f|\x02|\x03(?:\d{1,2}(?:,\d{1,2})?)?", re.UNICODE)
 	return regex.sub('', text)
 	
+def NoMCColors( text ):
+	regex = re.compile("\xA7(?:[a-zA-Z]|[0-9])?", re.UNICODE)
+	return regex.sub('', text)
+	
 def removeall( text, rem, non_ascii = False, re_char = '' ):
 	if non_ascii: text = text.encode("ascii", "ignore")
 	for char in rem:

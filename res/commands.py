@@ -3,7 +3,10 @@
 
 import gettext
 import util as util, sys, time, random, urllib2, re
+
+#Game Query
 from vcmpQuery import vcmpQuery
+from MCQuery import MinecraftQuery
 
 from encryp import Encryp
 cryp = Encryp()
@@ -826,6 +829,26 @@ def onCommand(self, chan, user, cmd, text):
 				self.message(_("10> 4This channel is not configured to use this command!"), chan)
 		else:
 			self.message(_("10> 4This channel is not configured to use this command!"), chan)
+	
+	elif cmd == 'mc':
+		if len( text ) > 0:
+			def _doQuery( ip, port = 25565):
+				try:
+					q  = MinecraftQuery(ip, int(port))
+					info = q.get_rules()
+					self.message(_( "10>1 %s 3- 10Players6:1 [%i/%i] 3- 10Map6:1 %s" ) % ( util.NoMCColors( info['motd'] ), info['numplayers'], info['maxplayers'], info['map'] ), chan )
+					if len( info['players'] ) > 0 and  len( info['players'] ) <= 30:
+						self.message( ", ".join( info['players'] ), chan )
+				except Exception, e:
+					self.message( _("10>4 Unknown server"), chan )
+			ip = util.gettext( text, 0, ':' )
+			port = util.gettext( text, 1, ':' )
+			if ip and port:
+				_doQuery( ip, port )
+			else:
+				_doQuery( text )
+		else:
+			self.message(_("7Syntax:1 {syntax}").format( syntax = "%s%s <IP:PORT>" % (prx, cmd) ), chan)
 	
 	elif cmd == 'vcmp':
 		if len( text ) > 0:
