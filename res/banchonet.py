@@ -45,6 +45,7 @@ class BanchoNet:
 			if self.running: self.reconnect()
 	
 	def IrcListen(self, data):
+		#print data
 		try: event = data.split(' ')[1]
 		except: event = None
 			
@@ -55,6 +56,24 @@ class BanchoNet:
 			for chan in self.channels:
 				self.Join( chan )
 
+		if event == 'JOIN':
+			user = util.GetNick( data )
+			for loc in self.sender:
+				if user in loc.assets['config']['bancho_listen']:
+					for chan in loc.assets['config']['bancho_listen'][user]:
+						if loc.idle['chan'].get(chan):
+							if int( int( time.time() ) - loc.idle['chan'][chan] ) <= 1800:
+								loc.message( "13[Osu!] [10%s13]14 %s" % (user, "User Online"), chan, show = False )
+		
+		if event == 'QUIT':
+			user = util.GetNick( data )
+			for loc in self.sender:
+				if user in loc.assets['config']['bancho_listen']:
+					for chan in loc.assets['config']['bancho_listen'][user]:
+						if loc.idle['chan'].get(chan):
+							if int( int( time.time() ) - loc.idle['chan'][chan] ) <= 1800:
+								loc.message( "13[Osu!] [10%s13]14 %s" % (user, "User Offline"), chan, show = False )
+		
 		if event == 'PRIVMSG':
 			user = util.GetNick( data )
 			chan = util.GetChannel( data )

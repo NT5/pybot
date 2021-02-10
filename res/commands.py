@@ -1118,6 +1118,7 @@ def onCommand(self, chan, user, cmd, text):
 				else:
 					self.message( _("4Search Failed"), chan )
 			except Exception, e:
+				print str(e)
 				self.message( _("4Search Failed"), chan )
 			util._cmdLimiter( self, 'u', chan, cmd )
 		else:

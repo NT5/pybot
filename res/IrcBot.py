@@ -68,6 +68,7 @@ class IrcBot:
 			if self.running: self.reconnect()
 	
 	def IrcListen(self, data):
+		#print data
 		try: event = data.split(' ')[1]
 		except: event = None
 		

@@ -1,4 +1,5 @@
 #Debug Files
+*.npps
 _backup/
 *.debug/
 *.debug.json

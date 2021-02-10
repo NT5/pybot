@@ -12,6 +12,7 @@ _launch_vars = {}
 for prev, item, next in util.neighborhood( sys.argv ):
 	if item[:1] == "-": _launch_vars.setdefault( item[1:], next )
 
+_launch_vars['config'] = "bot.debug.json"
 try: Bots_config = json.loads( open( "bot.json" if _launch_vars.get('config') == None else _launch_vars['config'] ).read() )
 except Exception, e:
 	print "Bot File error: " + str( e )
